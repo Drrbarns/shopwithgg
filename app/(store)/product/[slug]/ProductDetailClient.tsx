@@ -305,10 +305,10 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                       src={product.images[selectedImage]}
                       className="w-full h-full object-cover"
                       controls
-                      autoPlay
                       muted
                       loop
                       playsInline
+                      preload="none"
                     />
                   ) : (
                     <Image
@@ -341,7 +341,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                         >
                           {isVideo ? (
                             <>
-                              <video src={image} className="w-full h-full object-cover" muted preload="metadata" />
+                              <video src={image} className="w-full h-full object-cover" muted preload="none" />
                               <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                                 <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
                                   <i className="ri-play-fill text-gray-900 text-sm"></i>

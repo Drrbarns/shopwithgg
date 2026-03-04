@@ -132,13 +132,22 @@ export default function ProductsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Products</h1>
           <p className="text-gray-600 mt-1">Manage your product catalog and inventory</p>
         </div>
-        <Link
-          href="/admin/products/new"
-          className="px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold transition-colors whitespace-nowrap cursor-pointer flex items-center justify-center md:items-start"
-        >
-          <i className="ri-add-line mr-2"></i>
-          Add Product
-        </Link>
+        <div className="flex flex-col md:flex-row items-center gap-3">
+          <button
+            onClick={() => window.open('/admin/products/print', '_blank')}
+            className="w-full md:w-auto px-6 py-3 bg-white border-2 border-gray-900 text-gray-900 hover:bg-gray-50 rounded-lg font-semibold transition-colors whitespace-nowrap cursor-pointer flex items-center justify-center"
+          >
+            <i className="ri-printer-line mr-2 text-lg"></i>
+            Print Inventory
+          </button>
+          <Link
+            href="/admin/products/new"
+            className="w-full md:w-auto px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold transition-colors whitespace-nowrap cursor-pointer flex items-center justify-center"
+          >
+            <i className="ri-add-line mr-2 text-lg"></i>
+            Add Product
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

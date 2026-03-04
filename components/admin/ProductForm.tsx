@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase'; // used for categories fetch only
 import { useRouter } from 'next/navigation';
 
 interface ProductFormProps {
@@ -59,7 +59,8 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         { name: 'Gold', hex: '#D4AF37' },
         { name: 'Silver', hex: '#C0C0C0' },
     ];
-    const sizePresets = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'];
+    // Common beauty / cosmetics sizes & options (you can still add any custom ones)
+    const sizePresets = ['10ml', '20ml', '30ml', '50ml', '100ml', '150ml', '200ml'];
 
     // Parse existing variants to extract unique colors and sizes
     const existingVariants = (initialData?.product_variants || []).map((v: any) => ({
@@ -191,12 +192,32 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     // Images
     const [images, setImages] = useState<any[]>(initialData?.product_images || []);
     const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState<{ name: string; done: boolean }[]>([]);
 
     // SEO
     const [seoTitle, setSeoTitle] = useState(initialData?.seo_title || '');
     const [metaDescription, setMetaDescription] = useState(initialData?.seo_description || '');
     const [urlSlug, setUrlSlug] = useState(initialData?.slug || '');
     const [keywords, setKeywords] = useState(initialData?.tags?.join(', ') || '');
+    // Track manual edits so auto-generation doesn't overwrite user changes
+    const [seoTitleEdited, setSeoTitleEdited] = useState(!!initialData?.seo_title);
+    const [metaDescEdited, setMetaDescEdited] = useState(!!initialData?.seo_description);
+    const [keywordsEdited, setKeywordsEdited] = useState(!!(initialData?.tags?.length));
+
+    const generateSeoFields = (name: string, desc: string) => {
+        const title = name ? `${name} | Deliz Beauty Tools` : '';
+        const metaDesc = desc
+            ? (desc.length > 160 ? desc.substring(0, 157).trimEnd() + '...' : desc)
+            : name ? `Shop ${name} at Deliz Beauty Tools. Premium beauty products in Ghana.` : '';
+        const kw = name
+            ? [...new Set([
+                name.toLowerCase(),
+                ...name.toLowerCase().split(/\s+/).filter(w => w.length > 2),
+                'deliz beauty', 'beauty tools ghana', 'beauty supplies'
+              ])].join(', ')
+            : '';
+        return { title, metaDesc, kw };
+    };
 
     const tabs = [
         { id: 'general', label: 'General', icon: 'ri-information-line' },
@@ -227,6 +248,16 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         }
     }, [productName, isEditMode, urlSlug]);
 
+    // Auto-generate SEO fields from name + description (only if not manually edited)
+    useEffect(() => {
+        if (isEditMode) return; // don't auto-overwrite on edit
+        const { title, metaDesc, kw } = generateSeoFields(productName, description);
+        if (!seoTitleEdited) setSeoTitle(title);
+        if (!metaDescEdited) setMetaDescription(metaDesc);
+        if (!keywordsEdited) setKeywords(kw);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [productName, description]);
+
     // Auto-generate SKU for new products
     useEffect(() => {
         if (!isEditMode && !sku) {
@@ -238,47 +269,72 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         try {
             if (!e.target.files || e.target.files.length === 0) return;
 
-            setUploading(true);
-            const file = e.target.files[0];
-            const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
-            const isVideo = ['mp4', 'mov', 'webm'].includes(fileExt);
+            const files = Array.from(e.target.files);
+            const existingCount = images.length;
+            const maxItems = 10;
 
-            const maxSize = isVideo ? 100 * 1024 * 1024 : 5 * 1024 * 1024;
-            if (file.size > maxSize) {
-                alert(`File too large. Max size: ${isVideo ? '100MB' : '5MB'}`);
-                setUploading(false);
+            if (existingCount + files.length > maxItems) {
+                alert(`You can upload up to ${maxItems} media items per product. You have ${existingCount} already. Please remove some or select fewer files.`);
                 return;
             }
 
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('bucket', 'products');
+            setUploading(true);
+            setUploadProgress(files.map(f => ({ name: f.name, done: false })));
 
-            const res = await fetch('/api/admin/upload', {
-                method: 'POST',
-                body: formData,
-                credentials: 'include',
-            });
+            const newImages: any[] = [];
 
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) {
-                throw new Error(data.error || 'Upload failed');
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
+                const isVideo = ['mp4', 'mov', 'webm'].includes(fileExt);
+
+                const maxSize = isVideo ? 100 * 1024 * 1024 : 5 * 1024 * 1024;
+                if (file.size > maxSize) {
+                    alert(`"${file.name}" is too large. Max: ${isVideo ? '100MB for videos' : '5MB for images'}`);
+                    setUploadProgress(prev => prev.map((p, idx) => idx === i ? { ...p, done: true } : p));
+                    continue;
+                }
+
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('bucket', 'products');
+
+                const res = await fetch('/api/admin/upload', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include',
+                });
+
+                const data = await res.json().catch(() => ({}));
+                setUploadProgress(prev => prev.map((p, idx) => idx === i ? { ...p, done: true } : p));
+
+                if (!res.ok) {
+                    alert(data.error || `Upload failed for "${file.name}"`);
+                    continue;
+                }
+
+                const url = data.url;
+                if (!url) {
+                    alert(`No URL returned for "${file.name}"`);
+                    continue;
+                }
+
+                newImages.push({
+                    url,
+                    position: existingCount + newImages.length,
+                    media_type: isVideo ? 'video' : 'image',
+                });
             }
 
-            const url = data.url;
-            if (!url) {
-                throw new Error('No URL returned from upload');
+            if (newImages.length > 0) {
+                setImages(prev => [...prev, ...newImages]);
             }
-
-            setImages([...images, {
-                url,
-                position: images.length,
-                media_type: isVideo ? 'video' : 'image',
-            }]);
         } catch (error: any) {
             alert('Error uploading: ' + (error?.message || 'Upload failed'));
         } finally {
             setUploading(false);
+            setUploadProgress([]);
+            if (e.target) e.target.value = '';
         }
     };
 
@@ -292,11 +348,16 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         try {
             setLoading(true);
 
-            // If product has variants, auto-sync main stock = sum of variant stocks
             const hasVariants = variants.length > 0;
             const variantStockTotal = hasVariants
                 ? variants.reduce((sum, v) => sum + (parseInt(v.stock) || 0), 0)
                 : parseInt(stock) || 0;
+
+            // Build variants payload with colorHex for the API
+            const variantsPayload = variants.map(v => ({
+                ...v,
+                colorHex: selectedColors.find(c => c.name === v.color)?.hex || null,
+            }));
 
             const productData = {
                 name: productName,
@@ -305,7 +366,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                 category_id: categoryId || null,
                 price: parseFloat(price) || 0,
                 compare_at_price: comparePrice ? parseFloat(comparePrice) : null,
-                sku: sku || generateSku(), // Auto-generate if empty
+                sku: sku || generateSku(),
                 quantity: hasVariants ? variantStockTotal : (parseInt(stock) || 0),
                 moq: parseInt(moq) || 1,
                 status: status.toLowerCase(),
@@ -316,35 +377,37 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                 metadata: {
                     low_stock_threshold: parseInt(lowStockThreshold) || 5,
                     preorder_shipping: preorderShipping.trim() || null
-                }
+                },
+                variants: variantsPayload,
             };
 
             let productId = initialData?.id;
-            let error;
 
             if (isEditMode && productId) {
-                // Update existing
-                const { error: updateError } = await supabase
-                    .from('products')
-                    .update(productData)
-                    .eq('id', productId);
-                error = updateError;
+                // Update via API (service role — bypasses RLS)
+                const res = await fetch(`/api/admin/products/${productId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(productData),
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.error || 'Failed to update product');
             } else {
-                // Create new
-                const { data: newProduct, error: insertError } = await supabase
-                    .from('products')
-                    .insert([productData])
-                    .select()
-                    .single();
-
-                if (newProduct) productId = newProduct.id;
-                error = insertError;
+                // Create via API (service role — bypasses RLS, handles unique slug)
+                const res = await fetch('/api/admin/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(productData),
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.error || 'Failed to create product');
+                productId = data.id;
             }
 
-            if (error) throw error;
-
-            // Save images via API (service role) so they always persist for customers
-            if (productId && images.length > 0) {
+            // Save images via API
+            if (productId) {
                 const res = await fetch(`/api/admin/products/${productId}/images`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -360,57 +423,12 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                     }),
                 });
                 const data = await res.json().catch(() => ({}));
-                if (!res.ok) {
-                    throw new Error(data.error || 'Failed to save product images');
-                }
+                if (!res.ok) throw new Error(data.error || 'Failed to save product images');
             }
 
-            // If edit mode and no images, clear existing images via API
-            if (productId && isEditMode && images.length === 0) {
-                const res = await fetch(`/api/admin/products/${productId}/images`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({ images: [], productName }),
-                });
-                if (!res.ok) {
-                    const data = await res.json().catch(() => ({}));
-                    throw new Error(data.error || 'Failed to clear product images');
-                }
-            }
-
-            // Legacy client-side image insert removed; we use the API above so images always save
-
-            // 2. Variants
-            if (productId) {
-                if (isEditMode) {
-                    // Be careful not to delete ALL variants if we want to preserve IDs etc, 
-                    // but for now, full replacement is safer to ensure sync.
-                    // Note: This might break order-item references if they rely on variant_id hard constraints without cascading.
-                    // Our Schema migration has ON DELETE SET NULL for order_items -> variant_id, so this is safe for now (but distinct from "archiving").
-                    await supabase.from('product_variants').delete().eq('product_id', productId);
-                }
-
-                if (variants.length > 0) {
-                    const variantInserts = variants.map(v => {
-                        const colorHex = selectedColors.find(c => c.name === v.color)?.hex || null;
-                        return {
-                            product_id: productId,
-                            name: v.name || v.color || 'Default',
-                            sku: v.sku || null,
-                            price: parseFloat(v.price) || 0,
-                            quantity: parseInt(v.stock) || 0,
-                            option1: v.name || null,
-                            option2: v.color?.trim() || null,
-                            metadata: colorHex ? { color_hex: colorHex } : {}
-                        };
-                    });
-                    const { error: varError } = await supabase.from('product_variants').insert(variantInserts);
-                    if (varError) throw varError;
-                }
-            }
-
-            alert(isEditMode ? 'Product updated successfully! Images may take up to 30 seconds to appear on the shop—refresh the storefront to see them.' : 'Product created successfully!');
+            alert(isEditMode
+                ? 'Product updated successfully!'
+                : 'Product created successfully!');
             router.push('/admin/products');
 
         } catch (err: any) {
@@ -819,14 +837,17 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                             <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
                                 <h4 className="text-sm font-bold text-gray-900 mb-1 flex items-center">
                                     <i className="ri-ruler-line mr-2 text-lg text-blue-600"></i>
-                                    Step 2: Select Sizes
+                                    Step 2: Select Sizes / Options
                                     {selectedSizes.length > 0 && (
                                         <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-0.5 rounded-full">
                                             {selectedSizes.length} selected
                                         </span>
                                     )}
                                 </h4>
-                                <p className="text-xs text-gray-500 mb-4">Click sizes to add/remove. Use custom for volumes (100ml), weights, etc.</p>
+                                <p className="text-xs text-gray-500 mb-4">
+                                    Click options to add/remove. Use custom for things like volumes (10ml, 50ml),
+                                    lash lengths (12mm, 16mm), wig lengths (14&quot;, 20&quot;), bundle counts, etc.
+                                </p>
 
                                 <div className="flex flex-wrap gap-2 mb-4">
                                     {sizePresets.map(size => {
@@ -854,7 +875,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                         type="text"
                                         value={customSize}
                                         onChange={(e) => setCustomSize(e.target.value)}
-                                        placeholder="Custom size (e.g. 100ml, One Size, 42)"
+                                        placeholder="Custom option (e.g. 10ml serum, 16mm lash, 20&quot; wig, One Size)"
                                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
                                         onKeyDown={(e) => e.key === 'Enter' && addCustomSize()}
                                     />
@@ -1041,27 +1062,78 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                     );
                                 })}
 
-                                <label className={`aspect-square border-2 border-dashed border-gray-300 rounded-xl hover:border-gray-900 hover:bg-gray-50 transition-colors flex flex-col items-center justify-center space-y-2 text-gray-600 hover:text-gray-900 cursor-pointer ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                    {uploading ? (
-                                        <i className="ri-loader-4-line animate-spin text-3xl"></i>
-                                    ) : (
+                                {/* Upload button */}
+                                {!uploading && images.length < 10 && (
+                                    <label className="aspect-square border-2 border-dashed border-gray-300 rounded-xl hover:border-gray-900 hover:bg-gray-50 transition-colors flex flex-col items-center justify-center space-y-2 text-gray-600 hover:text-gray-900 cursor-pointer">
                                         <i className="ri-upload-2-line text-3xl"></i>
-                                    )}
-                                    <span className="text-sm font-semibold">{uploading ? 'Uploading...' : 'Upload Media'}</span>
+                                        <span className="text-sm font-semibold text-center px-2">Tap to select<br/>multiple files</span>
+                                        <input
+                                            type="file"
+                                            accept="image/*,video/mp4,video/quicktime,video/webm"
+                                            multiple
+                                            className="hidden"
+                                            onChange={handleMediaUpload}
+                                        />
+                                    </label>
+                                )}
+                            </div>
+
+                            {/* Upload controls row */}
+                            <div className="flex flex-wrap gap-3 items-center">
+                                {/* Camera capture (mobile) */}
+                                <label className={`flex items-center gap-2 px-4 py-2.5 border-2 border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:border-gray-900 hover:bg-gray-50 transition-colors cursor-pointer ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                                    <i className="ri-camera-line text-lg"></i>
+                                    Take Photo
                                     <input
                                         type="file"
-                                        accept="image/*,video/mp4,video/quicktime,video/webm"
+                                        accept="image/*"
+                                        capture="environment"
                                         className="hidden"
                                         onChange={handleMediaUpload}
                                         disabled={uploading}
                                     />
                                 </label>
+
+                                {/* Gallery / files (shows multiple picker on mobile) */}
+                                <label className={`flex items-center gap-2 px-4 py-2.5 border-2 border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:border-gray-900 hover:bg-gray-50 transition-colors cursor-pointer ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                                    <i className="ri-image-add-line text-lg"></i>
+                                    Add Images / Videos
+                                    <input
+                                        type="file"
+                                        accept="image/*,video/mp4,video/quicktime,video/webm"
+                                        multiple
+                                        className="hidden"
+                                        onChange={handleMediaUpload}
+                                        disabled={uploading}
+                                    />
+                                </label>
+
+                                <span className="text-sm text-gray-400 ml-auto">{images.length}/10 items</span>
                             </div>
+
+                            {/* Per-file upload progress */}
+                            {uploading && uploadProgress.length > 0 && (
+                                <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-2">
+                                    <p className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                        <i className="ri-loader-4-line animate-spin"></i>
+                                        Uploading {uploadProgress.filter(p => p.done).length} of {uploadProgress.length} files...
+                                    </p>
+                                    {uploadProgress.map((p, i) => (
+                                        <div key={i} className="flex items-center gap-2 text-sm">
+                                            {p.done
+                                                ? <i className="ri-check-circle-fill text-green-600"></i>
+                                                : <i className="ri-loader-4-line animate-spin text-gray-400"></i>
+                                            }
+                                            <span className={`truncate max-w-xs ${p.done ? 'text-gray-500' : 'text-gray-800 font-medium'}`}>{p.name}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
 
                             <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
                                 <p className="text-sm text-gray-700">
-                                    <strong>Media Guidelines:</strong> Images — high-quality JPG, PNG, WebP (max 5MB). Videos — MP4, MOV, WebM (max 100MB).
-                                    White or neutral backgrounds work best.
+                                    <strong>Media Guidelines:</strong> Images — JPG, PNG, WebP (max 5MB each). Videos — MP4, MOV, WebM (max 100MB each, up to 10 items total).
+                                    On iPhone, tap <strong>Add Images / Videos</strong> then hold to select multiple from your library.
                                 </p>
                             </div>
                         </div>
@@ -1069,38 +1141,70 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
                     {activeTab === 'seo' && (
                         <div className="space-y-6 max-w-3xl">
-                            <div>
-                                <h3 className="text-lg font-bold text-gray-900 mb-1">Search Engine Optimization</h3>
-                                <p className="text-gray-600">Optimize how this product appears in search results</p>
+                            <div className="flex items-start justify-between gap-4">
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900 mb-1">Search Engine Optimization</h3>
+                                    <p className="text-gray-600 text-sm">Auto-generated from your product name and description. You can edit any field manually.</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const { title, metaDesc, kw } = generateSeoFields(productName, description);
+                                        setSeoTitle(title);
+                                        setMetaDescription(metaDesc);
+                                        setKeywords(kw);
+                                        if (productName) setUrlSlug(productName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''));
+                                        setSeoTitleEdited(false);
+                                        setMetaDescEdited(false);
+                                        setKeywordsEdited(false);
+                                    }}
+                                    className="flex-shrink-0 flex items-center gap-2 px-4 py-2 border-2 border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:border-gray-900 hover:bg-gray-50 transition-colors"
+                                >
+                                    <i className="ri-refresh-line"></i>
+                                    Regenerate
+                                </button>
                             </div>
 
+                            {/* Google preview */}
+                            {(seoTitle || metaDescription) && (
+                                <div className="p-4 bg-white border-2 border-gray-100 rounded-xl">
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Google Preview</p>
+                                    <p className="text-blue-700 text-base font-medium leading-snug truncate">{seoTitle || productName}</p>
+                                    <p className="text-green-700 text-xs mt-0.5">delizbeautytools.com/product/{urlSlug}</p>
+                                    <p className="text-gray-600 text-sm mt-1 line-clamp-2">{metaDescription}</p>
+                                </div>
+                            )}
+
                             <div>
-                                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                                    Page Title
-                                </label>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="text-sm font-semibold text-gray-900">Page Title</label>
+                                    <span className={`text-xs font-medium ${seoTitle.length > 60 ? 'text-red-500' : seoTitle.length > 50 ? 'text-amber-500' : 'text-gray-400'}`}>
+                                        {seoTitle.length}/60
+                                    </span>
+                                </div>
                                 <input
                                     type="text"
                                     value={seoTitle}
-                                    onChange={(e) => setSeoTitle(e.target.value)}
+                                    onChange={(e) => { setSeoTitle(e.target.value); setSeoTitleEdited(true); }}
                                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
-                                    placeholder="Seo friendly title"
+                                    placeholder="e.g. Lash Bed | Deliz Beauty Tools"
                                 />
-                                <p className="text-sm text-gray-500 mt-2">60 characters recommended</p>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                                    Meta Description
-                                </label>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="text-sm font-semibold text-gray-900">Meta Description</label>
+                                    <span className={`text-xs font-medium ${metaDescription.length > 160 ? 'text-red-500' : metaDescription.length > 140 ? 'text-amber-500' : 'text-gray-400'}`}>
+                                        {metaDescription.length}/160
+                                    </span>
+                                </div>
                                 <textarea
                                     rows={3}
-                                    maxLength={500}
                                     value={metaDescription}
-                                    onChange={(e) => setMetaDescription(e.target.value)}
+                                    onChange={(e) => { setMetaDescription(e.target.value); setMetaDescEdited(true); }}
                                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 resize-none"
-                                    placeholder="Seo friendly description"
+                                    placeholder="e.g. Shop premium lash beds at Deliz Beauty Tools. Fast delivery across Ghana."
                                 />
-                                <p className="text-sm text-gray-500 mt-2">160 characters recommended</p>
                             </div>
 
                             <div>
@@ -1108,17 +1212,18 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                     URL Slug
                                 </label>
                                 <div className="flex items-center">
-                                    <span className="text-gray-600 bg-gray-100 px-4 py-3 border-2 border-r-0 border-gray-300 rounded-l-lg">
-                                        store.com/product/
+                                    <span className="text-gray-600 bg-gray-100 px-4 py-3 border-2 border-r-0 border-gray-300 rounded-l-lg whitespace-nowrap text-sm">
+                                        /product/
                                     </span>
                                     <input
                                         type="text"
                                         value={urlSlug}
-                                        onChange={(e) => setUrlSlug(e.target.value)}
+                                        onChange={(e) => setUrlSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/(^-|-$)+/g, ''))}
                                         className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-r-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                                         placeholder="product-slug"
                                     />
                                 </div>
+                                <p className="text-xs text-gray-400 mt-1">Only lowercase letters, numbers and hyphens. Auto-sanitised as you type.</p>
                             </div>
 
                             <div>
@@ -1128,11 +1233,11 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                 <input
                                     type="text"
                                     value={keywords}
-                                    onChange={(e) => setKeywords(e.target.value)}
+                                    onChange={(e) => { setKeywords(e.target.value); setKeywordsEdited(true); }}
                                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
-                                    placeholder="keyword1, keyword2"
+                                    placeholder="e.g. lash bed, beauty tools, ghana"
                                 />
-                                <p className="text-sm text-gray-500 mt-2">Separate keywords with commas</p>
+                                <p className="text-xs text-gray-400 mt-1">Separate with commas. Auto-generated from product name.</p>
                             </div>
                         </div>
                     )}

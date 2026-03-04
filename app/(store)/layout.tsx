@@ -9,7 +9,6 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import NavigationProgress from '@/components/NavigationProgress';
 import CookieConsent from '@/components/CookieConsent';
 import { CMSProvider } from '@/context/CMSContext';
-import { supabase } from '@/lib/supabase';
 
 // Lazy-load non-critical components
 import dynamic from 'next/dynamic';
@@ -23,6 +22,7 @@ const NetworkStatusMonitor = dynamic(() => import('@/components/NetworkStatusMon
 const UpdatePrompt = dynamic(() => import('@/components/UpdatePrompt'), { ssr: false });
 const LiveSalesNotification = dynamic(() => import('@/components/LiveSalesNotification'), { ssr: false });
 const ChatWidget = dynamic(() => import('@/components/ChatWidget'), { ssr: false });
+const MaintenanceMode = dynamic(() => import('@/components/MaintenanceMode'), { ssr: false });
 
 // Feature flag: control chat widget via env
 const CHAT_ENABLED =
@@ -36,33 +36,40 @@ export default function StoreLayout({
   children: React.ReactNode;
 }) {
   const [chatModuleEnabled, setChatModuleEnabled] = useState<boolean | null>(null);
+  const [maintenanceModeEnabled, setMaintenanceModeEnabled] = useState<boolean | null>(null);
 
   useEffect(() => {
     let isMounted = true;
 
-    async function fetchChatModule() {
+    async function fetchModules() {
       try {
-        const { data, error } = await supabase
-          .from('store_modules')
-          .select('id, enabled')
-          .eq('id', 'ai-chat');
+        const res = await fetch('/api/storefront/modules', {
+          method: 'GET',
+          cache: 'no-store',
+        });
 
         if (!isMounted) return;
 
-        if (error || !data || data.length === 0) {
-          // If we can’t read the module row, fall back to environment flag only
+        if (!res.ok) {
           setChatModuleEnabled(false);
-        } else {
-          setChatModuleEnabled(!!data[0].enabled);
+          setMaintenanceModeEnabled(false);
+          return;
         }
+
+        const data: { id: string; enabled: boolean }[] = await res.json();
+        const aiChat = data.find(m => m.id === 'ai-chat');
+        const mm = data.find(m => m.id === 'maintenance-mode');
+        setChatModuleEnabled(!!aiChat?.enabled);
+        setMaintenanceModeEnabled(!!mm?.enabled);
       } catch {
         if (isMounted) {
           setChatModuleEnabled(false);
+          setMaintenanceModeEnabled(false);
         }
       }
     }
 
-    fetchChatModule();
+    fetchModules();
 
     return () => {
       isMounted = false;
@@ -81,10 +88,14 @@ export default function StoreLayout({
       <div className="min-h-screen bg-gray-50">
         <PWASplash />
         <PWAInstaller />
-        <Header />
+        {maintenanceModeEnabled === true ? null : <Header />}
         <ErrorBoundary>
           <div className="pwa-page-enter">
-            {children}
+            {maintenanceModeEnabled === true ? (
+              <MaintenanceMode />
+            ) : (
+              children
+            )}
           </div>
         </ErrorBoundary>
         <Footer />

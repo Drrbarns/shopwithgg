@@ -34,7 +34,7 @@ export default function Home() {
       primaryButtonLink: '/categories',
     },
     {
-      image: '/hero4.jpeg',
+      image: '/delizbeautybg.jpg.jpeg',
       tagline: 'Trending Now',
       headline: 'Discover Your Ultimate Beauty Glow',
       subheadline: 'Transform your daily routine into a spa-like experience. Fast shipping nationwide on all premium skincare products.',

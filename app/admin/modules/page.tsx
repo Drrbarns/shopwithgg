@@ -81,7 +81,7 @@ export default function ModulesPage() {
       description: 'Floating AI chatbot and support assistant on the storefront',
       icon: 'ri-robot-2-line',
       color: 'gray',
-      enabled: true,
+      enabled: false,
       category: 'Support'
     },
     {
@@ -110,6 +110,15 @@ export default function ModulesPage() {
       color: 'indigo',
       enabled: false,
       category: 'Mobile'
+    },
+    {
+      id: 'maintenance-mode',
+      name: 'Maintenance Mode',
+      description: 'Put storefront in maintenance mode while keeping admin accessible',
+      icon: 'ri-tools-line',
+      color: 'red',
+      enabled: false,
+      category: 'System'
     }
   ]);
 

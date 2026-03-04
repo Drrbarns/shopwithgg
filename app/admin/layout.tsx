@@ -47,7 +47,7 @@ export default function AdminLayout({
         const secure = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : '';
         try {
           document.cookie = `sb-access-token=${accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax${secure}`;
-        } catch (_) {}
+        } catch (_) { }
 
         const meRes = await fetch('/api/admin/me', {
           credentials: 'include',
@@ -59,7 +59,7 @@ export default function AdminLayout({
           try {
             const text = await meRes.text();
             if (text) errBody = JSON.parse(text);
-          } catch (_) {}
+          } catch (_) { }
           if (meRes.status === 503) router.push('/admin/login?error=config');
           else if (meRes.status === 404) router.push('/admin/login?error=no_profile');
           else if (meRes.status === 403 && errBody?.error === 'Role disabled') router.push('/admin/login?error=role_disabled');
@@ -311,9 +311,10 @@ export default function AdminLayout({
 
   // POS gets a full-screen layout with no sidebar or header
   const isPOS = pathname === '/admin/pos';
-  if (isPOS && isAuthenticated) {
+  const isPrint = pathname.includes('/print');
+  if ((isPOS || isPrint) && isAuthenticated) {
     return (
-      <div className="h-screen w-screen overflow-hidden bg-gray-100">
+      <div className={isPOS ? "h-screen w-screen overflow-hidden bg-gray-100" : "bg-white min-h-screen"}>
         {children}
       </div>
     );

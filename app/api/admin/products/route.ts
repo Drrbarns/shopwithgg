@@ -103,3 +103,66 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: e?.message || 'Failed to fetch products' }, { status: 500 });
   }
 }
+
+/**
+ * POST /api/admin/products
+ * Creates a new product + variants using the service role (bypasses RLS).
+ * Handles duplicate slug by appending a numeric suffix.
+ */
+export async function POST(request: Request) {
+  const err = await requireAdmin(request);
+  if (err) return err;
+
+  try {
+    const body = await request.json();
+    const { variants = [], ...productData } = body;
+
+    // Ensure slug is unique
+    let slug: string = productData.slug || productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    let slugCandidate = slug;
+    let attempt = 1;
+    while (true) {
+      const { data: existing } = await supabaseAdmin
+        .from('products')
+        .select('id')
+        .eq('slug', slugCandidate)
+        .maybeSingle();
+      if (!existing) break;
+      attempt++;
+      slugCandidate = `${slug}-${attempt}`;
+    }
+    productData.slug = slugCandidate;
+
+    const { data: newProduct, error: insertError } = await supabaseAdmin
+      .from('products')
+      .insert([productData])
+      .select()
+      .single();
+
+    if (insertError || !newProduct) {
+      return NextResponse.json({ error: insertError?.message || 'Failed to create product' }, { status: 500 });
+    }
+
+    // Insert variants if any
+    if (variants.length > 0) {
+      const variantInserts = variants.map((v: any) => ({
+        product_id: newProduct.id,
+        name: v.name || v.color || 'Default',
+        sku: v.sku || null,
+        price: parseFloat(v.price) || 0,
+        quantity: parseInt(v.stock) || 0,
+        option1: v.name || null,
+        option2: v.color?.trim() || null,
+        metadata: v.colorHex ? { color_hex: v.colorHex } : {},
+      }));
+      const { error: varError } = await supabaseAdmin.from('product_variants').insert(variantInserts);
+      if (varError) {
+        return NextResponse.json({ error: varError.message }, { status: 500 });
+      }
+    }
+
+    return NextResponse.json({ id: newProduct.id, slug: newProduct.slug });
+  } catch (e: any) {
+    return NextResponse.json({ error: e?.message || 'Failed to create product' }, { status: 500 });
+  }
+}

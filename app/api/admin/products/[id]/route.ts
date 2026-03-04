@@ -46,6 +46,79 @@ async function requireAdmin(request: Request): Promise<NextResponse | null> {
 }
 
 /**
+ * PUT /api/admin/products/[id]
+ * Updates a product + replaces its variants using the service role (bypasses RLS).
+ * Handles duplicate slug by appending a numeric suffix.
+ */
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const err = await requireAdmin(request);
+  if (err) return err;
+
+  const { id: productId } = await params;
+  if (!productId) {
+    return NextResponse.json({ error: 'Missing product id' }, { status: 400 });
+  }
+
+  try {
+    const body = await request.json();
+    const { variants = [], ...productData } = body;
+
+    // Ensure slug uniqueness (ignore the current product)
+    let slug: string = productData.slug || productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    let slugCandidate = slug;
+    let attempt = 1;
+    while (true) {
+      const { data: existing } = await supabaseAdmin
+        .from('products')
+        .select('id')
+        .eq('slug', slugCandidate)
+        .neq('id', productId)
+        .maybeSingle();
+      if (!existing) break;
+      attempt++;
+      slugCandidate = `${slug}-${attempt}`;
+    }
+    productData.slug = slugCandidate;
+
+    const { error: updateError } = await supabaseAdmin
+      .from('products')
+      .update(productData)
+      .eq('id', productId);
+
+    if (updateError) {
+      return NextResponse.json({ error: updateError.message }, { status: 500 });
+    }
+
+    // Replace variants
+    await supabaseAdmin.from('product_variants').delete().eq('product_id', productId);
+
+    if (variants.length > 0) {
+      const variantInserts = variants.map((v: any) => ({
+        product_id: productId,
+        name: v.name || v.color || 'Default',
+        sku: v.sku || null,
+        price: parseFloat(v.price) || 0,
+        quantity: parseInt(v.stock) || 0,
+        option1: v.name || null,
+        option2: v.color?.trim() || null,
+        metadata: v.colorHex ? { color_hex: v.colorHex } : {},
+      }));
+      const { error: varError } = await supabaseAdmin.from('product_variants').insert(variantInserts);
+      if (varError) {
+        return NextResponse.json({ error: varError.message }, { status: 500 });
+      }
+    }
+
+    return NextResponse.json({ ok: true, slug: productData.slug });
+  } catch (e: any) {
+    return NextResponse.json({ error: e?.message || 'Failed to update product' }, { status: 500 });
+  }
+}
+
+/**
  * DELETE /api/admin/products/[id]
  * Deletes a product and its dependent rows (images, variants, cart/wishlist, reviews).
  * Fails with 400 if the product has order history.
