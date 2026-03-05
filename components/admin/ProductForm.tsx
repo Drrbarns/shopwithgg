@@ -1062,14 +1062,15 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                     );
                                 })}
 
-                                {/* Upload button */}
+                                {/* Add more slot — always visible if under limit */}
                                 {!uploading && images.length < 10 && (
-                                    <label className="aspect-square border-2 border-dashed border-gray-300 rounded-xl hover:border-gray-900 hover:bg-gray-50 transition-colors flex flex-col items-center justify-center space-y-2 text-gray-600 hover:text-gray-900 cursor-pointer">
-                                        <i className="ri-upload-2-line text-3xl"></i>
-                                        <span className="text-sm font-semibold text-center px-2">Tap to select<br/>multiple files</span>
+                                    <label className="aspect-square border-2 border-dashed border-gray-300 rounded-xl hover:border-gray-900 hover:bg-gray-50 transition-colors flex flex-col items-center justify-center gap-2 text-gray-500 hover:text-gray-900 cursor-pointer">
+                                        <i className="ri-add-line text-3xl"></i>
+                                        <span className="text-xs font-semibold text-center px-2 leading-tight">Add photos<br/>or video</span>
+                                        {/* Using file extensions (not image/*) forces iOS to open Files app which supports multi-select on all iOS versions */}
                                         <input
                                             type="file"
-                                            accept="image/*,video/mp4,video/quicktime,video/webm"
+                                            accept=".jpg,.jpeg,.png,.webp,.heic,.heif,.mp4,.mov,.webm"
                                             multiple
                                             className="hidden"
                                             onChange={handleMediaUpload}
@@ -1078,9 +1079,9 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                 )}
                             </div>
 
-                            {/* Upload controls row */}
+                            {/* Action buttons row */}
                             <div className="flex flex-wrap gap-3 items-center">
-                                {/* Camera capture (mobile) */}
+                                {/* Take Photo — camera only, no multiple needed */}
                                 <label className={`flex items-center gap-2 px-4 py-2.5 border-2 border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:border-gray-900 hover:bg-gray-50 transition-colors cursor-pointer ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
                                     <i className="ri-camera-line text-lg"></i>
                                     Take Photo
@@ -1094,13 +1095,13 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                     />
                                 </label>
 
-                                {/* Gallery / files (shows multiple picker on mobile) */}
-                                <label className={`flex items-center gap-2 px-4 py-2.5 border-2 border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:border-gray-900 hover:bg-gray-50 transition-colors cursor-pointer ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                                {/* Choose from gallery — file extensions trigger Files app on iOS for reliable multi-select */}
+                                <label className={`flex items-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors cursor-pointer ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
                                     <i className="ri-image-add-line text-lg"></i>
-                                    Add Images / Videos
+                                    Choose from Gallery
                                     <input
                                         type="file"
-                                        accept="image/*,video/mp4,video/quicktime,video/webm"
+                                        accept=".jpg,.jpeg,.png,.webp,.heic,.heif,.mp4,.mov,.webm"
                                         multiple
                                         className="hidden"
                                         onChange={handleMediaUpload}
@@ -1108,7 +1109,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                     />
                                 </label>
 
-                                <span className="text-sm text-gray-400 ml-auto">{images.length}/10 items</span>
+                                <span className="text-sm text-gray-400 ml-auto">{images.length}/10</span>
                             </div>
 
                             {/* Per-file upload progress */}
@@ -1130,11 +1131,14 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                 </div>
                             )}
 
-                            <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                                <p className="text-sm text-gray-700">
-                                    <strong>Media Guidelines:</strong> Images — JPG, PNG, WebP (max 5MB each). Videos — MP4, MOV, WebM (max 100MB each, up to 10 items total).
-                                    On iPhone, tap <strong>Add Images / Videos</strong> then hold to select multiple from your library.
+                            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-1">
+                                <p className="text-sm font-semibold text-blue-900 flex items-center gap-1">
+                                    <i className="ri-smartphone-line"></i> On iPhone / Android
                                 </p>
+                                <p className="text-sm text-blue-800">
+                                    Tap <strong>Choose from Gallery</strong> → your Files app opens → tap <strong>Select</strong> (top-right) → tap all the photos you want → tap <strong>Open</strong>. All selected photos upload at once.
+                                </p>
+                                <p className="text-xs text-blue-700 mt-1">Images: JPG, PNG, WebP, HEIC (max 5MB each) · Videos: MP4, MOV, WebM (max 100MB each)</p>
                             </div>
                         </div>
                     )}
