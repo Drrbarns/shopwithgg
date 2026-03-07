@@ -2,7 +2,7 @@
   "dependencies": {
     "@react-google-maps/api": "^2.19.3",
     "@supabase/supabase-js": "^2.91.1",
-    "next": "15.1.11",
+    "next": "^15.5.12",
     "pg": "^8.18.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
