@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { supabase } from '@/lib/supabase'; // used for categories fetch only
 import { useRouter } from 'next/navigation';
 
@@ -28,6 +29,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     const [featured, setFeatured] = useState(initialData?.featured || false);
     const [preorderShipping, setPreorderShipping] = useState(initialData?.metadata?.preorder_shipping || '');
     const [activeTab, setActiveTab] = useState('general');
+    const [aiGenerating, setAiGenerating] = useState(false);
 
     // Auto-generate SKU function
     const generateSku = () => {
@@ -342,6 +344,43 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         setImages(images.filter((_, idx) => idx !== indexToRemove));
     };
 
+    const handleImageReorder = (result: DropResult) => {
+        if (!result.destination) return;
+        const items = Array.from(images);
+        const [reordered] = items.splice(result.source.index, 1);
+        items.splice(result.destination.index, 0, reordered);
+        setImages(items);
+    };
+
+    const handleAiDescription = async () => {
+        const firstImage = images.find((img: any) => img.media_type !== 'video');
+        if (!firstImage?.url) {
+            alert('Please upload at least one product image first so AI can analyze it.');
+            return;
+        }
+        setAiGenerating(true);
+        try {
+            const selectedCat = categories.find((c: any) => c.id === categoryId);
+            const res = await fetch('/api/admin/products/generate-description', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    imageUrl: firstImage.url,
+                    productName: productName || undefined,
+                    categoryName: selectedCat?.name || undefined,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to generate');
+            setDescription(data.description);
+        } catch (err: any) {
+            alert(err.message || 'AI generation failed. Please try again.');
+        } finally {
+            setAiGenerating(false);
+        }
+    };
+
     // Variant helpers removed — variants are now auto-generated from selectedColors × selectedSizes
 
     const handleSubmit = async () => {
@@ -526,9 +565,24 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                                    Description
-                                </label>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-sm font-semibold text-gray-900">
+                                        Description
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={handleAiDescription}
+                                        disabled={aiGenerating}
+                                        className={`flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-lg border-2 transition-colors ${
+                                            aiGenerating
+                                                ? 'border-gray-200 text-gray-400 cursor-not-allowed'
+                                                : 'border-gray-300 text-gray-700 hover:border-gray-900 hover:bg-gray-50 cursor-pointer'
+                                        }`}
+                                    >
+                                        <i className={`${aiGenerating ? 'ri-loader-4-line animate-spin' : 'ri-sparkling-line'}`}></i>
+                                        {aiGenerating ? 'Generating...' : 'AI Write'}
+                                    </button>
+                                </div>
                                 <textarea
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
@@ -1022,48 +1076,65 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                         <div className="space-y-6">
                             <div>
                                 <h3 className="text-lg font-bold text-gray-900 mb-1">Product Media</h3>
-                                <p className="text-gray-600">Add up to 10 images or videos. First item will be the primary display. <strong className="text-gray-700">Click &quot;Save Changes&quot; after adding images to make them visible to customers.</strong></p>
+                                <p className="text-gray-600">Add up to 10 images or videos. First item will be the primary display. Drag images to reorder. <strong className="text-gray-700">Click &quot;Save Changes&quot; after adding images to make them visible to customers.</strong></p>
                             </div>
 
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {images.map((img: any, index: number) => {
-                                    const isVideo = img.media_type === 'video' || /\.(mp4|mov|webm)$/i.test(img.url);
-                                    return (
-                                        <div key={index} className="relative group">
-                                            <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200">
-                                                {isVideo ? (
-                                                    <video src={img.url} className="w-full h-full object-cover" muted preload="metadata" />
-                                                ) : (
-                                                    <img src={img.url} alt={`Product ${index + 1}`} className="w-full h-full object-cover" />
-                                                )}
-                                            </div>
-                                            {index === 0 && (
-                                                <span className="absolute top-2 left-2 bg-gray-900 text-white px-2 py-1 rounded text-xs font-semibold whitespace-nowrap">
-                                                    Primary
-                                                </span>
-                                            )}
-                                            {isVideo && (
-                                                <span className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-semibold flex items-center gap-1">
-                                                    <i className="ri-video-line"></i> Video
-                                                </span>
-                                            )}
-                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2 rounded-xl">
-                                                <a href={img.url} target="_blank" rel="noreferrer" className="w-9 h-9 flex items-center justify-center bg-white text-gray-900 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                                                    <i className={isVideo ? 'ri-play-line' : 'ri-eye-line'}></i>
-                                                </a>
-                                                <button
-                                                    onClick={() => handleRemoveImage(index)}
-                                                    className="w-9 h-9 flex items-center justify-center bg-white text-red-600 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
-                                                >
-                                                    <i className="ri-delete-bin-line"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                            <DragDropContext onDragEnd={handleImageReorder}>
+                                <Droppable droppableId="product-images" direction="horizontal">
+                                    {(provided) => (
+                                        <div
+                                            ref={provided.innerRef}
+                                            {...provided.droppableProps}
+                                            className="grid grid-cols-2 md:grid-cols-4 gap-4"
+                                        >
+                                            {images.map((img: any, index: number) => {
+                                                const isVideo = img.media_type === 'video' || /\.(mp4|mov|webm)$/i.test(img.url);
+                                                return (
+                                                    <Draggable key={img.url} draggableId={img.url} index={index}>
+                                                        {(provided) => (
+                                                            <div
+                                                                ref={provided.innerRef}
+                                                                {...provided.draggableProps}
+                                                                {...provided.dragHandleProps}
+                                                                className="relative group cursor-grab active:cursor-grabbing"
+                                                            >
+                                                                <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200">
+                                                                    {isVideo ? (
+                                                                        <video src={img.url} className="w-full h-full object-cover" muted preload="metadata" />
+                                                                    ) : (
+                                                                        <img src={img.url} alt={`Product ${index + 1}`} className="w-full h-full object-cover" />
+                                                                    )}
+                                                                </div>
+                                                                <span className="absolute top-2 left-2 bg-gray-900/80 text-white px-2 py-1 rounded text-xs font-semibold flex items-center gap-1.5">
+                                                                    <i className="ri-drag-drop-line"></i>
+                                                                    {index === 0 ? 'Primary' : index + 1}
+                                                                </span>
+                                                                {isVideo && (
+                                                                    <span className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-semibold flex items-center gap-1">
+                                                                        <i className="ri-video-line"></i> Video
+                                                                    </span>
+                                                                )}
+                                                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2 rounded-xl">
+                                                                    <a href={img.url} target="_blank" rel="noreferrer" className="w-9 h-9 flex items-center justify-center bg-white text-gray-900 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" onClick={(e) => e.stopPropagation()}>
+                                                                        <i className={isVideo ? 'ri-play-line' : 'ri-eye-line'}></i>
+                                                                    </a>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={(e) => { e.stopPropagation(); handleRemoveImage(index); }}
+                                                                        className="w-9 h-9 flex items-center justify-center bg-white text-red-600 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
+                                                                    >
+                                                                        <i className="ri-delete-bin-line"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </Draggable>
+                                                );
+                                            })}
+                                            {provided.placeholder}
 
-                                {/* Add more slot — always visible if under limit */}
-                                {!uploading && images.length < 10 && (
+                                            {/* Add more slot — always visible if under limit */}
+                                            {!uploading && images.length < 10 && (
                                     <label className="aspect-square border-2 border-dashed border-gray-300 rounded-xl hover:border-gray-900 hover:bg-gray-50 transition-colors flex flex-col items-center justify-center gap-2 text-gray-500 hover:text-gray-900 cursor-pointer">
                                         <i className="ri-add-line text-3xl"></i>
                                         <span className="text-xs font-semibold text-center px-2 leading-tight">Add photos<br/>or video</span>
@@ -1077,7 +1148,10 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                         />
                                     </label>
                                 )}
-                            </div>
+                                        </div>
+                                    )}
+                                </Droppable>
+                            </DragDropContext>
 
                             {/* Action buttons row */}
                             <div className="flex flex-wrap gap-3 items-center">

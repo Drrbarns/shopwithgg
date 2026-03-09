@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
     "@react-google-maps/api": "^2.19.3",
     "@supabase/supabase-js": "^2.91.1",
     "next": "^15.5.12",
