@@ -153,6 +153,7 @@ export async function POST(request: Request) {
         quantity: parseInt(v.stock) || 0,
         option1: v.name || null,
         option2: v.color?.trim() || null,
+        image_url: v.image_url?.trim() || null,
         metadata: v.colorHex ? { color_hex: v.colorHex } : {},
       }));
       const { error: varError } = await supabaseAdmin.from('product_variants').insert(variantInserts);

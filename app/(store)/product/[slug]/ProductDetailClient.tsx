@@ -302,35 +302,43 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="grid lg:grid-cols-2 gap-12">
               <div>
-                <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100 mb-4 shadow-lg border border-gray-100">
-                  {product.media?.[selectedImage]?.type === 'video' ? (
-                    <video
-                      key={product.images[selectedImage]}
-                      src={product.images[selectedImage]}
-                      className="w-full h-full object-cover"
-                      controls
-                      muted
-                      loop
-                      playsInline
-                      preload="none"
-                    />
-                  ) : (
-                    <Image
-                      src={product.images[selectedImage]}
-                      alt={product.name}
-                      fill
-                      className="object-cover object-center"
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                      priority
-                      quality={80}
-                    />
-                  )}
-                  {discount > 0 && (
-                    <span className="absolute top-6 right-6 bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-full">
-                      Save {discount}%
-                    </span>
-                  )}
-                </div>
+                {/* Main image: show variant image when selected variant has one, otherwise product image */}
+                {(() => {
+                  const variantImage = selectedVariant?.image_url;
+                  const mainSrc = variantImage || product.images[selectedImage];
+                  const mainIsVideo = !variantImage && product.media?.[selectedImage]?.type === 'video';
+                  return (
+                    <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100 mb-4 shadow-lg border border-gray-100">
+                      {mainIsVideo ? (
+                        <video
+                          key={product.images[selectedImage]}
+                          src={product.images[selectedImage]}
+                          className="w-full h-full object-cover"
+                          controls
+                          muted
+                          loop
+                          playsInline
+                          preload="none"
+                        />
+                      ) : mainSrc ? (
+                        <Image
+                          src={mainSrc}
+                          alt={product.name}
+                          fill
+                          className="object-cover object-center"
+                          sizes="(max-width: 1024px) 100vw, 50vw"
+                          priority={!variantImage}
+                          quality={80}
+                        />
+                      ) : null}
+                      {discount > 0 && (
+                        <span className="absolute top-6 right-6 bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-full">
+                          Save {discount}%
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 {product.images.length > 1 && (
                   <div className="grid grid-cols-4 gap-4">

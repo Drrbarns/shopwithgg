@@ -67,12 +67,13 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     // Common beauty / cosmetics sizes & options (you can still add any custom ones)
     const sizePresets = ['10ml', '20ml', '30ml', '50ml', '100ml', '150ml', '200ml'];
 
-    // Parse existing variants to extract unique colors and sizes
+    // Parse existing variants to extract unique colors, sizes, and variant image
     const existingVariants = (initialData?.product_variants || []).map((v: any) => ({
         ...v,
         stock: v.stock ?? v.quantity ?? 0,
         color: v.color ?? v.option2 ?? '',
-        size: v.name || ''
+        size: v.name || '',
+        image_url: v.image_url || ''
     }));
 
     const [selectedColors, setSelectedColors] = useState<{ name: string; hex: string }[]>(() => {
@@ -101,15 +102,16 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     // Build variants from colors × sizes (or just sizes, or just colors)
     const buildVariantKey = (color: string, size: string) => `${color}|||${size}`;
 
-    // Store variant data (price, stock) in a map keyed by "color|||size"
-    const [variantData, setVariantData] = useState<Record<string, { price: string; stock: string; sku: string }>>(() => {
-        const data: Record<string, { price: string; stock: string; sku: string }> = {};
+    // Store variant data (price, stock, sku, optional image_url) keyed by "color|||size"
+    const [variantData, setVariantData] = useState<Record<string, { price: string; stock: string; sku: string; image_url?: string }>>(() => {
+        const data: Record<string, { price: string; stock: string; sku: string; image_url?: string }> = {};
         existingVariants.forEach((v: any) => {
             const key = buildVariantKey(v.color || '', v.size || '');
             data[key] = {
                 price: v.price?.toString() || '',
                 stock: v.stock?.toString() || '0',
-                sku: v.sku || ''
+                sku: v.sku || '',
+                image_url: v.image_url || undefined
             };
         });
         return data;
@@ -139,7 +141,8 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
             color: combo.color,
             sku: d.sku,
             price: d.price || price,
-            stock: d.stock || '0'
+            stock: d.stock || '0',
+            image_url: d.image_url || undefined
         };
     });
 
@@ -147,6 +150,13 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         setVariantData(prev => ({
             ...prev,
             [key]: { ...prev[key] || { price: price, stock: '0', sku: '' }, [field]: value }
+        }));
+    };
+
+    const setVariantImage = (key: string, imageUrl: string) => {
+        setVariantData(prev => ({
+            ...prev,
+            [key]: { ...prev[key] || { price: price, stock: '0', sku: '' }, image_url: imageUrl || undefined }
         }));
     };
 
@@ -401,10 +411,11 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                 ? variants.reduce((sum, v) => sum + (parseInt(v.stock) || 0), 0)
                 : parseInt(stock) || 0;
 
-            // Build variants payload with colorHex for the API
+            // Build variants payload with colorHex and image_url for the API
             const variantsPayload = variants.map(v => ({
                 ...v,
                 colorHex: selectedColors.find(c => c.name === v.color)?.hex || null,
+                image_url: v.image_url || null,
             }));
 
             const productData = {
@@ -1068,6 +1079,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                                     {selectedSizes.length > 0 && (
                                                         <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Size</th>
                                                     )}
+                                                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Variant image</th>
                                                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Price (GH₵)</th>
                                                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Stock</th>
                                                 </tr>
@@ -1095,6 +1107,51 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                                                     </span>
                                                                 </td>
                                                             )}
+                                                            <td className="py-3 px-4">
+                                                                <div className="flex items-center gap-2">
+                                                                    {d.image_url ? (
+                                                                        <>
+                                                                            <img src={d.image_url} alt="" className="w-12 h-12 rounded-lg object-cover border border-gray-200" />
+                                                                            <button type="button" onClick={() => setVariantImage(combo.key, '')} className="text-xs text-red-600 hover:underline font-medium">Remove</button>
+                                                                        </>
+                                                                    ) : (
+                                                                        <span className="text-gray-400 text-xs">No image</span>
+                                                                    )}
+                                                                    <div className="flex flex-col gap-1">
+                                                                        <label className="cursor-pointer text-xs font-medium text-gray-700 hover:text-gray-900 flex items-center gap-1">
+                                                                            <i className="ri-upload-line"></i> Upload
+                                                                            <input
+                                                                                type="file"
+                                                                                accept=".jpg,.jpeg,.png,.webp"
+                                                                                className="hidden"
+                                                                                onChange={async (e) => {
+                                                                                    const file = e.target.files?.[0];
+                                                                                    if (!file) return;
+                                                                                    const fd = new FormData();
+                                                                                    fd.append('file', file);
+                                                                                    fd.append('bucket', 'products');
+                                                                                    const res = await fetch('/api/admin/upload', { method: 'POST', body: fd, credentials: 'include' });
+                                                                                    const data = await res.json().catch(() => ({}));
+                                                                                    if (data?.url) setVariantImage(combo.key, data.url);
+                                                                                    e.target.value = '';
+                                                                                }}
+                                                                            />
+                                                                        </label>
+                                                                        {images.filter((img: any) => img.media_type !== 'video').length > 0 && (
+                                                                            <select
+                                                                                className="text-xs border border-gray-300 rounded px-2 py-1 text-gray-700"
+                                                                                value=""
+                                                                                onChange={(e) => { const u = e.target.value; if (u) setVariantImage(combo.key, u); e.target.value = ''; }}
+                                                                            >
+                                                                                <option value="">Pick from product</option>
+                                                                                {images.filter((img: any) => img.media_type !== 'video').map((img: any, idx: number) => (
+                                                                                    <option key={idx} value={img.url}>Image {idx + 1}</option>
+                                                                                ))}
+                                                                            </select>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </td>
                                                             <td className="py-3 px-4">
                                                                 <input
                                                                     type="number"
