@@ -20,6 +20,7 @@ interface Product {
 interface CartItem extends Product {
     cartQuantity: number;
     discount: number;
+    variant?: string;
 }
 
 interface Customer {
