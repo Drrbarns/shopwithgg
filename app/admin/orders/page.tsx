@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 import ProductSalesStats from './ProductSalesStats';
 
 interface Order {
@@ -196,14 +197,17 @@ export default function AdminOrdersPage() {
   const handleBulkAction = async (action: string, newStatus?: string) => {
     if (newStatus) {
       try {
-        const { error } = await supabase
-          .from('orders')
-          .update({ status: newStatus })
-          .in('id', selectedOrders);
-
-        if (error) throw error;
-
-
+        // Update each selected order via API
+        await Promise.all(
+          selectedOrders.map(id =>
+            fetch(`/api/admin/orders/${id}`, {
+              method: 'PATCH',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status: newStatus }),
+            })
+          )
+        );
 
         // Send Notifications with auth token
         const { data: { session } } = await supabase.auth.getSession();
