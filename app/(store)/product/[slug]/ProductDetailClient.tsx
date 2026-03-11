@@ -418,179 +418,166 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
 
                 <p className="text-gray-700 leading-relaxed mb-8 text-lg">{product.description}</p>
 
-                {/* Color / Variant image selector: show variant image when available, else color swatch */}
-                {hasVariants && product.colors.length > 0 && (
-                  <div className="mb-6">
-                    <label className="block font-semibold text-gray-900 mb-3">
-                      Color: {selectedColor ? (
-                        <span className="text-gray-900 font-normal">{selectedColor}</span>
-                      ) : (
-                        <span className="text-red-500 font-normal text-sm">Please select a color</span>
-                      )}
-                    </label>
-                    <div className="flex flex-wrap gap-3">
-                      {product.colors.map((color: string) => {
-                        const isSelected = selectedColor === color;
-                        const colorVariants = product.variants.filter((v: any) => v.color === color);
-                        const colorStock = colorVariants.reduce((sum: number, v: any) => sum + (v.stock ?? v.quantity ?? 0), 0);
-                        const isOutOfStock = colorStock === 0 && product.stockCount === 0;
-                        const variantImage = colorVariants.find((v: any) => v.image_url)?.image_url;
-                        return (
-                          <button
-                            key={color}
-                            onClick={() => {
-                              setSelectedColor(color);
-                              const matching = product.variants.filter((v: any) => v.color === color);
-                              if (matching.length === 1) {
-                                setSelectedVariant(matching[0]);
-                                setSelectedSize(matching[0].name);
-                              } else {
-                                setSelectedVariant(null);
-                                setSelectedSize('');
-                              }
-                            }}
-                            disabled={isOutOfStock}
-                            className={`rounded-lg border-2 font-medium transition-all cursor-pointer flex items-center gap-2 overflow-hidden ${isSelected
-                              ? 'border-gray-900 bg-gray-50 text-gray-900 shadow-sm'
-                              : isOutOfStock
-                                ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
-                                : 'border-gray-300 text-gray-700 hover:border-gray-400'
-                              }`}
-                          >
-                            {variantImage ? (
-                              <span className="w-12 h-12 flex-shrink-0 rounded-md overflow-hidden border border-gray-200 bg-gray-100">
-                                <Image
-                                  src={variantImage}
-                                  alt={color}
-                                  width={48}
-                                  height={48}
-                                  className="w-full h-full object-cover"
-                                />
-                              </span>
-                            ) : (
-                              <span className="w-10 h-10 rounded-full border border-gray-300 flex-shrink-0 shadow-sm" style={{ backgroundColor: product.colorHexMap?.[color] || colorNameToHex(color) }}></span>
-                            )}
-                            <span className="py-2 pr-3">{color}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                {/* ── VARIANT SELECTORS ─────────────────────────────── */}
+                {hasVariants && (
+                  <div className="mb-6 space-y-5">
+
+                    {/* STEP 1 — Color */}
+                    {product.colors.length > 0 && (
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                            {product.colors.length > 1 ? 'Step 1 · ' : ''}Color
+                          </span>
+                          {selectedColor
+                            ? <span className="text-sm font-semibold text-gray-900">{selectedColor}</span>
+                            : <span className="text-xs text-red-500 font-medium animate-pulse">← Pick a color</span>
+                          }
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {product.colors.map((color: string) => {
+                            const isSelected = selectedColor === color;
+                            const colorVariants = product.variants.filter((v: any) => v.color === color);
+                            const colorStock = colorVariants.reduce((sum: number, v: any) => sum + (v.stock ?? v.quantity ?? 0), 0);
+                            const isOutOfStock = colorStock === 0 && product.stockCount === 0;
+                            const variantImage = colorVariants.find((v: any) => v.image_url)?.image_url;
+                            return (
+                              <button
+                                key={color}
+                                onClick={() => {
+                                  setSelectedColor(color);
+                                  const matching = product.variants.filter((v: any) => v.color === color);
+                                  if (matching.length === 1) {
+                                    setSelectedVariant(matching[0]);
+                                    setSelectedSize(matching[0].name);
+                                  } else {
+                                    setSelectedVariant(null);
+                                    setSelectedSize('');
+                                  }
+                                }}
+                                disabled={isOutOfStock}
+                                title={color}
+                                className={`relative group flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all duration-150 cursor-pointer select-none
+                                  ${isSelected
+                                    ? 'border-gray-900 bg-gray-900 text-white shadow-md scale-105'
+                                    : isOutOfStock
+                                      ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed opacity-50'
+                                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-400 hover:shadow-sm active:scale-95'
+                                  }`}
+                              >
+                                {variantImage ? (
+                                  <span className="w-8 h-8 rounded-lg overflow-hidden border border-white/20 flex-shrink-0 bg-gray-100">
+                                    <Image src={variantImage} alt={color} width={32} height={32} className="w-full h-full object-cover" />
+                                  </span>
+                                ) : (
+                                  <span
+                                    className="w-5 h-5 rounded-full flex-shrink-0 border-2 border-white shadow-sm"
+                                    style={{ backgroundColor: product.colorHexMap?.[color] || colorNameToHex(color) }}
+                                  />
+                                )}
+                                <span className="text-sm font-medium">{color}</span>
+                                {isOutOfStock && <span className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/60 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Out of Stock</span>}
+                                {isSelected && <i className="ri-check-line text-xs ml-1 opacity-80"></i>}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* STEP 2 — Size / Type */}
+                    {(() => {
+                      const hasColors = product.colors.length > 0;
+                      const visibleVariants = hasColors && selectedColor
+                        ? product.variants.filter((v: any) => v.color === selectedColor)
+                        : hasColors ? [] : product.variants;
+
+                      const showSelector = visibleVariants.length > 1 || (!hasColors && visibleVariants.length > 0);
+                      if (!showSelector) return null;
+
+                      const hasImages = visibleVariants.some((v: any) => v.image_url);
+                      const stepLabel = hasColors ? 'Step 2 · ' : '';
+
+                      return (
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-bold uppercase tracking-widest text-gray-400">{stepLabel}Size / Type</span>
+                            {selectedVariant
+                              ? <span className="text-sm font-semibold text-gray-900">GH₵{(selectedVariant.price || product.price).toFixed(2)}</span>
+                              : <span className="text-xs text-red-500 font-medium animate-pulse">← Pick a size</span>
+                            }
+                          </div>
+
+                          {hasImages ? (
+                            /* Image-style variant cards */
+                            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                              {visibleVariants.map((variant: any) => {
+                                const isSelected = selectedVariant?.id === variant.id || selectedVariant?.name === variant.name;
+                                const variantStock = variant.stock ?? variant.quantity ?? 0;
+                                const isOutOfStock = variantStock === 0 && product.stockCount === 0;
+                                return (
+                                  <button
+                                    key={variant.id || variant.name}
+                                    onClick={() => { setSelectedVariant(variant); setSelectedSize(variant.name); }}
+                                    disabled={isOutOfStock}
+                                    className={`relative rounded-xl overflow-hidden border-2 transition-all duration-150 cursor-pointer flex flex-col active:scale-95
+                                      ${isSelected ? 'border-gray-900 shadow-md' : isOutOfStock ? 'border-gray-100 opacity-40 cursor-not-allowed' : 'border-gray-200 hover:border-gray-400 hover:shadow-sm'}`}
+                                  >
+                                    {variant.image_url ? (
+                                      <span className="w-full aspect-square bg-gray-100 block overflow-hidden">
+                                        <Image src={variant.image_url} alt={variant.name} width={100} height={100} className="w-full h-full object-cover" />
+                                      </span>
+                                    ) : (
+                                      <span className="w-full aspect-square bg-gray-100 flex items-center justify-center text-xs text-gray-500 font-medium px-1 text-center">{variant.name}</span>
+                                    )}
+                                    <span className={`block text-center text-[11px] font-semibold py-1 px-1 truncate ${isSelected ? 'bg-gray-900 text-white' : 'bg-white text-gray-600'}`}>
+                                      GH₵{(variant.price || product.price).toFixed(2)}
+                                    </span>
+                                    {isSelected && (
+                                      <span className="absolute top-1 right-1 w-5 h-5 bg-gray-900 rounded-full flex items-center justify-center">
+                                        <i className="ri-check-line text-white text-[10px]"></i>
+                                      </span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            /* Text pill variant buttons */
+                            <div className="flex flex-wrap gap-2">
+                              {visibleVariants.map((variant: any) => {
+                                const isSelected = selectedVariant?.id === variant.id || selectedVariant?.name === variant.name;
+                                const variantStock = variant.stock ?? variant.quantity ?? 0;
+                                const isOutOfStock = variantStock === 0 && product.stockCount === 0;
+                                return (
+                                  <button
+                                    key={variant.id || variant.name}
+                                    onClick={() => { setSelectedVariant(variant); setSelectedSize(variant.name); }}
+                                    disabled={isOutOfStock}
+                                    className={`relative px-4 py-2.5 rounded-xl border-2 text-sm font-medium transition-all duration-150 cursor-pointer select-none active:scale-95
+                                      ${isSelected
+                                        ? 'border-gray-900 bg-gray-900 text-white shadow-md'
+                                        : isOutOfStock
+                                          ? 'border-gray-100 bg-gray-50 text-gray-300 line-through cursor-not-allowed'
+                                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-400 hover:shadow-sm'
+                                      }`}
+                                  >
+                                    <span>{variant.name}</span>
+                                    <span className={`block text-[11px] mt-0.5 ${isSelected ? 'text-gray-300' : 'text-gray-400'}`}>
+                                      GH₵{(variant.price || product.price).toFixed(2)}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+
                   </div>
                 )}
-
-                {/* Size / Name Variant Selector */}
-                {hasVariants && (() => {
-                  // Filter variants: if colors exist and one is selected, show only matching; otherwise show all
-                  const hasColors = product.colors.length > 0;
-                  const visibleVariants = hasColors && selectedColor
-                    ? product.variants.filter((v: any) => v.color === selectedColor)
-                    : hasColors
-                      ? [] // Don't show name variants until a color is picked
-                      : product.variants;
-
-                  // Check if we need to show the name selector (skip if all visible variants have the same name or only 1)
-                  const uniqueNames = [...new Set(visibleVariants.map((v: any) => v.name).filter(Boolean))];
-                  const showNameSelector = visibleVariants.length > 1 || (!hasColors && visibleVariants.length > 0);
-
-                  if (!showNameSelector && !hasColors) {
-                    // Single variant with no colors — show image when available, else name
-                    return (
-                      <div className="mb-8">
-                        <label className="block font-semibold text-gray-900 mb-3">
-                          Variant: {selectedVariant ? (
-                            <span className="text-gray-900 font-normal">{selectedVariant.name} — GH₵{selectedVariant.price?.toFixed(2)}</span>
-                          ) : (
-                            <span className="text-red-500 font-normal text-sm">Please select a variant</span>
-                          )}
-                        </label>
-                        <div className="flex flex-wrap gap-3">
-                          {product.variants.map((variant: any) => {
-                            const isSelected = selectedVariant?.id === variant.id || selectedVariant?.name === variant.name;
-                            const variantStock = variant.stock ?? variant.quantity ?? 0;
-                            const isOutOfStock = variantStock === 0 && product.stockCount === 0;
-                            return (
-                              <button
-                                key={variant.id || variant.name}
-                                onClick={() => {
-                                  setSelectedVariant(variant);
-                                  setSelectedSize(variant.name);
-                                }}
-                                disabled={isOutOfStock}
-                                className={`rounded-lg border-2 font-medium transition-all cursor-pointer flex flex-col items-center overflow-hidden min-w-[80px] ${isSelected
-                                  ? 'border-gray-900 bg-gray-50 text-gray-900 shadow-sm'
-                                  : isOutOfStock
-                                    ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
-                                    : 'border-gray-300 text-gray-700 hover:border-gray-400'
-                                  }`}
-                              >
-                                {variant.image_url ? (
-                                  <span className="w-20 h-20 flex-shrink-0 overflow-hidden bg-gray-100">
-                                    <Image src={variant.image_url} alt={variant.name} width={80} height={80} className="w-full h-full object-cover" />
-                                  </span>
-                                ) : (
-                                  <span className="px-4 pt-3 text-center font-medium">{variant.name}</span>
-                                )}
-                                <span className={`px-2 pb-2 text-xs ${isSelected ? 'text-gray-700' : 'text-gray-500'}`}>
-                                  GH₵{(variant.price || product.price).toFixed(2)}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  }
-
-                  if (visibleVariants.length > 1) {
-                    return (
-                      <div className="mb-8">
-                        <label className="block font-semibold text-gray-900 mb-3">
-                          Size / Type: {selectedVariant ? (
-                            <span className="text-gray-900 font-normal">{selectedVariant.name} — GH₵{selectedVariant.price?.toFixed(2)}</span>
-                          ) : (
-                            <span className="text-red-500 font-normal text-sm">Please select</span>
-                          )}
-                        </label>
-                        <div className="flex flex-wrap gap-3">
-                          {visibleVariants.map((variant: any) => {
-                            const isSelected = selectedVariant?.id === variant.id;
-                            const variantStock = variant.stock ?? variant.quantity ?? 0;
-                            const isOutOfStock = variantStock === 0 && product.stockCount === 0;
-                            return (
-                              <button
-                                key={variant.id || variant.name}
-                                onClick={() => {
-                                  setSelectedVariant(variant);
-                                  setSelectedSize(variant.name);
-                                }}
-                                disabled={isOutOfStock}
-                                className={`rounded-lg border-2 font-medium transition-all cursor-pointer flex flex-col items-center overflow-hidden min-w-[80px] ${isSelected
-                                  ? 'border-gray-900 bg-gray-50 text-gray-900 shadow-sm'
-                                  : isOutOfStock
-                                    ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
-                                    : 'border-gray-300 text-gray-700 hover:border-gray-400'
-                                  }`}
-                              >
-                                {variant.image_url ? (
-                                  <span className="w-20 h-20 flex-shrink-0 overflow-hidden bg-gray-100">
-                                    <Image src={variant.image_url} alt={variant.name} width={80} height={80} className="w-full h-full object-cover" />
-                                  </span>
-                                ) : (
-                                  <span className="px-4 pt-3 text-center font-medium">{variant.name}</span>
-                                )}
-                                <span className={`px-2 pb-2 text-xs ${isSelected ? 'text-gray-700' : 'text-gray-500'}`}>
-                                  GH₵{(variant.price || product.price).toFixed(2)}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  }
-
-                  return null;
-                })()}
+                {/* ── END VARIANT SELECTORS ─────────────────────────── */}
 
                 <div className="mb-8">
                   <label className="block font-semibold text-gray-900 mb-3">Quantity</label>

@@ -161,6 +161,26 @@ export default function AdminLayout({
     // Optional: Auto-close on resize to mobile? For now, leave as is.
   }, []);
 
+  const [cacheCleared, setCacheCleared] = useState(false);
+
+  const handleClearCache = async () => {
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      }
+      setCacheCleared(true);
+      setTimeout(() => {
+        setCacheCleared(false);
+        window.location.reload();
+      }, 1200);
+    } catch (err) {
+      console.error('Cache clear failed:', err);
+    }
+  };
+
   const handleLogout = async () => {
     const secure = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : '';
     document.cookie = `sb-access-token=; path=/; max-age=0; SameSite=Lax${secure}`;
@@ -373,7 +393,7 @@ export default function AdminLayout({
             })}
           </nav>
 
-          <div className="mt-8 pt-8 border-t border-gray-200">
+          <div className="mt-8 pt-8 border-t border-gray-200 space-y-1">
             <Link
               href="/"
               target="_blank"
@@ -383,6 +403,14 @@ export default function AdminLayout({
               <i className="ri-external-link-line text-xl w-5 h-5 flex items-center justify-center"></i>
               <span>View Store</span>
             </Link>
+            <button
+              onClick={handleClearCache}
+              disabled={cacheCleared}
+              className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors cursor-pointer disabled:opacity-70"
+            >
+              <i className={`${cacheCleared ? 'ri-check-line text-green-500' : 'ri-delete-bin-2-line'} text-xl w-5 h-5 flex items-center justify-center`}></i>
+              <span className={cacheCleared ? 'text-green-600 font-medium' : ''}>{cacheCleared ? 'Cache Cleared!' : 'Clear Cache'}</span>
+            </button>
           </div>
         </div>
       </aside>
