@@ -41,43 +41,42 @@ function OrderSuccessContent() {
   }, [orderNumber, paymentSuccess]);
 
   // Payment verification - called when user is redirected from Moolre with payment_success=true
-  const verifyPayment = async (orderNum: string, initialOrder: any) => {
+  const verifyPayment = async (orderNum: string, _initialOrder: any) => {
     setVerifying(true);
-    
-    // Wait 3 seconds to give the callback a chance to process first
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    // Re-fetch order to check if callback already updated it
-    const refreshRes = await fetch(`/api/storefront/orders/${encodeURIComponent(orderNum)}`);
-    const refreshJson = await refreshRes.json();
-    const refreshed = refreshJson.order;
 
-    if (refreshed?.payment_status === 'paid') {
-      setOrder(refreshed);
-      setVerifying(false);
-      return;
+    const refreshOrder = async () => {
+      const r = await fetch(`/api/storefront/orders/${encodeURIComponent(orderNum)}`);
+      const j = await r.json();
+      return j.order;
+    };
+
+    // Retry loop: check every 3s for up to 30s to give the callback time to fire
+    const delays = [3000, 3000, 4000, 5000, 5000, 5000, 5000];
+    for (const delay of delays) {
+      await new Promise(resolve => setTimeout(resolve, delay));
+      const refreshed = await refreshOrder().catch(() => null);
+      if (refreshed?.payment_status === 'paid') {
+        setOrder(refreshed);
+        setVerifying(false);
+        return;
+      }
     }
 
-    // Callback hasn't fired - verify via our endpoint
-    // Verify payment via Moolre API — we no longer trust the redirect alone
+    // Callback never fired — call our verify endpoint which queries Moolre directly
     try {
       const res = await fetch('/api/payment/moolre/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderNumber: orderNum })
       });
-      
       const result = await res.json();
-      console.log('Payment verification result:', result);
-      
+      console.log('[Success] Verify result:', result);
       if (result.success && result.payment_status === 'paid') {
-        // Re-fetch full order data
-        const updatedRes = await fetch(`/api/storefront/orders/${encodeURIComponent(orderNum)}`);
-        const updatedJson = await updatedRes.json();
-        if (updatedJson.order) setOrder(updatedJson.order);
+        const updated = await refreshOrder().catch(() => null);
+        if (updated) setOrder(updated);
       }
     } catch (err) {
-      console.error('Payment verification failed:', err);
+      console.error('[Success] Payment verification failed:', err);
     } finally {
       setVerifying(false);
     }
