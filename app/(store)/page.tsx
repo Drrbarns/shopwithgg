@@ -188,11 +188,10 @@ export default function Home() {
                 <Link href={slides[currentSlide].primaryButtonLink} className="inline-flex items-center justify-center bg-white text-gray-900 hover:bg-gray-100 px-10 py-4 rounded-full font-medium transition-all text-lg shadow-xl hover:shadow-2xl hover:-translate-y-1 btn-animate">
                   {slides[currentSlide].primaryButtonText}
                 </Link>
-                {config.hero.secondaryButtonText && (
-                  <Link href={config.hero.secondaryButtonLink} className="inline-flex items-center justify-center bg-white/20 backdrop-blur-md border border-white/50 text-white hover:bg-white/30 px-10 py-4 rounded-full font-medium transition-colors text-lg btn-animate">
-                    {config.hero.secondaryButtonText}
-                  </Link>
-                )}
+                <Link href="/shop" className="inline-flex items-center justify-center bg-white/20 backdrop-blur-md border border-white/50 text-white hover:bg-white/30 px-10 py-4 rounded-full font-medium transition-colors text-lg btn-animate gap-2">
+                  <i className="ri-search-line"></i>
+                  Search Products
+                </Link>
               </div>
 
             </div>
