@@ -112,7 +112,7 @@ export default function RolesPage() {
 
     async function togglePermission(roleId: string, permKey: string) {
         const role = roles.find(r => r.id === roleId);
-        if (!role || role.is_system) return;
+        if (!role) return;
 
         const newPermissions = { ...role.permissions, [permKey]: !role.permissions[permKey] };
 
@@ -132,7 +132,7 @@ export default function RolesPage() {
 
     async function toggleAllPermissions(roleId: string, enable: boolean) {
         const role = roles.find(r => r.id === roleId);
-        if (!role || role.is_system) return;
+        if (!role) return;
 
         const newPermissions: Record<string, boolean> = {};
         PERMISSION_KEYS.forEach(key => {
@@ -280,24 +280,24 @@ export default function RolesPage() {
                                             <i className="ri-key-2-line mr-2 text-gray-700"></i>
                                             Feature Permissions
                                         </h4>
-                                        {!role.is_system && (
-                                            <div className="flex items-center space-x-2">
-                                                <button
-                                                    onClick={() => toggleAllPermissions(role.id, true)}
-                                                    disabled={isSaving}
-                                                    className="px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
-                                                >
-                                                    Enable All
-                                                </button>
-                                                <button
-                                                    onClick={() => toggleAllPermissions(role.id, false)}
-                                                    disabled={isSaving}
-                                                    className="px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
-                                                >
-                                                    Disable All
-                                                </button>
-                                            </div>
-                                        )}
+                                        <div className="flex items-center space-x-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => toggleAllPermissions(role.id, true)}
+                                                disabled={isSaving}
+                                                className="px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
+                                            >
+                                                Enable All
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => toggleAllPermissions(role.id, false)}
+                                                disabled={isSaving}
+                                                className="px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
+                                            >
+                                                Disable All
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div className="p-4">
@@ -305,19 +305,17 @@ export default function RolesPage() {
                                             {PERMISSION_KEYS.map(key => {
                                                 const perm = PERMISSION_LABELS[key];
                                                 const isEnabled = role.permissions[key] === true;
-                                                const isLocked = role.is_system;
 
                                                 return (
                                                     <button
+                                                        type="button"
                                                         key={key}
-                                                        onClick={() => !isLocked && togglePermission(role.id, key)}
-                                                        disabled={isSaving || isLocked}
+                                                        onClick={() => togglePermission(role.id, key)}
+                                                        disabled={isSaving}
                                                         className={`flex items-start space-x-3 p-3 rounded-xl border-2 transition-all text-left ${
-                                                            isLocked
-                                                                ? 'border-gray-100 bg-gray-50 cursor-default'
-                                                                : isEnabled
-                                                                    ? 'border-gray-200 bg-gray-50 hover:border-gray-300 cursor-pointer'
-                                                                    : 'border-gray-200 bg-white hover:border-gray-300 cursor-pointer'
+                                                            isEnabled
+                                                                ? 'border-gray-200 bg-gray-50 hover:border-gray-300 cursor-pointer'
+                                                                : 'border-gray-200 bg-white hover:border-gray-300 cursor-pointer'
                                                         } ${isSaving ? 'opacity-50' : ''}`}
                                                     >
                                                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${
@@ -348,8 +346,8 @@ export default function RolesPage() {
                                         <div className="px-4 pb-4">
                                             <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
                                                 <p className="text-xs text-amber-800 flex items-center">
-                                                    <i className="ri-lock-line mr-2"></i>
-                                                    This is a system role. Its permissions cannot be modified and it cannot be disabled.
+                                                    <i className="ri-information-line mr-2"></i>
+                                                    System role: it cannot be disabled or removed. You can still change feature access above for everyone on this role.
                                                 </p>
                                             </div>
                                         </div>
