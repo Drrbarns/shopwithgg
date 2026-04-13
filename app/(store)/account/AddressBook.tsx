@@ -63,7 +63,7 @@ export default function AddressBook() {
               <input
                 type="tel"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                placeholder="027 854 9831"
+                placeholder="024 472 0197"
               />
             </div>
             <div className="md:col-span-2">

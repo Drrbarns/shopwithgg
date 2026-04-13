@@ -252,10 +252,10 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     const [keywordsEdited, setKeywordsEdited] = useState(!!(initialData?.tags?.length));
 
     const generateSeoFields = (name: string, desc: string) => {
-        const title = name ? `${name} | Deliz Beauty Tools` : '';
+        const title = name ? `${name} | Frebys Fashion GH` : '';
         const metaDesc = desc
             ? (desc.length > 160 ? desc.substring(0, 157).trimEnd() + '...' : desc)
-            : name ? `Shop ${name} at Deliz Beauty Tools. Premium beauty products in Ghana.` : '';
+            : name ? `Shop ${name} at Frebys Fashion GH. Unique kids Ankara fashion in Ghana with worldwide delivery.` : '';
         const kw = name
             ? [...new Set([
                 name.toLowerCase(),
@@ -1435,7 +1435,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                 <div className="p-4 bg-white border-2 border-gray-100 rounded-xl">
                                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Google Preview</p>
                                     <p className="text-blue-700 text-base font-medium leading-snug truncate">{seoTitle || productName}</p>
-                                    <p className="text-green-700 text-xs mt-0.5">delizbeautytools.com/product/{urlSlug}</p>
+                                    <p className="text-green-700 text-xs mt-0.5">frebysfashiongh.com/product/{urlSlug}</p>
                                     <p className="text-gray-600 text-sm mt-1 line-clamp-2">{metaDescription}</p>
                                 </div>
                             )}
@@ -1452,7 +1452,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                     value={seoTitle}
                                     onChange={(e) => { setSeoTitle(e.target.value); setSeoTitleEdited(true); }}
                                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
-                                    placeholder="e.g. Lash Bed | Deliz Beauty Tools"
+                                    placeholder="e.g. Ankara Party Dress | Frebys Fashion GH"
                                 />
                             </div>
 
@@ -1468,7 +1468,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                     value={metaDescription}
                                     onChange={(e) => { setMetaDescription(e.target.value); setMetaDescEdited(true); }}
                                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 resize-none"
-                                    placeholder="e.g. Shop premium lash beds at Deliz Beauty Tools. Fast delivery across Ghana."
+                                    placeholder="e.g. Shop premium kids Ankara outfits at Frebys Fashion GH. Worldwide delivery available."
                                 />
                             </div>
 

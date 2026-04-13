@@ -10,7 +10,7 @@ export default function MaintenancePage() {
             We'll Be Right Back
           </h1>
           <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-            We're currently performing scheduled maintenance to improve your shopping experience. We'll be back online shortly.
+            We are performing scheduled updates to improve your Frebys Fashion GH shopping experience. We will be back online shortly.
           </p>
         </div>
 
@@ -31,7 +31,7 @@ export default function MaintenancePage() {
               <i className="ri-rocket-line text-2xl text-blue-700"></i>
             </div>
             <h3 className="font-bold text-gray-900 mb-2">Performance</h3>
-            <p className="text-gray-600 text-sm">Faster loading times and smoother navigation</p>
+            <p className="text-gray-600 text-sm">Faster loading times and smoother browsing</p>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-xl p-6">
@@ -39,7 +39,7 @@ export default function MaintenancePage() {
               <i className="ri-shield-check-line text-2xl text-gray-900"></i>
             </div>
             <h3 className="font-bold text-gray-900 mb-2">Security</h3>
-            <p className="text-gray-600 text-sm">Enhanced protection for your data and transactions</p>
+            <p className="text-gray-600 text-sm">Enhanced protection for your account and payments</p>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-xl p-6">
@@ -47,7 +47,7 @@ export default function MaintenancePage() {
               <i className="ri-sparkle-line text-2xl text-amber-700"></i>
             </div>
             <h3 className="font-bold text-gray-900 mb-2">Features</h3>
-            <p className="text-gray-600 text-sm">New functionality to enhance your experience</p>
+            <p className="text-gray-600 text-sm">New tools to make ordering kids wear easier</p>
           </div>
         </div>
 
@@ -58,14 +58,14 @@ export default function MaintenancePage() {
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <a
-              href="mailto:contact@delizbeautytools.com"
+              href="mailto:hello@frebysfashiongh.com"
               className="inline-flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-full font-medium hover:bg-gray-50 transition-colors border border-gray-200 whitespace-nowrap"
             >
               <i className="ri-mail-line"></i>
               Email Us
             </a>
             <a
-              href="https://wa.me/233241234567"
+              href="https://wa.me/233244720197"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-gray-900 text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors whitespace-nowrap"
@@ -74,7 +74,7 @@ export default function MaintenancePage() {
               WhatsApp
             </a>
             <a
-              href="tel:+233241234567"
+              href="tel:+233244720197"
               className="inline-flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-full font-medium hover:bg-gray-50 transition-colors border border-gray-200 whitespace-nowrap"
             >
               <i className="ri-phone-line"></i>
@@ -85,18 +85,7 @@ export default function MaintenancePage() {
 
         <div className="text-gray-500 text-sm">
           <p className="mb-2">Thank you for your patience</p>
-          <p>Follow us on social media for real-time updates</p>
-          <div className="flex gap-4 justify-center mt-4">
-            <a href="#" className="w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors">
-              <i className="ri-facebook-fill text-gray-600"></i>
-            </a>
-            <a href="#" className="w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors">
-              <i className="ri-twitter-fill text-gray-600"></i>
-            </a>
-            <a href="#" className="w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors">
-              <i className="ri-instagram-line text-gray-600"></i>
-            </a>
-          </div>
+          <p>For live updates and urgent support, message us on WhatsApp.</p>
         </div>
       </div>
     </div>

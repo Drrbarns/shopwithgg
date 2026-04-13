@@ -4,14 +4,14 @@ import { escapeHtml } from '@/lib/sanitize';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 'missing_api_key');
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@standardecom.com';
-const EMAIL_FROM = process.env.EMAIL_FROM || 'Deliz Beauty Tools <noreply@delizbeautytools.com>';
+const EMAIL_FROM = process.env.EMAIL_FROM || 'Frebys Fashion GH <noreply@frebysfashiongh.com>';
 const BRAND = {
-    name: 'Deliz Beauty Tools',
+    name: 'Frebys Fashion GH',
     color: '#171717',
     colorLight: '#f9fafb',
     colorDark: '#262626',
-    url: (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://delizbeautytools.com').replace(/\/+$/, ''),
-    phone: process.env.CONTACT_PHONE || '0278549831',
+    url: (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://frebysfashiongh.com').replace(/\/+$/, ''),
+    phone: process.env.CONTACT_PHONE || '0244720197',
 };
 
 // Reusable branded email layout
@@ -30,7 +30,7 @@ ${preheader ? `<span style="display:none;max-height:0;overflow:hidden;">${prehea
 <!-- Header -->
 <tr><td style="background:linear-gradient(135deg,${BRAND.color},${BRAND.colorDark});padding:32px 40px;text-align:center;">
 <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:0.5px;">${BRAND.name}</h1>
-<p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;">Premium Quality Products</p>
+<p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;">Kids Ready-to-Wear Ankara Clothes</p>
 </td></tr>
 
 <!-- Body -->
@@ -154,7 +154,7 @@ export async function sendSMS({ to, message }: { to: string; message: string }) 
             },
             body: JSON.stringify({
                 type: 1,
-                senderid: process.env.SMS_SENDER_ID || 'DelizBeauty',
+                senderid: process.env.SMS_SENDER_ID || 'FrebysGH',
                 messages: [
                     {
                         recipient: recipient,
@@ -186,7 +186,7 @@ export async function sendSMS({ to, message }: { to: string; message: string }) 
 export async function sendOrderConfirmation(order: any) {
     const { id, email, phone: orderPhone, shipping_address, total, created_at, order_number, metadata } = order;
 
-    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://delizbeautytools.com').replace(/\/+$/, '');
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://frebysfashiongh.com').replace(/\/+$/, '');
 
     // Build customer name from available sources
     const getName = () => {
@@ -296,7 +296,7 @@ ${emailButton('View Order in Admin', `${baseUrl}/admin/orders/${id}`)}
     if (phone) {
         const smsMessage = trackingNumber
             ? `Hi ${name}, your order #${order_number || id} is confirmed! Tracking: ${trackingNumber}. Track here: ${trackingUrl}${shippingNotesSms}`
-            : `Hi ${name}, your order #${order_number || id} at Deliz Beauty Tools is confirmed! Track here: ${trackingUrl}${shippingNotesSms}`;
+            : `Hi ${name}, your order #${order_number || id} at Frebys Fashion GH is confirmed! Track here: ${trackingUrl}${shippingNotesSms}`;
         
         await sendSMS({
             to: phone,
@@ -308,7 +308,7 @@ ${emailButton('View Order in Admin', `${baseUrl}/admin/orders/${id}`)}
 export async function sendOrderStatusUpdate(order: any, newStatus: string) {
     const { id, email, phone: orderPhone, shipping_address, order_number, metadata } = order;
 
-    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://delizbeautytools.com').replace(/\/+$/, '');
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://frebysfashiongh.com').replace(/\/+$/, '');
 
     // Build customer name from available sources
     const getName = () => {
@@ -412,25 +412,25 @@ export async function sendWelcomeMessage(user: { email: string, firstName: strin
   <p style="margin:0;color:#6b7280;font-size:15px;">We're so glad you're here.</p>
 </div>
 
-<p style="color:#374151;font-size:14px;line-height:1.7;margin:16px 0;">Thank you for joining the ${BRAND.name} family. We source premium quality products directly from China at unbeatable prices &mdash; perfect for homes, businesses, and resellers.</p>
+<p style="color:#374151;font-size:14px;line-height:1.7;margin:16px 0;">Thank you for joining the ${BRAND.name} family. We create unique casual and luxury kids Ankara outfits for all occasions and deliver worldwide from Ghana.</p>
 
 <div style="background-color:#f9fafb;border-radius:12px;padding:20px;margin:20px 0;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
     <tr>
       <td style="text-align:center;padding:8px;width:33%;">
         <p style="font-size:20px;margin:0 0 4px;">&#128666;</p>
-        <p style="color:#374151;font-size:12px;font-weight:600;margin:0;">Free Pickup</p>
-        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">Available in store</p>
+        <p style="color:#374151;font-size:12px;font-weight:600;margin:0;">Unique Designs</p>
+        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">Kids Ankara ready-to-wear</p>
       </td>
       <td style="text-align:center;padding:8px;width:33%;">
         <p style="font-size:20px;margin:0 0 4px;">&#9989;</p>
-        <p style="color:#374151;font-size:12px;font-weight:600;margin:0;">Verified Quality</p>
-        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">Hand-inspected</p>
+        <p style="color:#374151;font-size:12px;font-weight:600;margin:0;">Comfort Fit</p>
+        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">Made for active kids</p>
       </td>
       <td style="text-align:center;padding:8px;width:33%;">
         <p style="font-size:20px;margin:0 0 4px;">&#128176;</p>
-        <p style="color:#374151;font-size:12px;font-weight:600;margin:0;">Best Prices</p>
-        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">Unbeatable value</p>
+        <p style="color:#374151;font-size:12px;font-weight:600;margin:0;">Worldwide Delivery</p>
+        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">Shipped from Ghana</p>
       </td>
     </tr>
   </table>
@@ -444,7 +444,7 @@ ${emailButton('Start Shopping', `${BRAND.url}/shop`)}
     if (phone) {
         await sendSMS({
             to: phone,
-            message: `Welcome ${firstName}! Thanks for joining Deliz Beauty Tools.`
+            message: `Welcome ${firstName}! Thanks for joining Frebys Fashion GH.`
         });
     }
 }
@@ -452,7 +452,7 @@ ${emailButton('Start Shopping', `${BRAND.url}/shop`)}
 export async function sendPaymentLink(order: any) {
     const { id, email, phone: orderPhone, shipping_address, total, order_number, metadata } = order;
 
-    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://delizbeautytools.com').replace(/\/+$/, '');
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://frebysfashiongh.com').replace(/\/+$/, '');
     const paymentUrl = `${baseUrl}/pay/${id}`;
 
     // Build customer name from available sources

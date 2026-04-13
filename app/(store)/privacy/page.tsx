@@ -281,7 +281,7 @@ export default function PrivacyPage() {
             </div>
 
             <p className="text-gray-600 leading-relaxed">
-              To exercise any of these rights, please contact us at <a href="mailto:contact@delizbeautytools.com" className="text-gray-900 font-medium hover:underline">contact@delizbeautytools.com</a> or through your account settings. We will respond within 30 days.
+              To exercise any of these rights, please contact us at <a href="mailto:hello@frebysfashiongh.com" className="text-gray-900 font-medium hover:underline">hello@frebysfashiongh.com</a> or through your account settings. We will respond within 30 days.
             </p>
           </section>
 
@@ -329,7 +329,7 @@ export default function PrivacyPage() {
           <section className="mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-6">7. Children's Privacy</h2>
             <p className="text-gray-600 leading-relaxed">
-              Our website is not intended for children under 16 years of age. We do not knowingly collect personal information from children. If you believe we have inadvertently collected information from a child, please contact us immediately and we will delete it.
+              Frebys Fashion GH creates clothing for children, but purchases and account registration must be completed by a parent, guardian, or authorized adult. We do not knowingly collect personal information directly from children. If you believe child data was submitted in error, contact us and we will remove it promptly.
             </p>
           </section>
 
@@ -384,7 +384,7 @@ export default function PrivacyPage() {
                   <i className="ri-mail-line text-gray-900 text-xl mt-1"></i>
                   <div>
                     <p className="font-medium text-gray-900">Email</p>
-                    <a href="mailto:contact@delizbeautytools.com" className="text-gray-900 hover:underline">contact@delizbeautytools.com</a>
+                    <a href="mailto:hello@frebysfashiongh.com" className="text-gray-900 hover:underline">hello@frebysfashiongh.com</a>
                   </div>
                 </div>
 
@@ -392,7 +392,7 @@ export default function PrivacyPage() {
                   <i className="ri-phone-line text-gray-900 text-xl mt-1"></i>
                   <div>
                     <p className="font-medium text-gray-900">Phone</p>
-                    <a href="tel:0278549831" className="text-gray-900 hover:underline">027 854 9831</a>
+                    <a href="tel:0244720197" className="text-gray-900 hover:underline">024 472 0197</a>
                   </div>
                 </div>
 
@@ -400,7 +400,7 @@ export default function PrivacyPage() {
                   <i className="ri-map-pin-line text-gray-900 text-xl mt-1"></i>
                   <div>
                     <p className="font-medium text-gray-900">Address</p>
-                    <p className="text-gray-600">Deliz Beauty Tools<br />Madina, Ritz Junction, Accra<br />Ghana</p>
+                    <p className="text-gray-600">Frebys Fashion GH<br />Haatso, Accra<br />Ghana</p>
                   </div>
                 </div>
               </div>

@@ -4,89 +4,32 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
-import ProductCard, { type ColorVariant, getColorHex } from '@/components/ProductCard';
-import ProductCardSkeleton from '@/components/skeletons/ProductCardSkeleton';
+import { useCMS } from '@/context/CMSContext';
+import ProductCard, {
+  type ColorVariant,
+  getColorHex,
+} from '@/components/ProductCard';
 import AnimatedSection, { AnimatedGrid } from '@/components/AnimatedSection';
 import { usePageTitle } from '@/hooks/usePageTitle';
 
 export default function Home() {
   usePageTitle('');
+  const { getSetting, getActiveBanners } = useCMS();
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  const slides = [
-    {
-      image: '/delizbeautybg.jpg.jpeg',
-      tagline: 'Trending Now',
-      headline: 'Discover Your Ultimate Beauty Glow',
-      subheadline: 'Transform your daily routine into a spa-like experience. Fast shipping nationwide on all premium skincare products.',
-      primaryButtonText: 'Explore Skincare',
-      primaryButtonLink: '/shop?category=skincare',
-    },
-    {
-      image: '/hero-nail-colors.png',
-      tagline: 'Nail Collection',
-      headline: 'Over 100 Shades — Find Your Perfect Nail Color',
-      subheadline: 'Explore our premium gel polish collection. From subtle nudes to bold hues, we have every color for every mood.',
-      primaryButtonText: 'Shop Nail Colors',
-      primaryButtonLink: '/shop?category=nail',
-    },
-    {
-      image: '/hero-nail-lamp.png',
-      tagline: 'Pro Equipment',
-      headline: 'Professional UV/LED Nail Lamps for Perfect Results',
-      subheadline: 'Cure your gel nails in seconds with our high-powered salon-grade lamps. Fast, even curing every time.',
-      primaryButtonText: 'Shop Equipment',
-      primaryButtonLink: '/shop?category=equipment',
-    },
-  ];
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [slides.length]);
-
-  // Config State - Managed in Code
-  const config = {
-    hero: {
-      secondaryButtonText: 'Our Story',
-      secondaryButtonLink: '/about',
-    },
-    banners: [
-      { text: '🚚 Nationwide delivery across Ghana', active: false },
-      { text: '✨ Lash, hair, nail, spa & skincare — all in one place', active: false },
-      { text: '💳 Secure payments via Mobile Money & Card', active: false }
-    ]
-  };
 
   useEffect(() => {
     async function fetchData() {
       try {
-        // Featured products from API (service role) so product_images always load
-        const res = await fetch('/api/storefront/products?featured=true&limit=8');
-        if (res.ok) {
-          const productsData = await res.json();
-          setFeaturedProducts(Array.isArray(productsData) ? productsData : []);
-        }
-
-        // Fetch featured categories (featured is stored in metadata JSONB)
-        const { data: categoriesData, error: categoriesError } = await supabase
-          .from('categories')
-          .select('id, name, slug, image_url, metadata')
+        const { data: productsData, error: productsError } = await supabase
+          .from('products')
+          .select('*, product_variants(*), product_images(*)')
           .eq('status', 'active')
-          .order('name');
+          .order('created_at', { ascending: false })
+          .limit(12);
 
-        if (categoriesError) throw categoriesError;
-
-        // Filter by metadata.featured = true on client side
-        const featuredCategories = (categoriesData || []).filter(
-          (cat: any) => cat.metadata?.featured === true
-        );
-        setCategories(featuredCategories);
+        if (productsError) throw productsError;
+        setFeaturedProducts(productsData || []);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -97,23 +40,40 @@ export default function Home() {
     fetchData();
   }, []);
 
-  const features = [
-    { icon: 'ri-store-2-line', title: 'Free Store Pickup', desc: 'Pick up at our store' },
-    { icon: 'ri-truck-line', title: 'Fast Delivery', desc: 'Delivers in 24 - 48 hours' },
-    { icon: 'ri-customer-service-2-line', title: '24/7 Support', desc: 'Dedicated service' },
-    { icon: 'ri-shield-check-line', title: 'Secure Payment', desc: 'Safe checkout' },
-  ];
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentHeroSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [heroSlides.length]);
+
+  const heroHeadline =
+    getSetting('hero_headline') || 'Unique Kids Wear for All Occasions';
+  const heroSubheadline =
+    getSetting('hero_subheadline') ||
+    'Frebys Fashion GH brings kids ready-to-wear Ankara outfits that blend comfort, culture, and confidence for every special moment.';
+  const heroPrimaryText = getSetting('hero_primary_btn_text') || 'Shop Now';
+  const heroPrimaryLink = getSetting('hero_primary_btn_link') || '/shop';
+  const heroSecondaryText =
+    getSetting('hero_secondary_btn_text') || 'Browse Collections';
+  const heroSecondaryLink = getSetting('hero_secondary_btn_link') || '/shop';
+  const heroSlides = ['/hero-frebys-1.png', '/hero-frebys-2.png'];
+  const [currentHeroSlide, setCurrentHeroSlide] = useState(0);
+
+  const activeBanners = getActiveBanners('top');
 
   const renderBanners = () => {
-    const activeBanners = config.banners?.filter(b => b.active) || [];
     if (activeBanners.length === 0) return null;
-
     return (
-      <div className="bg-gray-900 text-white py-2 overflow-hidden relative">
+      <div className="bg-emerald-900 text-white py-2 overflow-hidden relative">
         <div className="flex animate-marquee whitespace-nowrap">
           {activeBanners.concat(activeBanners).map((banner, index) => (
-            <span key={index} className="mx-8 text-sm font-medium tracking-wide flex items-center">
-              {banner.text}
+            <span
+              key={index}
+              className="mx-8 text-sm font-medium tracking-wide flex items-center"
+            >
+              {banner.title}
             </span>
           ))}
         </div>
@@ -121,178 +81,221 @@ export default function Home() {
     );
   };
 
+  const popularProducts = featuredProducts.slice(0, 6);
+  const latestProducts = featuredProducts;
+
   return (
-    <main className="flex-col items-center justify-between min-h-screen">
+    <main className="flex-col items-center justify-between min-h-screen bg-white">
       {renderBanners()}
 
-      {/* Hero Section */}
-      <section className="relative w-full overflow-hidden bg-black">
-
-        {/* Full Background Image with Gradient Overlay */}
-        <div className="absolute inset-0 z-0">
-          {slides.map((slide, index) => (
-            <Image
-              key={slide.image}
-              src={slide.image}
-              fill
-              className={`object-cover transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
-              alt={`Hero Background ${index + 1}`}
-              priority={index === 0}
-              sizes="100vw"
-              quality={75}
-            />
+      <section className="relative w-full min-h-[78vmin] sm:min-h-[83vmin] md:min-h-[93vmin] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0">
+          {heroSlides.map((slide, index) => (
+            <div
+              key={slide}
+              className={`absolute inset-0 transition-opacity duration-1000 ${
+                index === currentHeroSlide ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <Image
+                src={slide}
+                alt=""
+                fill
+                priority={index === 0}
+                className="object-cover"
+              />
+            </div>
           ))}
-          <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-black/90 lg:from-black/80 via-black/40 lg:via-black/30 to-black/10 lg:to-transparent"></div>
-
-          {/* Slider Controls */}
-          <div className="absolute bottom-8 lg:bottom-12 left-0 right-0 w-full z-30">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-center lg:justify-end space-x-4">
-              <div className="flex space-x-3">
-                {slides.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentSlide(index)}
-                    className={`h-2 rounded-full transition-all duration-500 ease-out ${index === currentSlide ? 'bg-white w-8 shadow-[0_0_10px_rgba(255,255,255,0.7)]' : 'bg-white/40 w-2 hover:bg-white/70'
-                      }`}
-                    aria-label={`Go to slide ${index + 1}`}
-                  />
-                ))}
-              </div>
+        </div>
+        <div className="absolute inset-0 bg-black/30" aria-hidden="true" />
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 text-center">
+          <span className="inline-flex items-center rounded-full bg-white/15 border border-white/25 px-3 py-1 sm:px-4 sm:py-1.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-white/95 mb-4 sm:mb-5">
+            Frebys Fashion GH · Kids Ankara Collection
+          </span>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[3.25rem] font-extrabold leading-tight text-white drop-shadow-sm max-w-3xl mx-auto">
+            {heroHeadline}
+          </h1>
+          <p className="mt-3 sm:mt-4 text-sm sm:text-base md:text-lg text-white/90 max-w-xl mx-auto px-2 sm:px-0">
+            {heroSubheadline}
+          </p>
+          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+            <Link
+              href={heroPrimaryLink}
+              className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-amber-400 px-6 py-2.5 sm:px-9 sm:py-3 text-sm sm:text-base font-semibold text-gray-900 shadow-lg hover:bg-amber-300 transition-colors"
+            >
+              {heroPrimaryText}
+              <i className="ri-arrow-right-up-line ml-2 text-base" />
+            </Link>
+            <Link
+              href={heroSecondaryLink}
+              className="w-full sm:w-auto inline-flex items-center justify-center rounded-full border-2 border-white/50 px-6 py-2.5 sm:px-9 sm:py-3 text-sm sm:text-base font-semibold text-white hover:bg-white hover:text-gray-900 transition-colors"
+            >
+              {heroSecondaryText}
+            </Link>
+          </div>
+          <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-white/85">
+            <div className="inline-flex items-center gap-2">
+              <span className="inline-flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-white/15">
+                <i className="ri-shield-check-line text-emerald-200 text-sm sm:text-base" />
+              </span>
+              <span className="font-medium">Quality Ankara fabrics</span>
+            </div>
+            <div className="inline-flex items-center gap-2">
+              <span className="inline-flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-white/15">
+                <i className="ri-truck-line text-emerald-200 text-sm sm:text-base" />
+              </span>
+              <span className="font-medium">Worldwide delivery from Accra</span>
             </div>
           </div>
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 min-h-[85vh] flex flex-col justify-end lg:justify-center pb-24 lg:pb-0 z-10 pt-20">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center flex-1">
-
-            {/* Content Column - White text everywhere on top of background */}
-            <div key={currentSlide} className="text-center lg:text-left transition-colors duration-300 w-full mt-auto lg:mt-0">
-
-              <div className="inline-flex items-center space-x-2 mb-4 lg:mb-6 justify-center lg:justify-start animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                <span className="h-px w-8 bg-white/70"></span>
-                <span className="text-white text-sm font-semibold tracking-widest uppercase drop-shadow-md">
-                  {slides[currentSlide].tagline}
-                </span>
-                <span className="h-px w-8 bg-white/70 lg:hidden"></span>
-              </div>
-
-              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[4rem] xl:text-5xl text-white leading-[1.15] mb-4 lg:mb-6 drop-shadow-lg animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: '0.2s' }}>
-                {slides[currentSlide].headline}
-              </h1>
-
-              <p className="text-lg text-white/90 leading-relaxed max-w-md mx-auto lg:mx-0 font-light mb-8 lg:mb-10 drop-shadow-md animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-                {slides[currentSlide].subheadline}
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start px-4 lg:px-0 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                <Link href={slides[currentSlide].primaryButtonLink} className="inline-flex items-center justify-center bg-white text-gray-900 hover:bg-gray-100 px-10 py-4 rounded-full font-medium transition-all text-lg shadow-xl hover:shadow-2xl hover:-translate-y-1 btn-animate">
-                  {slides[currentSlide].primaryButtonText}
-                </Link>
-                <Link href="/shop" className="inline-flex items-center justify-center bg-white/20 backdrop-blur-md border border-white/50 text-white hover:bg-white/30 px-10 py-4 rounded-full font-medium transition-colors text-lg btn-animate gap-2">
-                  <i className="ri-search-line"></i>
-                  Search Products
-                </Link>
-              </div>
-
-            </div>
-
-            {/* Empty right column to keep the text on the left */}
-            <div className="hidden lg:flex flex-col justify-end items-end relative h-full pb-10">
-            </div>
-
+          <div className="mt-5 flex items-center justify-center gap-2">
+            {heroSlides.map((slide, index) => (
+              <span
+                key={`dot-${slide}`}
+                className={`h-2 rounded-full transition-all ${
+                  index === currentHeroSlide ? 'w-6 bg-white' : 'w-2 bg-white/60'
+                }`}
+              />
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <AnimatedSection className="flex items-end justify-between mb-12">
+      <AnimatedSection className="bg-white py-8 sm:py-10 border-b border-emerald-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
             <div>
-              <h2 className="font-serif text-4xl md:text-5xl text-gray-900 mb-4">Shop by Category</h2>
-              <p className="text-gray-600 text-lg max-w-md">Explore our carefully curated collections</p>
+              <p className="text-xs font-semibold tracking-[0.25em] text-emerald-600 uppercase">
+                Shop by vibe
+              </p>
+              <h2 className="mt-1 text-2xl font-bold text-gray-900">
+                Find the perfect kids outfit
+              </h2>
             </div>
-            <Link href="/categories" className="hidden md:flex items-center text-gray-900 font-medium hover:text-gray-700 transition-colors">
-              View All <i className="ri-arrow-right-line ml-2"></i>
+            <Link
+              href="/shop"
+              className="inline-flex items-center text-sm font-medium text-emerald-700 hover:text-emerald-900"
+            >
+              Browse full catalogue
+              <i className="ri-arrow-right-line ml-1" />
             </Link>
-          </AnimatedSection>
+          </div>
 
-          <AnimatedGrid className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-            {categories.map((category) => (
-              <Link href={{ pathname: '/shop', query: { category: category.slug } }} key={category.id} className="group outline-none block">
-                <div className="relative aspect-[3/4] sm:aspect-[4/5] rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]">
-                  <Image
-                    src={category.image || category.image_url || 'https://via.placeholder.com/600x800?text=' + encodeURIComponent(category.name)}
-                    alt={category.name}
-                    fill
-                    className="object-cover transform transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]"
-                    sizes="(max-width: 768px) 50vw, 25vw"
-                    quality={85}
-                  />
-
-                  {/* Subtle darkening for text contrast */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]" />
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]" />
-
-                  {/* Elegant text layout resting at the bottom */}
-                  <div className="absolute inset-0 flex flex-col justify-end p-5 md:p-8">
-                    <div className="transform translate-y-3 group-hover:translate-y-0 transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]">
-                      <h3 className="font-serif text-2xl md:text-3xl lg:text-[1.75rem] text-white font-medium drop-shadow-sm mb-1.5 md:mb-2 leading-tight">
-                        {category.name}
-                      </h3>
-
-                      <div className="overflow-hidden">
-                        <div className="flex items-center gap-3 transform translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] delay-[50ms]">
-                          <span className="text-[9px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] text-white/90">
-                            View Collection
-                          </span>
-                          <div className="h-[1px] w-6 sm:w-8 bg-white/70" />
-                        </div>
-                      </div>
-                    </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                label: 'Casual Kids Wear',
+                href: '/shop?search=casual',
+                chip: 'Everyday comfort',
+                icon: 'ri-shirt-line',
+                color: 'from-emerald-500 to-emerald-700',
+              },
+              {
+                label: 'Luxury Kids Wear',
+                href: '/shop?search=luxury',
+                chip: 'Premium looks',
+                icon: 'ri-vip-crown-line',
+                color: 'from-sky-400 to-cyan-600',
+              },
+              {
+                label: 'Occasion Outfits',
+                href: '/shop?search=occasion',
+                chip: 'Event ready',
+                icon: 'ri-t-shirt-air-line',
+                color: 'from-amber-400 to-orange-600',
+              },
+              {
+                label: 'New Arrivals',
+                href: '/shop?sort=new',
+                chip: 'Just landed',
+                icon: 'ri-sparkling-line',
+                color: 'from-slate-600 to-slate-900',
+              },
+            ].map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="group relative overflow-hidden rounded-2xl border border-emerald-50 bg-emerald-50/40 p-4 hover:border-emerald-300 transition-colors"
+              >
+                <div
+                  className={`pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gradient-to-br ${item.color} opacity-70 blur-2xl group-hover:opacity-100 transition-opacity`}
+                />
+                <div className="relative flex items-center justify-between gap-4">
+                  <div>
+                    <span className="inline-flex items-center rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-medium text-emerald-700 mb-2">
+                      {item.chip}
+                    </span>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {item.label}
+                    </p>
+                  </div>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm text-emerald-700 group-hover:translate-y-[-2px] group-hover:shadow-md transition-all">
+                    <i className={`${item.icon} text-lg`} />
                   </div>
                 </div>
               </Link>
             ))}
-          </AnimatedGrid>
-
-          <div className="mt-8 text-center md:hidden">
-            <Link href="/categories" className="inline-flex items-center text-gray-900 font-medium hover:text-gray-700 transition-colors">
-              View All <i className="ri-arrow-right-line ml-2"></i>
-            </Link>
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
-      {/* Featured Products */}
-      <section className="py-24 bg-stone-50">
+      <AnimatedSection className="bg-white py-10 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimatedSection className="text-center mb-16">
-            <h2 className="font-serif text-4xl md:text-5xl text-gray-900 mb-4">Featured Products</h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">Handpicked for you</p>
-          </AnimatedSection>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+            <div>
+              <p className="text-xs font-semibold tracking-[0.25em] text-emerald-600 uppercase">
+                Trending now
+              </p>
+              <h2 className="mt-1 text-2xl sm:text-3xl font-extrabold text-gray-900">
+                Styles families love most
+              </h2>
+            </div>
+            <Link
+              href="/shop?sort=bestsellers"
+              className="inline-flex items-center text-sm font-medium text-gray-800 hover:text-emerald-700"
+            >
+              View bestselling outfits
+              <i className="ri-arrow-right-line ml-1" />
+            </Link>
+          </div>
 
           {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 md:gap-8">
-              {[...Array(4)].map((_, i) => (
-                <ProductCardSkeleton key={i} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="bg-gray-200 aspect-[4/5] rounded-2xl mb-4" />
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+                  <div className="h-4 bg-gray-200 rounded w-1/2" />
+                </div>
               ))}
             </div>
           ) : (
-            <AnimatedGrid className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
-              {featuredProducts.map((product) => {
+            <AnimatedGrid className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {popularProducts.map((product) => {
                 const variants = product.product_variants || [];
                 const hasVariants = variants.length > 0;
-                const minVariantPrice = hasVariants ? Math.min(...variants.map((v: any) => v.price || product.price)) : undefined;
-                const totalVariantStock = hasVariants ? variants.reduce((sum: number, v: any) => sum + (v.quantity || 0), 0) : 0;
-                const effectiveStock = hasVariants ? totalVariantStock : product.quantity;
+                const minVariantPrice = hasVariants
+                  ? Math.min(
+                      ...variants.map((v: any) => v.price || product.price)
+                    )
+                  : undefined;
+                const totalVariantStock = hasVariants
+                  ? variants.reduce(
+                      (sum: number, v: any) => sum + (v.quantity || 0),
+                      0
+                    )
+                  : 0;
+                const effectiveStock = hasVariants
+                  ? totalVariantStock
+                  : product.quantity;
 
-                // Extract unique colors from option2
                 const colorVariants: ColorVariant[] = [];
                 const seenColors = new Set<string>();
                 for (const v of variants) {
                   const colorName = (v as any).option2;
-                  if (colorName && !seenColors.has(colorName.toLowerCase().trim())) {
+                  if (
+                    colorName &&
+                    !seenColors.has(colorName.toLowerCase().trim())
+                  ) {
                     const hex = getColorHex(colorName);
                     if (hex) {
                       seenColors.add(colorName.toLowerCase().trim());
@@ -309,10 +312,13 @@ export default function Home() {
                     name={product.name}
                     price={product.price}
                     originalPrice={product.compare_at_price}
-                    image={(Array.isArray(product.product_images) ? [...product.product_images].sort((a: any, b: any) => (a.position ?? 0) - (b.position ?? 0))[0]?.url : product.product_images?.[0]?.url) || 'https://via.placeholder.com/400x500'}
+                    image={
+                      product.product_images?.[0]?.url ||
+                      'https://via.placeholder.com/400x500'
+                    }
                     rating={product.rating_avg || 5}
                     reviewCount={product.review_count || 0}
-                    badge={product.featured ? 'Featured' : undefined}
+                    badge={product.featured ? 'Featured' : 'Trending'}
                     inStock={effectiveStock > 0}
                     maxStock={effectiveStock || 50}
                     moq={product.moq || 1}
@@ -324,46 +330,179 @@ export default function Home() {
               })}
             </AnimatedGrid>
           )}
+        </div>
+      </AnimatedSection>
 
-          <div className="text-center mt-16">
-            <Link
-              href="/shop"
-              className="inline-flex items-center justify-center bg-gray-900 text-white px-10 py-4 rounded-full font-medium hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 btn-animate"
-            >
-              View All Products
-            </Link>
+      <AnimatedSection className="bg-emerald-50/60 py-10 sm:py-14">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+            <div>
+              <p className="text-xs font-semibold tracking-[0.25em] text-emerald-700 uppercase">
+                Just landed
+              </p>
+              <h2 className="mt-1 text-2xl sm:text-3xl font-extrabold text-emerald-950">
+                Fresh designs & restocks
+              </h2>
+            </div>
+            <p className="text-sm text-emerald-900/80 max-w-md">
+              Discover new kids Ankara pieces for birthdays, celebrations,
+              church, school events, and everyday style.
+            </p>
+          </div>
+
+          <div className="relative overflow-hidden">
+            <div className="flex gap-4 animate-just-landed-scroll pb-2 [--card-width:240px] hover:[animation-play-state:paused]">
+              {[...(latestProducts.length ? latestProducts : popularProducts), ...(latestProducts.length ? latestProducts : popularProducts)].map(
+                (product, index) => (
+                  <div
+                    key={`${product.id}-${index}`}
+                    className="min-w-[180px] sm:min-w-[220px] max-w-[260px] w-[var(--card-width)] flex-shrink-0 rounded-xl sm:rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <div className="relative aspect-[4/5] rounded-xl sm:rounded-2xl overflow-hidden bg-emerald-900/5">
+                      <Image
+                        src={
+                          product.product_images?.[0]?.url ||
+                          'https://via.placeholder.com/400x500'
+                        }
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="p-3">
+                      <p className="text-xs uppercase tracking-wide text-emerald-500 mb-1">
+                        New drop
+                      </p>
+                      <p className="text-sm font-semibold text-gray-900 line-clamp-2">
+                        {product.name}
+                      </p>
+                      <div className="mt-2 flex items-center justify-between">
+                        <span className="text-sm font-bold text-gray-900">
+                          GH₵{Number(product.price || 0).toFixed(2)}
+                        </span>
+                        <Link
+                          href={`/product/${product.slug}`}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-white hover:bg-emerald-700 text-sm"
+                        >
+                          <i className="ri-arrow-right-line" />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                )
+              )}
+            </div>
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
+      <AnimatedSection className="bg-white py-10 sm:py-14">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
+            <p className="text-xs font-semibold tracking-[0.25em] text-emerald-600 uppercase">
+              Why customers stay with us
+            </p>
+            <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold text-gray-900">
+              Built with passion for kids fashion
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-gray-600">
+              Every Frebys piece is made to help children look confident, feel
+              comfortable, and stand out beautifully at every occasion.
+            </p>
+          </div>
 
-      {/* Trust Features */}
-      <section className="py-24 relative bg-slate-50/50 border-t border-gray-100 overflow-hidden">
-        {/* Subtle Decorative Background Elements */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gray-200/20 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-gray-100/50 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
-            {features.map((feature, i) => (
-              <AnimatedSection key={i} delay={i * 100} className="group flex flex-col items-center text-center p-8 rounded-[2rem] hover:bg-white hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] transition-all duration-500 cursor-default border border-transparent hover:border-gray-100/60 relative overflow-hidden">
-
-                <div className="relative w-20 h-20 mb-8 flex items-center justify-center">
-                  {/* Animated Background Offset Box */}
-                  <div className="absolute inset-0 bg-gray-100/80 rounded-2xl transform rotate-6 group-hover:rotate-12 group-hover:scale-105 transition-all duration-500 ease-out"></div>
-
-                  {/* Foreground Glass Container */}
-                  <div className="absolute inset-0 bg-white/90 backdrop-blur-md shadow-sm border border-white rounded-2xl transform -rotate-3 group-hover:-rotate-0 group-hover:-translate-y-2 transition-all duration-500 ease-out flex items-center justify-center z-10 overflow-hidden">
-                    {/* Shine Effect inside Icon Box */}
-                    <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-40 group-hover:animate-shine" />
-                    <i className={`${feature.icon} text-3xl text-gray-700 group-hover:text-black transform group-hover:scale-110 transition-all duration-500 relative z-20`}></i>
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3">
+            {[
+              {
+                icon: 'ri-vip-crown-line',
+                title: 'Unique occasion-ready designs',
+                body: 'We curate standout Ankara outfits for birthdays, ceremonies, family photos, and festive events.',
+              },
+              {
+                icon: 'ri-customer-service-2-line',
+                title: 'Real humans, real advice',
+                body: 'Our team helps with sizing, outfit matching, and recommendations so you shop with confidence.',
+              },
+              {
+                icon: 'ri-bus-2-line',
+                title: 'Worldwide delivery',
+                body: 'Order from Haatso, Accra, Ghana to any destination with reliable updates and smooth support.',
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="relative overflow-hidden rounded-2xl border border-emerald-50 bg-emerald-50/40 p-6"
+              >
+                <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-emerald-200/40 blur-2xl pointer-events-none" />
+                <div className="relative">
+                  <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md">
+                    <i className={`${item.icon} text-xl`} />
                   </div>
+                  <h3 className="text-base font-semibold text-gray-900 mb-2">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {item.body}
+                  </p>
                 </div>
-
-                <h3 className="font-serif text-[22px] font-bold text-gray-900 mb-3 tracking-tight group-hover:text-black transition-colors">{feature.title}</h3>
-                <p className="text-gray-500 font-medium text-[15px] leading-relaxed group-hover:text-gray-600 transition-colors px-2">{feature.desc}</p>
-              </AnimatedSection>
+              </div>
             ))}
+          </div>
+        </div>
+      </AnimatedSection>
+
+      <section className="pb-12 sm:pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-emerald-950 text-white flex flex-col md:flex-row items-center md:items-stretch">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(52,211,153,0.25),_transparent_55%),radial-gradient(circle_at_bottom_right,_rgba(16,185,129,0.4),_transparent_55%)] opacity-80" />
+            <div className="relative w-full md:w-3/5 px-5 sm:px-8 py-8 sm:py-10 flex flex-col justify-center space-y-3 text-center md:text-left">
+              <span className="inline-flex items-center text-xs font-semibold tracking-[0.25em] uppercase text-emerald-200">
+                Join the Frebys family
+              </span>
+              <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold">
+                Dress your kids in style for every occasion.
+              </h3>
+              <p className="text-sm sm:text-base text-emerald-100 max-w-md mx-auto md:mx-0">
+                Explore casual and luxury kids Ankara wear with comfort, quality
+                finishing, and worldwide delivery from Frebys Fashion GH.
+              </p>
+              <div className="pt-2 flex flex-wrap gap-3 justify-center md:justify-start">
+                <Link
+                  href="/shop"
+                  className="inline-flex items-center rounded-full bg-white text-emerald-900 px-8 py-3 text-sm font-semibold shadow-lg hover:bg-emerald-100"
+                >
+                  Start shopping kids wear
+                  <i className="ri-arrow-right-up-line ml-2" />
+                </Link>
+                <Link
+                  href="/account"
+                  className="inline-flex items-center rounded-full border border-emerald-200/70 px-6 py-3 text-sm font-semibold text-emerald-50 hover:bg-emerald-800/60"
+                >
+                  Create an account
+                </Link>
+              </div>
+            </div>
+            <div className="relative w-full md:w-2/5 py-4 sm:py-6 pr-4 pl-4 md:pl-0 flex justify-center">
+              <div className="relative h-40 sm:h-52 md:h-64 lg:h-full min-h-[12rem] w-full max-w-sm md:max-w-none rounded-2xl border border-emerald-300/20 bg-emerald-900/50 backdrop-blur-sm p-5 flex flex-col justify-center gap-3 shadow-[0_30px_70px_rgba(0,0,0,0.45)]">
+                <span className="inline-flex w-fit items-center rounded-full bg-emerald-500/20 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-100">
+                  Frebys Fashion GH
+                </span>
+                <p className="text-lg sm:text-xl font-bold text-white leading-snug">
+                  Casual and luxury kids Ankara wear
+                </p>
+                <div className="space-y-1 text-sm text-emerald-100/95">
+                  <p className="inline-flex items-center gap-2">
+                    <i className="ri-map-pin-line" /> Haatso, Accra, Ghana
+                  </p>
+                  <p className="inline-flex items-center gap-2">
+                    <i className="ri-phone-line" /> 0244720197
+                  </p>
+                  <p className="inline-flex items-center gap-2">
+                    <i className="ri-earth-line" /> Worldwide delivery
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

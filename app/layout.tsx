@@ -18,30 +18,30 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://delizbeautytools.com';
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://frebysfashiongh.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Deliz Beauty Tools | Premium Beauty Essentials in Ghana",
-    template: "%s | Deliz Beauty Tools"
+    default: "Frebys Fashion GH | Kids Ready-to-Wear Ankara Clothes",
+    template: "%s | Frebys Fashion GH",
   },
-  description: "Ghana's trusted destination for premium beauty essentials. Lash products, hair & wig tools, pedicure & manicure supplies, nail accessories, spa equipment & skincare. Madina, Accra. Nationwide delivery.",
+  description:
+    "Frebys Fashion GH creates unique kids ready-to-wear Ankara clothes for all occasions. Casual and luxury kids wear with worldwide delivery from Haatso, Accra, Ghana.",
   keywords: [
-    "Deliz Beauty Tools",
-    "beauty supplies Ghana",
-    "lash products",
-    "hair and wig tools",
-    "manicure pedicure",
-    "nail accessories",
-    "spa equipment",
-    "skincare Ghana",
-    "beauty salon supplies",
-    "Madina Accra"
+    "Frebys Fashion GH",
+    "kids Ankara clothes",
+    "kids ready to wear Ghana",
+    "children fashion Ghana",
+    "casual kids wear",
+    "luxury kids wear",
+    "Ankara outfits for kids",
+    "Haatso Accra",
+    "worldwide kids fashion delivery",
   ],
-  authors: [{ name: "Deliz Beauty Tools" }],
-  creator: "Deliz Beauty Tools",
-  publisher: "Deliz Beauty Tools",
+  authors: [{ name: "Frebys Fashion GH" }],
+  creator: "Frebys Fashion GH",
+  publisher: "Frebys Fashion GH",
   robots: {
     index: true,
     follow: true,
@@ -67,8 +67,8 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
-    title: 'Deliz Beauty Tools',
+    statusBarStyle: "default",
+    title: "Frebys Fashion GH",
   },
   formatDetection: {
     telephone: true,
@@ -80,24 +80,25 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en",
     url: siteUrl,
-    title: "Deliz Beauty Tools | Premium Beauty Essentials in Ghana",
-    description: "Ghana's trusted destination for premium beauty essentials. Lash, hair, nail, spa & skincare. Madina, Accra. Nationwide delivery.",
-    siteName: "Deliz Beauty Tools",
+    title: "Frebys Fashion GH | Kids Ready-to-Wear Ankara Clothes",
+    description:
+      "Unique kids wear for all occasions. Passion for kids fashion with casual and luxury Ankara styles. Worldwide delivery from Haatso, Accra, Ghana.",
+    siteName: "Frebys Fashion GH",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Deliz Beauty Tools - Premium Beauty Essentials",
+        alt: "Frebys Fashion GH - Kids Ready-to-Wear Ankara Clothes",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Deliz Beauty Tools | Premium Beauty Essentials in Ghana",
-    description: "Ghana's trusted destination for premium beauty essentials. Nationwide delivery.",
+    title: "Frebys Fashion GH | Kids Ready-to-Wear Ankara Clothes",
+    description:
+      "Unique casual and luxury kids Ankara wear with worldwide delivery from Ghana.",
     images: ["/og-image.jpg"],
-    creator: "@delizbeautytools",
   },
   alternates: {
     canonical: siteUrl,
@@ -121,7 +122,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#171717" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Deliz Beauty Tools" />
+        <meta name="apple-mobile-web-app-title" content="Frebys Fashion GH" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-TileColor" content="#171717" />
         <meta name="msapplication-tap-highlight" content="no" />
@@ -147,19 +148,19 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              "name": "Deliz Beauty Tools",
-              "url": "https://delizbeautytools.com",
-              "logo": "https://delizbeautytools.com/logo1.png",
-              "description": "Ghana's trusted destination for premium beauty essentials. Lash products, hair & wig tools, manicure & pedicure supplies, nail accessories, spa equipment and skincare.",
+              "name": "Frebys Fashion GH",
+              "url": siteUrl,
+              "logo": `${siteUrl}/logo1.png`,
+              "description": "Unique kids ready-to-wear Ankara clothes for all occasions. Casual and luxury kids wear with worldwide delivery.",
               "address": {
                 "@type": "PostalAddress",
                 "addressCountry": "GH",
-                "addressLocality": "Madina, Ritz Junction, Accra"
+                "addressLocality": "Haatso, Accra, Ghana"
               },
               "contactPoint": {
                 "@type": "ContactPoint",
                 "contactType": "customer service",
-                "telephone": "+233278549831",
+                "telephone": "+233244720197",
                 "availableLanguage": "English"
               }
             })

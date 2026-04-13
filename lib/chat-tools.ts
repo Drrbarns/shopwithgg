@@ -332,12 +332,12 @@ export async function getRecommendations(
 // ─── 9. Get Store Info (static) ─────────────────────────────────────────────
 
 const STORE_INFO: Record<string, string> = {
-  shipping: `We deliver across Ghana. Standard delivery takes 1-3 business days within Accra and 3-7 business days outside Accra. Shipping fees vary by location and are calculated at checkout.`,
-  returns: `We accept returns within 30 days of delivery for unused items in original packaging. To start a return, go to your account or ask me to help. Refunds are processed within 5-7 business days after we receive the item.`,
-  payment: `We accept Mobile Money (MTN, Vodafone Cash, AirtelTigo Money) via our secure Moolre payment gateway. Cash on delivery is available for orders within Accra.`,
-  contact: `You can reach us through:\n- This chat (24/7)\n- Email: contact@delizbeautytools.com\n- Phone: 027 854 9831\n- Visit: Madina, Ritz Junction, Accra\n- Support ticket: I can create one for you right now`,
-  about: `Deliz Beauty Tools is Ghana's trusted destination for premium beauty essentials. We specialize in lash products, hair and wig tools, pedicure and manicure supplies, nail accessories, spa equipment, and skincare. Located in Madina, Ritz Junction, Accra. Nationwide delivery.`,
-  delivery_times: `Accra: 1-3 business days\nKumasi, Takoradi, Cape Coast: 3-5 business days\nOther regions: 5-7 business days\nExpress delivery available for Accra (same day/next day) at extra cost.`,
+  shipping: `Frebys Fashion GH ships from Haatso, Accra, Ghana and offers worldwide delivery. Delivery timelines and shipping fees are calculated by destination at checkout.`,
+  returns: `We accept eligible returns within 30 days of delivery for unworn items in original condition. To start a return, use your account or ask me to create a support ticket. Refunds are processed after inspection.`,
+  payment: `We support secure checkout options, including Mobile Money for eligible local orders. Available payment methods are shown at checkout.`,
+  contact: `You can reach us through:\n- This chat (24/7)\n- Email: hello@frebysfashiongh.com\n- Phone/WhatsApp: 024 472 0197\n- Visit: Haatso, Accra, Ghana\n- Support ticket: I can create one for you right now`,
+  about: `Frebys Fashion GH creates unique kids ready-to-wear Ankara clothes for all occasions. We offer casual and luxury kids wear with worldwide delivery from Haatso, Accra, Ghana.`,
+  delivery_times: `Delivery timelines vary by destination (Ghana and international). You will see estimated timing at checkout and in your order updates.`,
   hours: `Our online store is open 24/7. Customer support is available Monday-Saturday, 8 AM - 8 PM GMT.`,
 };
 
@@ -659,7 +659,7 @@ export async function createChatOrder(
         const payload = {
           type: 1,
           amount: total.toString(),
-          email: process.env.MOOLRE_MERCHANT_EMAIL || 'contact@delizbeautytools.com',
+          email: process.env.MOOLRE_MERCHANT_EMAIL || 'hello@frebysfashiongh.com',
           externalref: uniqueRef,
           callback: `${baseUrl}/api/payment/moolre/callback`,
           redirect: `${baseUrl}/order-success?order=${orderNumber}&payment_success=true`,

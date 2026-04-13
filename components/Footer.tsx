@@ -56,13 +56,15 @@ export default function Footer() {
     }
   };
 
-  const siteName = getSetting('site_name') || 'Deliz Beauty Tools';
-  const siteTagline = getSetting('site_tagline') || 'Premium Quality Products For Less.';
+  const rawSiteName = getSetting("site_name") || "";
+  const siteName =
+    rawSiteName && !/deliz/i.test(rawSiteName) ? rawSiteName : "Frebys Fashion GH";
+  const siteTagline =
+    getSetting("site_tagline") ||
+    "Unique kids ready-to-wear Ankara clothes for all occasions.";
   const contactEmail = getSetting('contact_email') || '';
-  const contactPhone = getSetting('contact_phone') || '0278549831';
-  const socialFacebook = getSetting('social_facebook') || '';
-  const socialInstagram = getSetting('social_instagram') || '';
-  const socialTwitter = getSetting('social_twitter') || '';
+  const contactPhone = getSetting("contact_phone") || "0244720197";
+  const whatsappLink = `https://wa.me/233${contactPhone.replace(/^0/, "")}`;
 
   return (
     <footer className="bg-gray-900 text-white rounded-t-[2.5rem] mt-8 lg:mt-0 overflow-hidden">
@@ -75,7 +77,7 @@ export default function Footer() {
           </div>
           <h3 className="text-2xl md:text-3xl font-bold mb-3 font-serif">Join Our Community</h3>
           <p className="text-gray-300 mb-8 max-w-md mx-auto leading-relaxed">
-            Get exclusive access to new arrivals, beauty tips, and special offers.
+            Get first access to new kids Ankara arrivals, styling tips, and special offers.
           </p>
 
           <form onSubmit={handleSubmit} className="max-w-md mx-auto relative">
@@ -110,30 +112,23 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-1 space-y-6">
             <Link href="/" className="inline-block">
-              {/* Using the logo directly can be nice, or text if needed. Assuming white version exists or adjusting brightness. */}
-              <img src="/logo1.png" alt={siteName} className="h-8 w-auto object-contain brightness-0 invert opacity-90" />
+              <span className="text-xl font-extrabold tracking-[0.2em] text-white">FREBYS</span>
             </Link>
             <p className="text-gray-300/90 leading-relaxed text-sm">
-              {siteTagline.replace(/Less\.?$/i, '').trimEnd()}{' '}
+              {siteTagline.replace(/Less\.?$/i, "").trimEnd()}{" "}
               <Link href="/admin" className="text-inherit hover:text-inherit no-underline">Less.</Link>
             </p>
 
             <div className="flex gap-4 pt-2">
-              {[
-                { link: socialInstagram, icon: 'ri-instagram-line' },
-                { link: socialFacebook, icon: 'ri-facebook-fill' },
-                { link: socialTwitter, icon: 'ri-twitter-x-fill' }
-              ].map((social, i) => social.link && (
-                <a
-                  key={i}
-                  href={social.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 bg-gray-700/50 rounded-full flex items-center justify-center text-gray-300 hover:bg-white hover:text-gray-900 transition-all hover:-translate-y-1"
-                >
-                  <i className={social.icon}></i>
-                </a>
-              ))}
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-gray-700/50 rounded-full flex items-center justify-center text-gray-300 hover:bg-white hover:text-gray-900 transition-all hover:-translate-y-1"
+                aria-label="Chat on WhatsApp"
+              >
+                <i className="ri-whatsapp-line"></i>
+              </a>
             </div>
 
             <div className="space-y-3 pt-4 border-t border-gray-700">

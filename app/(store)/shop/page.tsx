@@ -4,47 +4,13 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import ProductCard, { type ColorVariant } from '@/components/ProductCard';
-import ProductCardSkeleton from '@/components/skeletons/ProductCardSkeleton';
 import { getColorHex } from '@/components/ProductCard';
+import { supabase } from '@/lib/supabase';
 import { cachedQuery } from '@/lib/query-cache';
-import PageHero from '@/components/PageHero';
 
 function ShopContent() {
-  usePageTitle('Shop All Products');
+  usePageTitle('Shop Kids Ankara Collections');
   const searchParams = useSearchParams();
-
-  const resolveCategorySlug = (rawCategory: string, list: any[]) => {
-    if (!rawCategory || !Array.isArray(list) || list.length === 0) return rawCategory;
-
-    const safeDecode = (value: string) => {
-      try {
-        return decodeURIComponent(value);
-      } catch {
-        return value;
-      }
-    };
-
-    const candidates = Array.from(
-      new Set(
-        [rawCategory, safeDecode(rawCategory), rawCategory.replace(/\+/g, ' '), safeDecode(rawCategory).replace(/\+/g, ' ')]
-          .map((v) => v.trim())
-          .filter(Boolean)
-      )
-    );
-
-    const match = list.find((category: any) => {
-      const slug = String(category?.slug || '').trim();
-      const name = String(category?.name || '').trim();
-      return candidates.some((candidate) =>
-        slug === candidate ||
-        name === candidate ||
-        slug.toLowerCase() === candidate.toLowerCase() ||
-        name.toLowerCase() === candidate.toLowerCase()
-      );
-    });
-
-    return match?.slug || rawCategory;
-  };
 
   // State
   const [products, setProducts] = useState<any[]>([]);
@@ -67,16 +33,9 @@ function ShopContent() {
     const sort = searchParams.get('sort');
     const search = searchParams.get('search');
 
-    if (category) {
-      const resolvedCategory = resolveCategorySlug(category, categories);
-      setSelectedCategory((prev) => (prev === resolvedCategory ? prev : resolvedCategory));
-    } else {
-      setSelectedCategory((prev) => (prev === 'all' ? prev : 'all'));
-    }
-
+    if (category) setSelectedCategory(category);
     if (sort) setSortBy(sort);
-    // Search is handled in the fetch function via searchParams directly or we could add a state for it
-  }, [searchParams, categories]);
+  }, [searchParams]);
 
   // Fetch Categories from cached API
   useEffect(() => {
@@ -94,48 +53,83 @@ function ShopContent() {
     fetchCategories();
   }, []);
 
-  // Fetch Products from API (service role) so product_images always load on storefront
+  // Fetch Products
   useEffect(() => {
     async function fetchProducts() {
       setLoading(true);
       try {
-        const search = searchParams.get('search') || '';
-        let categorySlugs = 'all';
-        if (selectedCategory !== 'all') {
-          const categoryObj = categories.find((c: any) => c.slug === selectedCategory);
-          if (categoryObj) {
-            const childSlugs = categories
-              .filter((c: any) => c.parent_id === categoryObj.id)
-              .map((c: any) => c.slug);
-            categorySlugs = [selectedCategory, ...childSlugs].join(',');
-          } else {
-            categorySlugs = selectedCategory;
-          }
-        }
+        const search = searchParams.get('search');
 
         const cacheKey = `shop:${selectedCategory}:${search}:${priceRange.join('-')}:${selectedRating}:${sortBy}:${page}`;
-        const { data, count } = await cachedQuery<{ data: any[]; count: number }>(
+        const { data, count, error } = await cachedQuery<{ data: any; count: any; error: any }>(
           cacheKey,
           async () => {
-            const params = new URLSearchParams({
-              search,
-              categorySlugs,
-              priceMin: String(priceRange[0]),
-              priceMax: String(priceRange[1]),
-              rating: String(selectedRating),
-              sortBy,
-              page: String(page),
-              limit: String(productsPerPage),
-            });
-            const res = await fetch(`/api/storefront/shop?${params}`);
-            if (!res.ok) {
-              const err = await res.json().catch(() => ({}));
-              throw new Error(err.error || 'Failed to load products');
+            let query = supabase
+              .from('products')
+              .select(`
+                *,
+                categories!inner(name, slug),
+                product_images!product_id(url, position),
+                product_variants(id, name, price, quantity, option1, option2, image_url)
+              `, { count: 'exact' })
+              .order('position', { foreignTable: 'product_images', ascending: true });
+
+            if (search) {
+              query = query.ilike('name', `%${search}%`);
             }
-            return res.json();
+
+            if (selectedCategory !== 'all') {
+              const categoryObj = categories.find(c => c.slug === selectedCategory);
+
+              if (categoryObj) {
+                const targetSlugs = [selectedCategory];
+                const childSlugs = categories
+                  .filter(c => c.parent_id === categoryObj.id)
+                  .map(c => c.slug);
+                targetSlugs.push(...childSlugs);
+                query = query.in('categories.slug', targetSlugs);
+              } else {
+                query = query.eq('categories.slug', selectedCategory);
+              }
+            }
+
+            if (priceRange[1] < 5000) {
+              query = query.gte('price', priceRange[0]).lte('price', priceRange[1]);
+            }
+
+            if (selectedRating > 0) {
+              query = query.gte('rating_avg', selectedRating);
+            }
+
+            switch (sortBy) {
+              case 'price-low':
+                query = query.order('price', { ascending: true });
+                break;
+              case 'price-high':
+                query = query.order('price', { ascending: false });
+                break;
+              case 'rating':
+                query = query.order('rating_avg', { ascending: false });
+                break;
+              case 'new':
+                query = query.order('created_at', { ascending: false });
+                break;
+              case 'popular':
+              default:
+                query = query.order('created_at', { ascending: false });
+                break;
+            }
+
+            const from = (page - 1) * productsPerPage;
+            const to = from + productsPerPage - 1;
+            query = query.range(from, to);
+
+            return query as any;
           },
-          30 * 1000
+          2 * 60 * 1000
         );
+
+        if (error) throw error;
 
         if (data) {
           const formattedProducts = data.map((p: any) => {
@@ -156,18 +150,15 @@ function ShopContent() {
                 }
               }
             }
-            const images = Array.isArray(p.product_images) ? [...p.product_images].sort((a: any, b: any) => (a.position ?? 0) - (b.position ?? 0)) : [];
-            const firstImageUrl = images.find((img: any) => Number(img.position) === 0)?.url || images[0]?.url || 'https://via.placeholder.com/800x800?text=No+Image';
-
             return {
-              id: p.id,
-              slug: p.slug,
+              id: p.id,           // Product UUID for cart/orders
+              slug: p.slug,       // Slug for navigation
               name: p.name,
               price: p.price,
               originalPrice: p.compare_at_price,
-              image: firstImageUrl,
+              image: p.product_images?.[0]?.url || 'https://via.placeholder.com/800x800?text=No+Image',
               rating: p.rating_avg || 0,
-              reviewCount: 0,
+              reviewCount: 0, // Need to implement reviews relation
               badge: p.compare_at_price > p.price ? 'Sale' : undefined,
               inStock: effectiveStock > 0,
               maxStock: effectiveStock || 50,
@@ -194,38 +185,59 @@ function ShopContent() {
   const totalPages = Math.ceil(totalProducts / productsPerPage);
 
   return (
-    <main className="min-h-screen bg-white">
-      <PageHero
-        title="Shop All Products"
-        subtitle="Discover our curated collection of premium goods"
-        image="/hero-nail-lamp.png"
-      />
+    <main className="min-h-screen bg-gradient-to-b from-emerald-50/40 via-white to-white">
+      <section className="relative overflow-hidden border-b border-emerald-100/80">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(16,185,129,0.35),transparent_45%),radial-gradient(circle_at_85%_10%,rgba(5,150,105,0.22),transparent_40%),linear-gradient(130deg,#022c22,#064e3b,#065f46)]" />
+        <div className="absolute inset-0 bg-black/20" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16 md:py-20 text-white">
+          <div className="max-w-3xl">
+            <span className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-[11px] font-semibold tracking-[0.2em] uppercase">
+              Frebys Fashion GH
+            </span>
+            <h1 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
+              Shop Kids Ankara Collections
+            </h1>
+            <p className="mt-4 text-sm sm:text-base text-white/90 max-w-2xl">
+              Explore casual and luxury kids ready-to-wear Ankara outfits curated for birthdays,
+              celebrations, church, school events, and everyday confidence.
+            </p>
+            <div className="mt-6 flex flex-wrap items-center gap-3 text-xs sm:text-sm text-white/90">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 border border-white/20">
+                <i className="ri-map-pin-line" /> Haatso, Accra, Ghana
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 border border-white/20">
+                <i className="ri-earth-line" /> Worldwide delivery
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Mobile Filter Toggle */}
-      <div className="lg:hidden bg-white border-b border-gray-200 py-4 px-4 sticky top-[72px] z-20">
+      <div className="lg:hidden bg-white/95 backdrop-blur-md border-b border-emerald-100 py-4 px-4 sticky top-[72px] z-20">
         <div className="flex justify-between items-center">
           <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className="flex items-center space-x-2 text-gray-900 font-medium"
+            className="inline-flex items-center space-x-2 text-emerald-900 font-semibold"
           >
             <i className="ri-filter-3-line text-xl"></i>
             <span>Filters & Sort</span>
           </button>
-          <span className="text-sm text-gray-500">{totalProducts} Products</span>
+          <span className="text-sm text-emerald-700">{totalProducts} Products</span>
         </div>
       </div>
 
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex gap-8">
-            <aside className={`${isFilterOpen ? 'fixed inset-0 z-50 bg-white overflow-y-auto' : 'hidden'} lg:block lg:w-64 lg:flex-shrink-0`}>
+            <aside className={`${isFilterOpen ? 'fixed inset-0 z-50 bg-white overflow-y-auto' : 'hidden'} lg:block lg:w-72 lg:flex-shrink-0`}>
               <div className="lg:sticky lg:top-24">
-                <div className="bg-white lg:bg-transparent p-6 lg:p-0">
+                <div className="bg-white lg:bg-emerald-50/55 lg:border lg:border-emerald-100 lg:rounded-3xl p-6">
                   <div className="flex items-center justify-between mb-6 lg:hidden">
-                    <h2 className="text-xl font-bold text-gray-900">Filters</h2>
+                    <h2 className="text-xl font-bold text-emerald-950">Filters</h2>
                     <button
                       onClick={() => setIsFilterOpen(false)}
-                      className="w-10 h-10 flex items-center justify-center text-gray-700"
+                      className="w-10 h-10 flex items-center justify-center text-emerald-700"
                     >
                       <i className="ri-close-line text-2xl"></i>
                     </button>
@@ -234,7 +246,7 @@ function ShopContent() {
                   <div className="space-y-8">
                     {/* Categories */}
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-4">Categories</h3>
+                      <h3 className="font-semibold text-emerald-950 mb-4">Categories</h3>
                       <div className="space-y-1">
                         <button
                           onClick={() => {
@@ -243,7 +255,7 @@ function ShopContent() {
                             setIsFilterOpen(false);
                           }}
                           className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${selectedCategory === 'all'
-                            ? 'bg-gray-100 text-gray-900 font-medium'
+                            ? 'bg-emerald-100 text-emerald-700 font-medium'
                             : 'text-gray-700 hover:bg-gray-100'
                             }`}
                         >
@@ -263,10 +275,9 @@ function ShopContent() {
                                 onClick={() => {
                                   setSelectedCategory(parent.slug);
                                   setPage(1);
-                                  // Don't close filter immediately if exploring hierarchy
                                 }}
                                 className={`w-full text-left px-4 py-2 rounded-lg transition-colors flex justify-between items-center ${isSelected
-                                  ? 'bg-gray-100 text-gray-900 font-medium'
+                                  ? 'bg-emerald-50 text-emerald-700 font-medium'
                                   : 'text-gray-700 hover:bg-gray-100'
                                   }`}
                               >
@@ -285,7 +296,7 @@ function ShopContent() {
                                         setIsFilterOpen(false);
                                       }}
                                       className={`w-full text-left px-4 py-1.5 rounded-lg text-sm transition-colors ${selectedCategory === child.slug
-                                        ? 'text-gray-900 font-medium bg-gray-100'
+                                        ? 'text-emerald-700 font-medium bg-emerald-50'
                                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                                         }`}
                                     >
@@ -301,8 +312,8 @@ function ShopContent() {
                     </div>
 
                     {/* Price Range */}
-                    <div className="border-t border-gray-200 pt-8">
-                      <h3 className="font-semibold text-gray-900 mb-4">Max Price: GH₵{priceRange[1]}</h3>
+                    <div className="border-t border-emerald-100 pt-8">
+                      <h3 className="font-semibold text-emerald-950 mb-4">Max Price: GH₵{priceRange[1]}</h3>
                       <div className="space-y-4">
                         <input
                           type="range"
@@ -314,9 +325,9 @@ function ShopContent() {
                             setPriceRange([0, parseInt(e.target.value)]);
                             setPage(1);
                           }}
-                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-gray-900"
+                          className="w-full h-2 bg-emerald-100 rounded-lg appearance-none cursor-pointer accent-emerald-700"
                         />
-                        <div className="flex items-center justify-between text-sm text-gray-600">
+                        <div className="flex items-center justify-between text-sm text-emerald-700/80">
                           <span>GH₵0</span>
                           <span>GH₵5000+</span>
                         </div>
@@ -324,8 +335,8 @@ function ShopContent() {
                     </div>
 
                     {/* Rating */}
-                    <div className="border-t border-gray-200 pt-8">
-                      <h3 className="font-semibold text-gray-900 mb-4">Rating</h3>
+                    <div className="border-t border-emerald-100 pt-8">
+                      <h3 className="font-semibold text-emerald-950 mb-4">Rating</h3>
                       <div className="space-y-2">
                         {[4, 3, 2, 1].map(rating => (
                           <button
@@ -335,7 +346,7 @@ function ShopContent() {
                               setPage(1);
                             }}
                             className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${selectedRating === rating
-                              ? 'bg-gray-100 text-gray-900'
+                              ? 'bg-emerald-100 text-emerald-700'
                               : 'text-gray-700 hover:bg-gray-100'
                               }`}
                           >
@@ -355,10 +366,9 @@ function ShopContent() {
 
                     <button
                       onClick={() => {
-                        // Re-fetch handled by effect dependencies
                         setIsFilterOpen(false);
                       }}
-                      className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-lg font-medium transition-colors whitespace-nowrap"
+                      className="w-full bg-emerald-700 hover:bg-emerald-800 text-white py-3 rounded-xl font-semibold transition-colors whitespace-nowrap"
                     >
                       Show Results
                     </button>
@@ -368,51 +378,60 @@ function ShopContent() {
             </aside>
 
             <div className="flex-1">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
-                <p className="text-gray-600">
-                  Showing <span className="font-semibold text-gray-900">{products.length}</span> of <span className="font-semibold text-gray-900">{totalProducts}</span> products
-                </p>
+              <div className="mb-8 rounded-2xl border border-emerald-100 bg-white p-4 sm:p-5 shadow-sm">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div>
+                    <p className="text-emerald-700 text-xs font-semibold tracking-[0.2em] uppercase">Collection View</p>
+                    <p className="mt-1 text-gray-700">
+                      Showing <span className="font-bold text-emerald-900">{products.length}</span> of <span className="font-bold text-emerald-900">{totalProducts}</span> products
+                    </p>
+                  </div>
 
-                <div className="flex items-center space-x-3">
-                  <label className="text-sm text-gray-600 whitespace-nowrap">Sort by:</label>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => {
-                      setSortBy(e.target.value);
-                      setPage(1);
-                    }}
-                    className="px-4 py-2 pr-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 text-sm bg-white cursor-pointer"
-                  >
-                    <option value="popular">Most Popular</option>
-                    <option value="new">Newest</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
-                    <option value="rating">Highest Rated</option>
-                  </select>
+                  <div className="flex items-center space-x-3">
+                    <label className="text-sm text-gray-600 whitespace-nowrap">Sort by:</label>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => {
+                        setSortBy(e.target.value);
+                        setPage(1);
+                      }}
+                      className="px-4 py-2 pr-8 border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm bg-white cursor-pointer"
+                    >
+                      <option value="popular">Most Popular</option>
+                      <option value="new">Newest</option>
+                      <option value="price-low">Price: Low to High</option>
+                      <option value="price-high">Price: High to Low</option>
+                      <option value="rating">Highest Rated</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
               {loading ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-x-4 gap-y-8 md:gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {[...Array(6)].map((_, i) => (
-                    <ProductCardSkeleton key={i} />
+                    <div key={i} className="rounded-2xl border border-emerald-100 bg-white p-3">
+                      <div className="bg-emerald-50 rounded-xl aspect-[4/5] animate-pulse"></div>
+                      <div className="mt-3 h-4 w-3/4 rounded bg-emerald-100 animate-pulse"></div>
+                      <div className="mt-2 h-4 w-1/2 rounded bg-emerald-100 animate-pulse"></div>
+                    </div>
                   ))}
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" data-product-shop>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-product-shop>
                     {products.map(product => (
                       <ProductCard key={product.id} {...product} />
                     ))}
                   </div>
 
                   {products.length === 0 && (
-                    <div className="text-center py-20">
-                      <div className="w-20 h-20 flex items-center justify-center mx-auto mb-6 bg-gray-100 rounded-full">
-                        <i className="ri-inbox-line text-4xl text-gray-400"></i>
+                    <div className="text-center py-20 px-6 mt-4 rounded-3xl border border-emerald-100 bg-emerald-50/40">
+                      <div className="w-20 h-20 flex items-center justify-center mx-auto mb-6 bg-white rounded-full border border-emerald-100 shadow-sm">
+                        <i className="ri-inbox-line text-4xl text-emerald-400"></i>
                       </div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-2">No Products Found</h3>
-                      <p className="text-gray-600 mb-8">Try adjusting your filters to find what you're looking for</p>
+                      <h3 className="text-2xl font-bold text-emerald-950 mb-2">No Products Found</h3>
+                      <p className="text-emerald-800/80 mb-8">Try adjusting your filters to discover more kids Ankara styles</p>
                       <button
                         onClick={() => {
                           setSelectedCategory('all');
@@ -420,7 +439,7 @@ function ShopContent() {
                           setSelectedRating(0);
                           setPage(1);
                         }}
-                        className="inline-flex items-center bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-medium transition-colors whitespace-nowrap"
+                        className="inline-flex items-center bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-3 rounded-xl font-semibold transition-colors whitespace-nowrap"
                       >
                         Clear All Filters
                       </button>
@@ -432,26 +451,25 @@ function ShopContent() {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="mt-16 flex justify-center">
-                  <div className="flex items-center space-x-2">
+                  <div className="inline-flex items-center space-x-2 rounded-2xl border border-emerald-100 bg-white px-3 py-2 shadow-sm">
                     <button
                       onClick={() => setPage(p => Math.max(1, p - 1))}
                       disabled={page === 1}
-                      className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-10 h-10 flex items-center justify-center border border-emerald-200 rounded-lg hover:bg-emerald-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <i className="ri-arrow-left-s-line text-xl text-gray-700"></i>
+                      <i className="ri-arrow-left-s-line text-xl text-emerald-800"></i>
                     </button>
 
-                    {/* Simple page numbers - condensed for brevity */}
-                    <span className="px-4 font-medium text-gray-700">
+                    <span className="px-4 font-medium text-emerald-900">
                       Page {page} of {totalPages}
                     </span>
 
                     <button
                       onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                       disabled={page === totalPages}
-                      className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-10 h-10 flex items-center justify-center border border-emerald-200 rounded-lg hover:bg-emerald-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <i className="ri-arrow-right-s-line text-xl text-gray-700"></i>
+                      <i className="ri-arrow-right-s-line text-xl text-emerald-800"></i>
                     </button>
                   </div>
                 </div>

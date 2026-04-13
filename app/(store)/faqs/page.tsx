@@ -20,12 +20,12 @@ export default function FAQsPage() {
     {
       category: 'orders',
       question: 'How do I place an order?',
-      answer: 'Browse our products, add items to your cart, proceed to checkout, provide your delivery address, select payment method, and confirm your order. You\'ll receive an email confirmation with your order details and tracking number.'
+      answer: "Browse our kids Ankara collections, add your selected outfits to cart, proceed to checkout, provide delivery details, choose payment, and confirm your order. You'll receive an order confirmation and updates."
     },
     {
       category: 'orders',
       question: 'Can I modify or cancel my order?',
-      answer: 'You can modify or cancel your order within 1 hour of placing it. Contact our customer service immediately at 027 854 9831 or contact@delizbeautytools.com. Once an order is processed, modifications may not be possible.'
+      answer: "You can request changes within 1 hour of placing your order. Contact support immediately at 024 472 0197 or hello@frebysfashiongh.com. Once processing starts, changes may be limited."
     },
     {
       category: 'orders',
@@ -40,17 +40,17 @@ export default function FAQsPage() {
     {
       category: 'shipping',
       question: 'What are your delivery times?',
-      answer: 'Standard delivery takes 2-5 business days within Ghana. Express delivery (next-day) is available for Accra and Kumasi. Orders placed before 2pm are dispatched same day. Remote areas may take 5-7 business days.'
+      answer: 'Delivery times depend on destination. We ship from Haatso, Accra, Ghana and offer worldwide delivery. Final delivery timelines are shown at checkout and in your order updates.'
     },
     {
       category: 'shipping',
       question: 'How much does shipping cost?',
-      answer: 'Standard shipping costs GHS 20. Express delivery costs GHS 40. Orders over GHS 300 qualify for FREE standard shipping. Store pickup is also available at no charge from our Accra location.'
+      answer: 'Shipping costs vary by destination and delivery option. You will see the exact shipping fee at checkout before payment.'
     },
     {
       category: 'shipping',
       question: 'Do you ship outside Ghana?',
-      answer: 'Currently, we only ship within Ghana. We\'re working on expanding to neighbouring West African countries. Sign up for our newsletter to be notified when international shipping becomes available.'
+      answer: 'Yes. Frebys Fashion GH offers worldwide delivery from Ghana.'
     },
     {
       category: 'shipping',
@@ -60,12 +60,12 @@ export default function FAQsPage() {
     {
       category: 'returns',
       question: 'How fast is delivery?',
-      answer: 'We deliver within 24 - 48 hours across Ghana. Orders placed before 3 PM are typically dispatched the same day. You can also choose to pick up your order at our shop in Madina, Ritz Junction, Accra.'
+      answer: 'Delivery speed depends on your location. We dispatch from Haatso, Accra, Ghana and share estimated timing during checkout and after order confirmation.'
     },
     {
       category: 'returns',
       question: 'Which items cannot be returned?',
-      answer: 'For hygiene reasons, we cannot accept returns on opened cosmetics, intimate apparel, earrings, or perishable goods. Custom or personalised items are also non-returnable unless defective.'
+      answer: 'Items with clear signs of wear, damage caused after delivery, or custom/personalised outfit alterations may not qualify for return unless there is a manufacturing issue.'
     },
     {
       category: 'returns',
@@ -90,7 +90,7 @@ export default function FAQsPage() {
     {
       category: 'payment',
       question: 'Can I pay in instalments?',
-      answer: 'Yes! We offer payment plans through our partners for purchases over GHS 500. Select "Pay in Instalments" at checkout to see available options. Approval is instant and no interest is charged.'
+      answer: 'Installment options depend on available payment providers at checkout. If enabled, options are shown before you complete payment.'
     },
     {
       category: 'payment',
@@ -229,7 +229,7 @@ export default function FAQsPage() {
               Contact Support
             </Link>
             <a
-              href="https://wa.me/233241234567"
+              href="https://wa.me/233244720197"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-gray-700 text-white px-8 py-4 rounded-full font-medium hover:bg-gray-600 transition-colors whitespace-nowrap"
@@ -264,7 +264,7 @@ export default function FAQsPage() {
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Delivery Info</h3>
             <p className="text-gray-600 leading-relaxed">
-              We deliver nationwide in 24 - 48 hours. Pickup also available.
+              Learn about local and worldwide delivery options.
             </p>
           </Link>
 

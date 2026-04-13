@@ -2,13 +2,26 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import MiniCart from './MiniCart';
 import { useCart } from '@/context/CartContext';
 import { supabase } from '@/lib/supabase';
 import { useCMS } from '@/context/CMSContext';
 import AnnouncementBar from './AnnouncementBar';
 
-const NavLink = ({ href, children, isMobile, onClick }: { href: string; children: React.ReactNode; isMobile?: boolean, onClick?: () => void }) => {
+const NavLink = ({
+  href,
+  children,
+  isMobile,
+  onClick,
+  isActive,
+}: {
+  href: string;
+  children: React.ReactNode;
+  isMobile?: boolean;
+  onClick?: () => void;
+  isActive?: boolean;
+}) => {
   if (isMobile) {
     return (
       <Link
@@ -24,15 +37,18 @@ const NavLink = ({ href, children, isMobile, onClick }: { href: string; children
   return (
     <Link
       href={href}
-      className="relative group px-1 py-2 text-[15px] font-medium tracking-wide text-gray-700 hover:text-black transition-colors"
+      className={`relative inline-flex items-center rounded-full px-4 py-2 text-[14px] font-semibold tracking-wide transition-all duration-300 ${isActive
+          ? 'bg-emerald-600 text-white shadow-sm'
+          : 'text-gray-700 hover:text-emerald-800 hover:bg-emerald-50'
+        }`}
     >
       <span className="relative z-10">{children}</span>
-      <span className="absolute bottom-1 left-1/2 w-0 h-[2px] bg-black transition-all duration-300 ease-out group-hover:w-full group-hover:left-0"></span>
     </Link>
   );
 };
 
 export default function Header() {
+  const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,7 +59,8 @@ export default function Header() {
   const { cartCount, isCartOpen, setIsCartOpen } = useCart();
   const { getSetting } = useCMS();
 
-  const siteName = getSetting('site_name') || 'StandardStore';
+  const rawSiteName = getSetting('site_name') || '';
+  const siteName = rawSiteName && !/deliz/i.test(rawSiteName) ? rawSiteName : 'Frebys Fashion GH';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -92,7 +109,7 @@ export default function Header() {
 
       <header
         className={`sticky top-0 z-50 pwa-header transition-all duration-500 ease-in-out border-b ${isScrolled
-            ? 'bg-white/80 backdrop-blur-xl border-gray-200/50 shadow-sm py-2'
+            ? 'bg-white/90 backdrop-blur-xl border-emerald-200/60 shadow-[0_10px_30px_rgba(6,95,70,0.12)] py-2'
             : 'bg-white border-transparent py-4'
           }`}
       >
@@ -115,20 +132,28 @@ export default function Header() {
                   className="flex items-center group"
                   aria-label="Go to homepage"
                 >
-                  <img
-                    src="/logo1.png"
-                    alt={siteName}
-                    className="h-6 md:h-7 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
-                  />
+                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 text-white text-[13px] font-extrabold tracking-wider shadow-sm">
+                    FF
+                  </span>
+                  <span className="ml-2 hidden sm:flex flex-col leading-none">
+                    <span className="text-[17px] font-extrabold tracking-[0.2em] text-gray-900 transition-transform duration-500 group-hover:scale-[1.02]">
+                      FREBYS
+                    </span>
+                    <span className="text-[11px] font-medium tracking-[0.17em] text-emerald-700/80 mt-1">
+                      FASHION GH
+                    </span>
+                  </span>
                 </Link>
               </div>
 
               {/* Center: Desktop Navigation */}
-              <div className="hidden lg:flex items-center justify-center space-x-10 flex-1">
-                <NavLink href="/shop">Shop</NavLink>
-                <NavLink href="/categories">Categories</NavLink>
-                <NavLink href="/about">About</NavLink>
-                <NavLink href="/contact">Contact</NavLink>
+              <div className="hidden lg:flex items-center justify-center flex-1">
+                <div className="inline-flex items-center gap-1 rounded-full border border-emerald-100 bg-white/90 p-1 shadow-sm">
+                  <NavLink href="/shop" isActive={pathname === '/shop'}>Shop</NavLink>
+                  <NavLink href="/categories" isActive={pathname === '/categories'}>Categories</NavLink>
+                  <NavLink href="/about" isActive={pathname === '/about'}>About</NavLink>
+                  <NavLink href="/contact" isActive={pathname === '/contact'}>Contact</NavLink>
+                </div>
               </div>
 
               {/* Right Side: Actions */}
@@ -147,20 +172,20 @@ export default function Header() {
                 <div className="hidden lg:block relative group">
                   <input
                     type="search"
-                    placeholder="Search for perfection..."
-                    className="w-56 focus:w-80 pl-11 pr-4 py-2.5 bg-gray-50/80 hover:bg-gray-100/80 focus:bg-white border border-gray-200/80 focus:border-black rounded-full transition-all duration-500 ease-out text-sm outline-none placeholder-gray-400 font-medium"
+                    placeholder="Search kids styles..."
+                    className="w-56 focus:w-80 pl-11 pr-4 py-2.5 bg-emerald-50/60 hover:bg-emerald-50 focus:bg-white border border-emerald-100 focus:border-emerald-500 rounded-full transition-all duration-500 ease-out text-sm outline-none placeholder-gray-500 font-medium"
                     aria-label="Search products"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
                   />
-                  <i className="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-black transition-colors text-lg"></i>
+                  <i className="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-emerald-700/70 group-focus-within:text-emerald-700 transition-colors text-lg"></i>
                 </div>
 
                 {/* Wishlist */}
                 <Link
                   href="/wishlist"
-                  className="relative w-10 h-10 flex items-center justify-center text-gray-700 hover:text-black hover:bg-gray-100/80 rounded-full transition-all duration-300 group"
+                  className="relative w-10 h-10 flex items-center justify-center text-gray-700 hover:text-emerald-700 hover:bg-emerald-50 rounded-full transition-all duration-300 group"
                   aria-label={`Wishlist, ${wishlistCount} items`}
                 >
                   <i className="ri-heart-3-line text-xl transition-transform group-hover:scale-110"></i>
@@ -174,7 +199,7 @@ export default function Header() {
                 {/* Cart */}
                 <div className="relative">
                   <button
-                    className="relative w-10 h-10 flex items-center justify-center text-gray-700 hover:text-black hover:bg-gray-100/80 rounded-full transition-all duration-300 group"
+                    className="relative w-10 h-10 flex items-center justify-center text-gray-700 hover:text-emerald-700 hover:bg-emerald-50 rounded-full transition-all duration-300 group"
                     onClick={() => setIsCartOpen(!isCartOpen)}
                     aria-label={`Shopping cart, ${cartCount} items`}
                     aria-expanded={isCartOpen}
@@ -194,7 +219,7 @@ export default function Header() {
                 {user ? (
                   <Link
                     href="/account"
-                    className="hidden lg:flex w-10 h-10 items-center justify-center text-gray-700 hover:text-black hover:bg-gray-100/80 rounded-full transition-all duration-300 group"
+                    className="hidden lg:flex w-10 h-10 items-center justify-center text-gray-700 hover:text-emerald-700 hover:bg-emerald-50 rounded-full transition-all duration-300 group"
                     aria-label="My account"
                     title="Account"
                   >
@@ -203,7 +228,7 @@ export default function Header() {
                 ) : (
                   <Link
                     href="/auth/login"
-                    className="hidden lg:flex w-10 h-10 items-center justify-center text-gray-700 hover:text-black hover:bg-gray-100/80 rounded-full transition-all duration-300 group"
+                    className="hidden lg:flex w-10 h-10 items-center justify-center text-gray-700 hover:text-emerald-700 hover:bg-emerald-50 rounded-full transition-all duration-300 group"
                     aria-label="Login"
                     title="Login"
                   >
@@ -269,7 +294,10 @@ export default function Header() {
           <div className="absolute top-0 left-0 bottom-0 w-[85%] max-w-sm bg-white shadow-2xl flex flex-col animate-in slide-in-from-left duration-500 ease-out">
             <div className="px-6 py-5 flex items-center justify-between bg-white relative z-10 border-b border-gray-100/50">
               <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-                <img src="/logo1.png" alt={siteName} className="h-6 w-auto object-contain" />
+                <span className="inline-flex items-center gap-2">
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-800 text-white text-[11px] font-extrabold tracking-wider">FF</span>
+                  <span className="text-lg font-extrabold tracking-[0.16em] text-gray-900">FREBYS</span>
+                </span>
               </Link>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}

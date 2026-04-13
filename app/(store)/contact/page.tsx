@@ -88,9 +88,9 @@ export default function ContactPage() {
   };
 
   // Get contact details from CMS settings
-  const contactEmail = getSetting('contact_email') || 'contact@delizbeautytools.com';
-  const contactPhone = getSetting('contact_phone') || '0278549831';
-  const contactAddress = getSetting('contact_address') || 'Madina, Ritz Junction, Accra';
+  const contactEmail = getSetting("contact_email") || "hello@frebysfashiongh.com";
+  const contactPhone = getSetting("contact_phone") || "0244720197";
+  const contactAddress = getSetting("contact_address") || "Haatso, Accra, Ghana";
 
   const heroTitle = pageContent?.title || 'Get In Touch';
   const heroSubtitle = pageContent?.subtitle || 'Have a question or need assistance?';
@@ -101,7 +101,7 @@ export default function ContactPage() {
       title: 'Call Us',
       value: contactPhone,
       link: `tel:${contactPhone.replace(/\s/g, '')}`,
-      description: 'Mon-Fri, 8am-6pm GMT'
+      description: "Mon-Sat, 8am-6pm GMT",
     },
     {
       icon: 'ri-mail-line',
@@ -122,22 +122,25 @@ export default function ContactPage() {
       title: 'Visit Us',
       value: contactAddress,
       link: 'https://maps.google.com',
-      description: 'Mon-Sat, 9am-6pm'
+      description: "Mon-Sat, 9am-6pm",
     }
   ];
 
   const faqs = [
     {
       question: 'What are your delivery times?',
-      answer: 'Standard delivery takes 2-5 business days. Express delivery is available for next-day service in major cities.'
+      answer:
+        "Worldwide delivery is available. Delivery timelines depend on destination and are confirmed at checkout.",
     },
     {
       question: 'Do you offer international shipping?',
-      answer: 'Currently, we ship within Ghana only. We plan to expand to neighbouring countries soon.'
+      answer:
+        "Yes. Frebys Fashion GH offers worldwide delivery from Haatso, Accra, Ghana.",
     },
     {
       question: 'What payment methods do you accept?',
-      answer: 'We accept mobile money (MTN, Vodafone, AirtelTigo) and credit/debit cards through our secure Moolre payment gateway.'
+      answer:
+        "We accept secure payment options at checkout, including Mobile Money for local orders where available.",
     }
   ];
 
@@ -238,7 +241,7 @@ export default function ContactPage() {
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm"
-                  placeholder="Order inquiry, product question, etc."
+                placeholder="Sizing question, order inquiry, custom request, etc."
                 />
               </div>
 
@@ -309,7 +312,7 @@ export default function ContactPage() {
               </div>
               <h3 className="text-2xl font-bold mb-3">Need Immediate Help?</h3>
               <p className="text-gray-200 mb-6 leading-relaxed">
-                Our customer support team is available Monday to Friday, 8am-6pm GMT. For urgent matters, reach out via WhatsApp.
+                Our customer support team is available Monday to Saturday, 8am-6pm GMT. For urgent matters, reach out via WhatsApp.
               </p>
               <a
                 href={`https://wa.me/233${contactPhone.replace(/^0/, '')}`}
@@ -330,7 +333,7 @@ export default function ContactPage() {
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Visit Our Store</h2>
             <p className="text-gray-600 mb-6 leading-relaxed">
-              Prefer to shop in person? Visit our store. Our knowledgeable staff will be happy to assist you with product selection and answer any questions.
+              Prefer to shop in person? Visit our store in Haatso. We will help you choose the perfect Ankara outfit for every occasion.
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-gray-600">
               <div className="flex items-center gap-2">

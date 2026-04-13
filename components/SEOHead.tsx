@@ -16,30 +16,30 @@ interface SEOProps {
 }
 
 export function generateMetadata({
-  title = 'Premium Online Shopping in Ghana',
-  description = 'Discover curated premium beauty products with fast delivery across Ghana. Shop lash, hair, nail, spa & skincare with secure payment. Delivers in 24-48 hours.',
+  title = "Kids Ready-to-Wear Ankara Clothes in Ghana",
+  description = "Shop unique casual and luxury kids Ankara wear for all occasions. Frebys Fashion GH delivers worldwide from Haatso, Accra, Ghana.",
   keywords = [],
-  ogImage = 'https://readdy.ai/api/search-image?query=modern%20premium%20ecommerce%20online%20shopping%20platform%20elegant%20design&width=1200&height=630&seq=ogimage&orientation=landscape',
-  ogType = 'website',
+  ogImage = "https://frebysfashiongh.com/og-image.jpg",
+  ogType = "website",
   price,
-  currency = 'GHS',
+  currency = "GHS",
   availability,
   category,
   publishedTime,
   author,
   noindex = false
 }: SEOProps): Metadata {
-  const siteName = 'PremiumShop Ghana';
-  const siteUrl = 'https://premiumshop.com';
+  const siteName = "Frebys Fashion GH";
+  const siteUrl = "https://frebysfashiongh.com";
   const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
 
   const defaultKeywords = [
-    'online shopping ghana',
-    'premium products ghana',
-    'buy online ghana',
-    'ecommerce ghana',
-    'fast delivery ghana',
-    'secure shopping'
+    "kids Ankara clothes",
+    "kids fashion Ghana",
+    "children Ankara outfits",
+    "casual kids wear",
+    "luxury kids wear",
+    "worldwide delivery",
   ];
 
   const allKeywords = [...new Set([...keywords, ...defaultKeywords])];
@@ -55,10 +55,10 @@ export function generateMetadata({
       images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
       type: ogType as any,
       siteName,
-      locale: 'en_GH'
+      locale: "en_GH",
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: fullTitle,
       description,
       images: [ogImage]
@@ -72,20 +72,20 @@ export function generateMetadata({
       googleBot: {
         index: true,
         follow: true,
-        'max-image-preview': 'large',
-        'max-snippet': -1
-      }
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
     alternates: {
-      canonical: siteUrl
-    }
+      canonical: siteUrl,
+    },
   };
 
   if (ogType === 'article' && publishedTime) {
     metadata.openGraph = {
       ...metadata.openGraph,
-      type: 'article',
-      publishedTime
+      type: "article",
+      publishedTime,
     };
   }
 
@@ -106,31 +106,34 @@ export function generateProductSchema(product: {
   category?: string;
 }) {
   const schema = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
+    "@context": "https://schema.org",
+    "@type": "Product",
     name: product.name,
     description: product.description,
     image: product.image,
     sku: product.sku,
     brand: {
-      '@type': 'Brand',
-      name: product.brand || 'PremiumShop'
+      "@type": "Brand",
+      name: product.brand || "Frebys Fashion GH",
     },
     offers: {
-      '@type': 'Offer',
+      "@type": "Offer",
       price: product.price,
-      priceCurrency: product.currency || 'GHS',
-      availability: product.availability === 'in_stock'
-        ? 'https://schema.org/InStock'
-        : 'https://schema.org/OutOfStock',
-      url: typeof window !== 'undefined' ? window.location.href : '',
-      priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    }
+      priceCurrency: product.currency || "GHS",
+      availability:
+        product.availability === "in_stock"
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+      url: typeof window !== "undefined" ? window.location.href : "",
+      priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0],
+    },
   };
 
   if (product.rating && product.reviewCount) {
     (schema as any).aggregateRating = {
-      '@type': 'AggregateRating',
+      "@type": "AggregateRating",
       ratingValue: product.rating,
       reviewCount: product.reviewCount,
       bestRating: 5,
@@ -147,53 +150,49 @@ export function generateProductSchema(product: {
 
 export function generateBreadcrumbSchema(items: { name: string; url: string }[]) {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
     itemListElement: items.map((item, index) => ({
-      '@type': 'ListItem',
+      "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      item: item.url
-    }))
+      item: item.url,
+    })),
   };
 }
 
 export function generateOrganizationSchema() {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'PremiumShop Ghana',
-    url: 'https://premiumshop.com',
-    logo: 'https://readdy.ai/api/search-image?query=premium%20shop%20logo%20elegant%20modern&width=200&height=200&seq=logo&orientation=squarish',
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Frebys Fashion GH",
+    url: "https://frebysfashiongh.com",
+    logo: "https://frebysfashiongh.com/logo1.png",
     contactPoint: {
-      '@type': 'ContactPoint',
-      telephone: '+233-XX-XXX-XXXX',
-      contactType: 'Customer Service',
-      areaServed: 'GH',
-      availableLanguage: ['English']
+      "@type": "ContactPoint",
+      telephone: "+233244720197",
+      contactType: "Customer Service",
+      areaServed: "GH",
+      availableLanguage: ["English"],
     },
-    sameAs: [
-      'https://facebook.com/premiumshop',
-      'https://instagram.com/premiumshop',
-      'https://twitter.com/premiumshop'
-    ]
+    sameAs: ["https://wa.me/233244720197"],
   };
 }
 
 export function generateWebsiteSchema() {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'PremiumShop Ghana',
-    url: 'https://premiumshop.com',
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Frebys Fashion GH",
+    url: "https://frebysfashiongh.com",
     potentialAction: {
-      '@type': 'SearchAction',
+      "@type": "SearchAction",
       target: {
-        '@type': 'EntryPoint',
-        urlTemplate: 'https://premiumshop.com/shop?search={search_term_string}'
+        "@type": "EntryPoint",
+        urlTemplate: "https://frebysfashiongh.com/shop?search={search_term_string}",
       },
-      'query-input': 'required name=search_term_string'
-    }
+      "query-input": "required name=search_term_string",
+    },
   };
 }
 

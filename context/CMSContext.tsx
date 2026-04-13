@@ -63,12 +63,12 @@ interface CMSContextType {
 }
 
 const defaultSettings: SiteSettings = {
-    site_name: 'Deliz Beauty Tools',
-    site_tagline: 'Premium beauty essentials for salons, spas and beauty lovers.',
+    site_name: 'Frebys Fashion GH',
+    site_tagline: 'Unique kids ready-to-wear Ankara clothes for all occasions.',
     site_logo: '/logo1.png',
-    contact_email: 'contact@delizbeautytools.com',
-    contact_phone: '0278549831',
-    contact_address: 'Madina, Ritz Junction, Accra',
+    contact_email: 'hello@frebysfashiongh.com',
+    contact_phone: '0244720197',
+    contact_address: 'Haatso, Accra, Ghana',
     social_facebook: '',
     social_instagram: '',
     social_twitter: '',
@@ -91,12 +91,12 @@ const CMSContext = createContext<CMSContextType>({
 
 export function CMSProvider({ children }: { children: ReactNode }) {
     const [settings, setSettings] = useState<SiteSettings>({
-        site_name: 'Deliz Beauty Tools',
-        site_tagline: 'Premium beauty essentials for salons, spas and beauty lovers.',
+        site_name: 'Frebys Fashion GH',
+        site_tagline: 'Unique kids ready-to-wear Ankara clothes for all occasions.',
         site_logo: '/logo1.png',
-        contact_email: 'contact@delizbeautytools.com',
-        contact_phone: '0278549831',
-        contact_address: 'Madina, Ritz Junction, Accra',
+        contact_email: 'hello@frebysfashiongh.com',
+        contact_phone: '0244720197',
+        contact_address: 'Haatso, Accra, Ghana',
         social_facebook: '',
         social_instagram: '',
         social_twitter: '',

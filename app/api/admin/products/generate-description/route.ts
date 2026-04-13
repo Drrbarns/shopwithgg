@@ -29,7 +29,7 @@ export async function POST(request: Request) {
           {
             role: 'system',
             content:
-              'You are a product copywriter for Deliz Beauty Tools, a beauty supply store in Ghana. ' +
+              'You are a product copywriter for Frebys Fashion GH, a kids ready-to-wear Ankara fashion brand in Ghana. ' +
               'Write short, compelling product descriptions (2-3 sentences, max 300 characters). ' +
               'Be specific about what the product is and its key benefit. ' +
               'Use a warm, professional tone. Do not use hashtags or emojis. ' +
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
             content: [
               {
                 type: 'text',
-                text: `Write a short product description for this beauty product based on the image.${context}`,
+                text: `Write a short product description for this kids fashion product based on the image.${context}`,
               },
               {
                 type: 'image_url',

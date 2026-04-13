@@ -123,7 +123,7 @@ function printReceipt(order: {
     <div class="center">
         <div class="store-name">DELIZ BEAUTY TOOLS</div>
         <div style="font-size:10px;margin-top:2px;">Premium Quality Products</div>
-        <div style="font-size:10px;">Tel: 027 854 9831</div>
+        <div style="font-size:10px;">Tel: 024 472 0197</div>
     </div>
     <div class="divider"></div>
     <div style="display:flex;justify-content:space-between;font-size:10px;">
@@ -159,7 +159,7 @@ function printReceipt(order: {
     <div class="divider"></div>
     <div class="center footer">
         <div>Thank you for shopping with us!</div>
-        <div>www.delizbeautytools.com</div>
+        <div>www.frebysfashiongh.com</div>
     </div>
     <div style="margin-top:12px;"></div>
 </body></html>`;

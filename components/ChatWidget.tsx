@@ -85,7 +85,7 @@ type ChatMessage = {
 
 const STORAGE_KEY = 'sl-chat-messages';
 const SESSION_KEY = 'sl-chat-session';
-const WIDGET_TITLE = 'Deliz Beauty Tools';
+const WIDGET_TITLE = "Frebys Fashion GH";
 
 function getSessionId(): string {
   if (typeof window === 'undefined') return '';

@@ -54,114 +54,6 @@ export default function CheckoutPage() {
     'Western North'
   ];
 
-  const ghanaCitiesByRegion: Record<string, string[]> = {
-    'Greater Accra': [
-      'Accra Central', 'Adabraka', 'Adenta', 'Agbogbloshie', 'Airport Residential', 'Achimota',
-      'Ashaiman', 'Ayawaso', 'Baatsonaa', 'Cantonments', 'Darkuman', 'Dansoman', 'Dome',
-      'Dzorwulu', 'East Legon', 'Gbawe', 'Haatso', 'James Town', 'Kasoa', 'Kpone',
-      'La', 'Labone', 'Labadi', 'Lashibi', 'Madina', 'Mamprobi', 'Nima', 'North Kaneshie',
-      'Nungua', 'Odorkor', 'Osu', 'Oyarifa', 'Prampram', 'Roman Ridge', 'Sakumono',
-      'Shiashie', 'Spintex', 'Teshie', 'Tema', 'Tema Community 1–25', 'Tesano', 'Tudu',
-      'Weija', 'West Hills', 'Sowutuom', 'Awoshie', 'Pokuase', 'Amasaman', 'Dodowa',
-      'Aburi', 'Nsawam (GA East)', 'Shai Hills', 'Kwabenya', 'Taifa', 'Tantra Hill',
-    ],
-    'Ashanti': [
-      'Kumasi Central', 'Adum', 'Asokwa', 'Bantama', 'Bohyen', 'Dichemso', 'Danyame',
-      'Ejisu', 'Ejura', 'Fanteakwa', 'Juaben', 'Kaase', 'Kenyasi', 'Konongo', 'Kotei',
-      'Kwadaso', 'Mampong', 'Manhyia', 'Nhyiaeso', 'Obuasi', 'Odumase', 'Offinso',
-      'Old Tafo', 'Patasi', 'Suame', 'Atwima Kwanwoma', 'Atwima Mponua', 'Bekwai',
-      'Agogo', 'Asante Mampong', 'Ashanti Bekwai', 'Bosome Freho', 'Bosomtwe',
-      'Kwabre East', 'Afigya Kwabre', 'Ahafo Ano', 'Amansie', 'Sekyere',
-    ],
-    'Western': [
-      'Sekondi', 'Takoradi', 'Effia', 'Essikado', 'Kwesimintsim', 'Sekondi-Takoradi',
-      'Tarkwa', 'Prestea', 'Bogoso', 'Axim', 'Nkroful', 'Half Assini', 'Elubo',
-      'Enchi (Aowin)', 'Jomoro', 'Mpohor', 'Shama', 'Agona Nkwanta', 'Ankobra',
-      'Dixcove', 'Princes Town', 'Beyin', 'Tikobo', 'Wassa Amenfi', 'Wassa East',
-    ],
-    'Western North': [
-      'Sefwi Wiawso', 'Bibiani', 'Anhwiaso', 'Bekwai', 'Juaboso', 'Dadieso',
-      'Bodi', 'Sefwi Akontombra', 'Sefwi Bekwai', 'Bia East', 'Bia West',
-      'Amenfi Central', 'Amenfi East', 'Amenfi West',
-    ],
-    'Central': [
-      'Cape Coast', 'Kasoa', 'Winneba', 'Mankessim', 'Elmina', 'Assin Fosu',
-      'Swedru', 'Saltpond', 'Agona Swedru', 'Anomabo', 'Breman Asikuma',
-      'Dunkwa-on-Offin', 'Gomoa Fetteh', 'Mumford', 'Apam', 'Eguafo',
-      'Ajumako', 'Asikuma', 'Hemang', 'Twifo Praso', 'Assin North', 'Assin South',
-      'Effutu', 'Gomoa East', 'Gomoa West', 'Mfantsiman', 'Upper Denkyira',
-    ],
-    'Eastern': [
-      'Koforidua', 'Nkawkaw', 'Suhum', 'Akim Oda', 'Nsawam', 'Aburi', 'Akosombo',
-      'Asamankese', 'Akim Tafo', 'Atibie', 'Begoro', 'Donkorkrom', 'Kade',
-      'Kpong', 'Kukurantumi', 'Mpraeso', 'Nkurakan', 'Somanya', 'Osino',
-      'Bunso', 'Kibi', 'Asiakwa', 'Juapong', 'Achiase', 'Kwahu Praso',
-      'Adukrom', 'Akim Kotoku', 'Fanteakwa', 'New Juaben', 'Yilo Krobo',
-      'Lower Manya Krobo', 'Upper Manya Krobo',
-    ],
-    'Volta': [
-      'Ho', 'Hohoe', 'Keta', 'Aflao', 'Denu', 'Anloga', 'Kpando', 'Sogakope',
-      'Akatsi', 'Dzodze', 'Kpetoe', 'Kpeve', 'Peki', 'Adidome', 'Battor',
-      'Dabala', 'Juapong', 'Kpong', 'Mepe', 'Tefle', 'Tsito', 'Vane', 'Wheta',
-      'Have', 'Jasikan (Volta)', 'Kadjebi (Volta)', 'Avatime', 'Tafi Atome',
-      'Klikor', 'Abor', 'Agbozume', 'Ave Dakpa',
-    ],
-    'Oti': [
-      'Dambai', 'Jasikan', 'Kadjebi', 'Nkwanta', 'Kpassa', 'Chinderi',
-      'Buem', 'Nkwanta North', 'Nkwanta South', 'Kete Krachi', 'Krachi East',
-      'Krachi West', 'Krachi Nchumuru', 'Biakoye',
-    ],
-    'Northern': [
-      'Tamale', 'Savelugu', 'Yendi', 'Bimbilla', 'Gushegu', 'Karaga',
-      'Kpandai', 'Nanton', 'Sagnarigu', 'Tolon', 'Kumbungu', 'Mion',
-      'Tatale Sanguli', 'Zabzugu', 'Nanumba North', 'Nanumba South',
-      'East Mamprusi (North)', 'West Mamprusi (North)', 'Chereponi (North)',
-    ],
-    'North East': [
-      'Nalerigu', 'Gambaga', 'Walewale', 'Chereponi', 'Bunkpurugu',
-      'Yunyoo', 'East Mamprusi', 'West Mamprusi', 'Mamprugu Moagduri',
-      'Bunkpurugu-Nakpayili',
-    ],
-    'Savannah': [
-      'Damongo', 'Bole', 'Sawla', 'Tuna', 'Kalba', 'Busunu', 'Laribanga',
-      'Yapei', 'Buipe', 'Fufulso', 'Salaga', 'East Gonja', 'West Gonja',
-      'Central Gonja', 'North Gonja', 'Bole District', 'Sawla-Tuna-Kalba',
-    ],
-    'Upper East': [
-      'Bolgatanga', 'Bawku', 'Navrongo', 'Zebilla', 'Paga', 'Bongo',
-      'Binduri', 'Bolgatanga Municipal', 'Builsa North', 'Builsa South',
-      'Garu', 'Kassena Nankana', 'Nabdam', 'Pusiga', 'Talensi',
-      'Tempane', 'Bawku Municipal', 'Bawku West', 'Sandema', 'Fumbisi',
-    ],
-    'Upper West': [
-      'Wa', 'Lawra', 'Jirapa', 'Tumu', 'Nandom', 'Gwolu', 'Hamile',
-      'Funsi', 'Kaleo', 'Lambussie', 'Nadowli', 'Daffiama', 'Issa',
-      'Bussie', 'Wa Municipal', 'Wa East', 'Wa West', 'Sisala East',
-      'Sisala West', 'Sissala', 'Daffiama-Bussie-Issa',
-    ],
-    'Brong-Ahafo': [
-      'Sunyani', 'Techiman', 'Berekum', 'Dormaa Ahenkro', 'Wenchi',
-      'Kintampo', 'Nkoranza', 'Yeji', 'Atebubu', 'Drobo', 'Fiapre',
-      'Jaman North', 'Jaman South', 'Tain', 'Pru', 'Sene', 'Banda',
-    ],
-    'Ahafo': [
-      'Goaso', 'Kukuom', 'Bechem', 'Duayaw Nkwanta', 'Kenyasi',
-      'Acherensua', 'Hwediem', 'Mim', 'Asunafo North', 'Asunafo South',
-      'Asutifi North', 'Asutifi South', 'Tano North', 'Tano South',
-    ],
-    'Bono': [
-      'Sunyani', 'Berekum', 'Dormaa Ahenkro', 'Dormaa East', 'Wenchi',
-      'Tain', 'Banda', 'Nkoranza', 'Jaman North', 'Jaman South',
-      'Drobo', 'Fiapre', 'Odumase', 'Seikwa', 'Sampa',
-    ],
-    'Bono East': [
-      'Techiman', 'Kintampo', 'Atebubu', 'Nkoranza', 'Yeji',
-      'Pru East', 'Pru West', 'Sene East', 'Sene West',
-      'Techiman North', 'Kintampo North', 'Kintampo South',
-      'Nkoranza North', 'Nkoranza South', 'Atebubu-Amantin',
-    ],
-  };
-
   const [deliveryMethod, setDeliveryMethod] = useState('pickup');
   const [paymentMethod, setPaymentMethod] = useState('moolre');
   const [errors, setErrors] = useState<any>({});
@@ -205,18 +97,9 @@ export default function CheckoutPage() {
     const newErrors: any = {};
     if (!shippingData.firstName) newErrors.firstName = 'First name is required';
     if (!shippingData.lastName) newErrors.lastName = 'Last name is required';
-    if (shippingData.email && !/\S+@\S+\.\S+/.test(shippingData.email)) newErrors.email = 'Invalid email format';
-    if (!shippingData.phone) {
-      newErrors.phone = 'Phone number is required';
-    } else {
-      const digits = shippingData.phone.replace(/\D/g, '');
-      const valid =
-        (digits.length === 10 && digits.startsWith('0')) ||
-        (digits.length === 12 && digits.startsWith('233'));
-      if (!valid) {
-        newErrors.phone = 'Enter a valid 10-digit Ghana number (e.g. 0551234567)';
-      }
-    }
+    if (!shippingData.email) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(shippingData.email)) newErrors.email = 'Invalid email';
+    if (!shippingData.phone) newErrors.phone = 'Phone is required';
     if (!shippingData.address) newErrors.address = 'Address is required';
     if (!shippingData.city) newErrors.city = 'City is required';
     if (!shippingData.region) newErrors.region = 'Region is required';
@@ -260,44 +143,108 @@ export default function CheckoutPage() {
       const trackingId = Array.from({ length: 6 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 32)]).join('');
       const trackingNumber = `SLI-${trackingId}`;
 
-      // Normalize phone to 0XXXXXXXXX format
-      const phoneDigits = shippingData.phone.replace(/\D/g, '');
-      const normalizedPhone = phoneDigits.length === 12 && phoneDigits.startsWith('233')
-        ? '0' + phoneDigits.slice(3)
-        : phoneDigits;
-
-      // 1–3. Create Order, Items, and Customer via server-side API (bypasses RLS)
-      const checkoutRes = await fetch('/api/storefront/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderNumber,
-          trackingNumber,
-          userId: user?.id || null,
+      // 1. Create Order
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert([{
+          order_number: orderNumber,
+          user_id: user?.id || null, // Capture user_id if logged in
           email: shippingData.email,
-          phone: normalizedPhone,
-          subtotal,
-          tax,
-          shippingCost,
-          total,
-          deliveryMethod,
-          paymentMethod,
-          shippingData,
-          cart: cart.map(item => ({
-            id: item.id,
-            name: item.name,
-            variant: item.variant || null,
-            quantity: item.quantity,
-            price: item.price,
+          phone: shippingData.phone,
+          status: 'pending',
+          payment_status: 'pending',
+          currency: 'GHS',
+          subtotal: subtotal,
+          tax_total: tax,
+          shipping_total: shippingCost,
+          discount_total: 0,
+          total: total,
+          shipping_method: deliveryMethod,
+          payment_method: paymentMethod,
+          shipping_address: shippingData,
+          billing_address: shippingData, // Using same for now
+          metadata: {
+            guest_checkout: !user,
+            first_name: shippingData.firstName,
+            last_name: shippingData.lastName,
+            tracking_number: trackingNumber
+          }
+        }])
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // 2. Create Order Items (with UUID validation)
+      // Helper to check if string is a valid UUID
+      const isValidUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+      
+      // Build order items, resolving slugs to UUIDs if needed
+      const orderItems = [];
+      
+      // Batch-fetch product metadata (for preorder_shipping etc.)
+      const productIds = cart.map(item => item.id).filter(id => isValidUUID(id));
+      const { data: productsData } = productIds.length > 0
+        ? await supabase.from('products').select('id, metadata').in('id', productIds)
+        : { data: [] };
+      const productMetaMap = new Map((productsData || []).map((p: any) => [p.id, p.metadata]));
+      
+      for (const item of cart) {
+        let productId = item.id;
+        
+        // If id is not a valid UUID, it might be a slug - try to resolve it
+        if (!isValidUUID(productId)) {
+          const { data: product } = await supabase
+            .from('products')
+            .select('id, metadata')
+            .or(`slug.eq.${productId},id.eq.${productId}`)
+            .single();
+          
+          if (product) {
+            productId = product.id;
+            productMetaMap.set(product.id, product.metadata);
+          } else {
+            throw new Error(`Product not found: ${item.name}. Please remove it from your cart and try again.`);
+          }
+        }
+        
+        const prodMeta = productMetaMap.get(productId);
+        
+        orderItems.push({
+          order_id: order.id,
+          product_id: productId,
+          product_name: item.name,
+          variant_name: item.variant,
+          quantity: item.quantity,
+          unit_price: item.price,
+          total_price: item.price * item.quantity,
+          metadata: {
             image: item.image,
             slug: item.slug,
-          })),
-        }),
-      });
+            preorder_shipping: prodMeta?.preorder_shipping || null
+          }
+        });
+      }
 
-      const checkoutResult = await checkoutRes.json();
-      if (!checkoutRes.ok) throw new Error(checkoutResult.error || 'Failed to place order');
-      const order = checkoutResult.order;
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      // Note: Stock reduction happens in mark_order_paid when payment is confirmed
+
+      // 3. Upsert Customer Record (for both guest and registered users)
+      const fullName = `${shippingData.firstName} ${shippingData.lastName}`.trim();
+      await supabase.rpc('upsert_customer_from_order', {
+        p_email: shippingData.email,
+        p_phone: shippingData.phone,
+        p_full_name: fullName,
+        p_first_name: shippingData.firstName,
+        p_last_name: shippingData.lastName,
+        p_user_id: user?.id || null,
+        p_address: shippingData
+      });
 
       // 4. Handle Payment Redirects or Completion
       if (paymentMethod === 'moolre') {
@@ -366,7 +313,7 @@ export default function CheckoutPage() {
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Your cart is empty</h1>
           <p className="text-gray-600 mb-8">Add some items to start the checkout process.</p>
-          <Link href="/shop" className="inline-block bg-gray-900 text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
+          <Link href="/shop" className="inline-block bg-emerald-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-emerald-800 transition-colors">
             Return to Shop
           </Link>
         </div>
@@ -393,33 +340,33 @@ export default function CheckoutPage() {
               <button
                 onClick={() => !user && setCheckoutType('guest')}
                 className={`p-6 rounded-xl border-2 transition-all text-left cursor-pointer ${checkoutType === 'guest'
-                  ? 'border-gray-900 bg-gray-100'
+                  ? 'border-emerald-700 bg-emerald-50'
                   : 'border-gray-200 hover:border-gray-300'
                   } ${user ? 'opacity-50 cursor-not-allowed' : ''}`}
                 disabled={!!user}
               >
                 <div className="flex items-center justify-between mb-3">
-                  <i className="ri-user-line text-3xl text-gray-900"></i>
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${checkoutType === 'guest' ? 'border-gray-900 bg-gray-900' : 'border-gray-300'
+                  <i className="ri-user-line text-3xl text-emerald-700"></i>
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${checkoutType === 'guest' ? 'border-emerald-700 bg-emerald-700' : 'border-gray-300'
                     }`}>
                     {checkoutType === 'guest' && <i className="ri-check-line text-white text-sm"></i>}
                   </div>
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">Guest Checkout</h3>
                 <p className="text-sm text-gray-600">Quick checkout without creating an account</p>
-                {user && <p className="text-xs text-gray-700 mt-2">You are logged in</p>}
+                {user && <p className="text-xs text-emerald-600 mt-2">You are logged in</p>}
               </button>
 
               <button
                 onClick={() => setCheckoutType('account')}
                 className={`p-6 rounded-xl border-2 transition-all text-left cursor-pointer ${checkoutType === 'account'
-                  ? 'border-gray-900 bg-gray-100'
+                  ? 'border-emerald-700 bg-emerald-50'
                   : 'border-gray-200 hover:border-gray-300'
                   }`}
               >
                 <div className="flex items-center justify-between mb-3">
-                  <i className="ri-account-circle-line text-3xl text-gray-900"></i>
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${checkoutType === 'account' ? 'border-gray-900 bg-gray-900' : 'border-gray-300'
+                  <i className="ri-account-circle-line text-3xl text-emerald-700"></i>
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${checkoutType === 'account' ? 'border-emerald-700 bg-emerald-700' : 'border-gray-300'
                     }`}>
                     {checkoutType === 'account' && <i className="ri-check-line text-white text-sm"></i>}
                   </div>
@@ -452,7 +399,7 @@ export default function CheckoutPage() {
                           type="text"
                           value={shippingData.firstName}
                           onChange={(e) => setShippingData({ ...shippingData, firstName: e.target.value })}
-                          className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 ${errors.firstName ? 'border-red-500' : 'border-gray-300'
+                          className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 ${errors.firstName ? 'border-red-500' : 'border-gray-300'
                             }`}
                           placeholder="John"
                         />
@@ -466,7 +413,7 @@ export default function CheckoutPage() {
                           type="text"
                           value={shippingData.lastName}
                           onChange={(e) => setShippingData({ ...shippingData, lastName: e.target.value })}
-                          className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 ${errors.lastName ? 'border-red-500' : 'border-gray-300'
+                          className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 ${errors.lastName ? 'border-red-500' : 'border-gray-300'
                             }`}
                           placeholder="Doe"
                         />
@@ -476,14 +423,14 @@ export default function CheckoutPage() {
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-900 mb-2">
-                        Email Address <span className="text-gray-400 font-normal text-xs">(optional)</span>
+                        Email Address *
                       </label>
                       <input
                         type="email"
                         value={shippingData.email}
-                        readOnly={!!user}
+                        readOnly={!!user} // Make read-only if logged in (optional, but safer)
                         onChange={(e) => setShippingData({ ...shippingData, email: e.target.value })}
-                        className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 ${errors.email ? 'border-red-500' : 'border-gray-300'
+                        className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 ${errors.email ? 'border-red-500' : 'border-gray-300'
                           } ${user ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                         placeholder="you@example.com"
                       />
@@ -497,36 +444,23 @@ export default function CheckoutPage() {
                       <input
                         type="tel"
                         value={shippingData.phone}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/[^0-9+\- ]/g, '');
-                          if (val.replace(/\D/g, '').length <= 12) {
-                            setShippingData({ ...shippingData, phone: val });
-                          }
-                        }}
-                        maxLength={15}
-                        className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 ${errors.phone ? 'border-red-500' : 'border-gray-300'
+                        onChange={(e) => setShippingData({ ...shippingData, phone: e.target.value })}
+                        className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 ${errors.phone ? 'border-red-500' : 'border-gray-300'
                           }`}
-                        placeholder="0551234567"
+                        placeholder="+233 XX XXX XXXX"
                       />
                       {errors.phone && <p className="text-sm text-red-600 mt-1">{errors.phone}</p>}
-                      {!errors.phone && shippingData.phone && (() => {
-                        const d = shippingData.phone.replace(/\D/g, '');
-                        const valid = (d.length === 10 && d.startsWith('0')) || (d.length === 12 && d.startsWith('233'));
-                        if (valid) return <p className="text-xs text-gray-700 mt-1 flex items-center gap-1"><i className="ri-checkbox-circle-fill"></i> Valid phone number</p>;
-                        if (d.length > 0 && d.length < 10) return <p className="text-xs text-amber-600 mt-1">{10 - d.length} more digit{10 - d.length > 1 ? 's' : ''} needed</p>;
-                        return null;
-                      })()}
                     </div>
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-900 mb-2">
-                        Location *
+                        Street Address *
                       </label>
                       <input
                         type="text"
                         value={shippingData.address}
                         onChange={(e) => setShippingData({ ...shippingData, address: e.target.value })}
-                        className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 ${errors.address ? 'border-red-500' : 'border-gray-300'
+                        className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 ${errors.address ? 'border-red-500' : 'border-gray-300'
                           }`}
                         placeholder="House number and street name"
                       />
@@ -536,12 +470,26 @@ export default function CheckoutPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-900 mb-2">
+                          City *
+                        </label>
+                        <input
+                          type="text"
+                          value={shippingData.city}
+                          onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
+                          className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 ${errors.city ? 'border-red-500' : 'border-gray-300'
+                            }`}
+                          placeholder="Accra"
+                        />
+                        {errors.city && <p className="text-sm text-red-600 mt-1">{errors.city}</p>}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">
                           Region *
                         </label>
                         <select
                           value={shippingData.region}
-                          onChange={(e) => setShippingData({ ...shippingData, region: e.target.value, city: '' })}
-                          className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white ${errors.region ? 'border-red-500' : 'border-gray-300'
+                          onChange={(e) => setShippingData({ ...shippingData, region: e.target.value })}
+                          className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white ${errors.region ? 'border-red-500' : 'border-gray-300'
                             }`}
                         >
                           <option value="">Select Region</option>
@@ -551,35 +499,6 @@ export default function CheckoutPage() {
                         </select>
                         {errors.region && <p className="text-sm text-red-600 mt-1">{errors.region}</p>}
                       </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-900 mb-2">
-                          City *
-                        </label>
-                        {shippingData.region && ghanaCitiesByRegion[shippingData.region] ? (
-                          <select
-                            value={shippingData.city}
-                            onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
-                            className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white ${errors.city ? 'border-red-500' : 'border-gray-300'
-                              }`}
-                          >
-                            <option value="">Select City</option>
-                            {ghanaCitiesByRegion[shippingData.region].map((city) => (
-                              <option key={city} value={city}>{city}</option>
-                            ))}
-                          </select>
-                        ) : (
-                          <input
-                            type="text"
-                            value={shippingData.city}
-                            onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
-                            className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 ${errors.city ? 'border-red-500' : 'border-gray-300'
-                              }`}
-                            placeholder={shippingData.region ? 'Enter city' : 'Select a region first'}
-                            disabled={!shippingData.region}
-                          />
-                        )}
-                        {errors.city && <p className="text-sm text-red-600 mt-1">{errors.city}</p>}
-                      </div>
                     </div>
 
                     {checkoutType === 'account' && (
@@ -588,7 +507,7 @@ export default function CheckoutPage() {
                           type="checkbox"
                           checked={saveAddress}
                           onChange={(e) => setSaveAddress(e.target.checked)}
-                          className="w-5 h-5 text-gray-900 rounded border-gray-300 focus:ring-gray-900"
+                          className="w-5 h-5 text-emerald-700 rounded border-gray-300 focus:ring-emerald-500"
                         />
                         <span className="text-sm text-gray-700">Save this address for future orders</span>
                       </label>
@@ -597,7 +516,7 @@ export default function CheckoutPage() {
 
                   <button
                     onClick={handleContinueToDelivery}
-                    className="w-full mt-6 bg-gray-900 hover:bg-gray-800 text-white py-4 rounded-lg font-semibold transition-colors whitespace-nowrap cursor-pointer"
+                    className="w-full mt-6 bg-emerald-700 hover:bg-emerald-800 text-white py-4 rounded-lg font-semibold transition-colors whitespace-nowrap cursor-pointer"
                   >
                     Continue to Delivery
                   </button>
@@ -612,7 +531,7 @@ export default function CheckoutPage() {
                 <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
                   <h2 className="text-xl font-bold text-gray-900 mb-6">Delivery Method</h2>
                   <div className="space-y-4">
-                    <label className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors ${deliveryMethod === 'pickup' ? 'border-gray-900 bg-gray-100' : 'border-gray-300 hover:border-gray-400'
+                    <label className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors ${deliveryMethod === 'pickup' ? 'border-emerald-700 bg-emerald-50' : 'border-gray-300 hover:border-gray-400'
                       }`}>
                       <div className="flex items-center space-x-4">
                         <input
@@ -621,17 +540,17 @@ export default function CheckoutPage() {
                           value="pickup"
                           checked={deliveryMethod === 'pickup'}
                           onChange={(e) => setDeliveryMethod(e.target.value)}
-                          className="w-5 h-5 text-gray-900"
+                          className="w-5 h-5 text-emerald-700"
                         />
                         <div>
                           <p className="font-semibold text-gray-900">Store Pickup</p>
                           <p className="text-sm text-gray-600">Pick up from our store — Ready in 24 hours</p>
                         </div>
                       </div>
-                      <p className="font-bold text-gray-900">FREE</p>
+                      <p className="font-bold text-emerald-700">FREE</p>
                     </label>
 
-                    <label className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors ${deliveryMethod === 'doorstep' ? 'border-gray-900 bg-gray-100' : 'border-gray-300 hover:border-gray-400'
+                    <label className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors ${deliveryMethod === 'doorstep' ? 'border-emerald-700 bg-emerald-50' : 'border-gray-300 hover:border-gray-400'
                       }`}>
                       <div className="flex items-center space-x-4">
                         <input
@@ -640,7 +559,7 @@ export default function CheckoutPage() {
                           value="doorstep"
                           checked={deliveryMethod === 'doorstep'}
                           onChange={(e) => setDeliveryMethod(e.target.value)}
-                          className="w-5 h-5 text-gray-900"
+                          className="w-5 h-5 text-emerald-700"
                         />
                         <div>
                           <p className="font-semibold text-gray-900">Doorstep Delivery</p>
@@ -651,10 +570,10 @@ export default function CheckoutPage() {
                     </label>
 
                     {/* Comprehensive delivery options - to be re-enabled later
-                    <label className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors ${deliveryMethod === 'accra' ? 'border-gray-900 bg-gray-100' : 'border-gray-300 hover:border-gray-400'
+                    <label className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors ${deliveryMethod === 'accra' ? 'border-emerald-700 bg-emerald-50' : 'border-gray-300 hover:border-gray-400'
                       }`}>
                       <div className="flex items-center space-x-4">
-                        <input type="radio" name="delivery" value="accra" checked={deliveryMethod === 'accra'} onChange={(e) => setDeliveryMethod(e.target.value)} className="w-5 h-5 text-gray-900" />
+                        <input type="radio" name="delivery" value="accra" checked={deliveryMethod === 'accra'} onChange={(e) => setDeliveryMethod(e.target.value)} className="w-5 h-5 text-emerald-700" />
                         <div>
                           <p className="font-semibold text-gray-900">Accra Delivery</p>
                           <p className="text-sm text-gray-600">Delivery within Accra</p>
@@ -662,10 +581,10 @@ export default function CheckoutPage() {
                       </div>
                       <p className="font-bold text-gray-900">GH₵ 40.00</p>
                     </label>
-                    <label className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors ${deliveryMethod === 'outside-accra' ? 'border-gray-900 bg-gray-100' : 'border-gray-300 hover:border-gray-400'
+                    <label className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-colors ${deliveryMethod === 'outside-accra' ? 'border-emerald-700 bg-emerald-50' : 'border-gray-300 hover:border-gray-400'
                       }`}>
                       <div className="flex items-center space-x-4">
-                        <input type="radio" name="delivery" value="outside-accra" checked={deliveryMethod === 'outside-accra'} onChange={(e) => setDeliveryMethod(e.target.value)} className="w-5 h-5 text-gray-900" />
+                        <input type="radio" name="delivery" value="outside-accra" checked={deliveryMethod === 'outside-accra'} onChange={(e) => setDeliveryMethod(e.target.value)} className="w-5 h-5 text-emerald-700" />
                         <div>
                           <p className="font-semibold text-gray-900">Outside Accra Delivery</p>
                           <p className="text-sm text-gray-600">Delivery to bus stations (VIP, OA, STC, etc.)</p>
@@ -687,7 +606,7 @@ export default function CheckoutPage() {
                     <button
                       onClick={handleContinueToPayment}
                       disabled={isLoading}
-                      className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-4 rounded-lg font-semibold transition-colors whitespace-nowrap cursor-pointer disabled:opacity-70 flex items-center justify-center"
+                      className="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white py-4 rounded-lg font-semibold transition-colors whitespace-nowrap cursor-pointer disabled:opacity-70 flex items-center justify-center"
                     >
                       {isLoading ? (
                         <>
