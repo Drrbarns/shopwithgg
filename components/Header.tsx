@@ -38,8 +38,8 @@ const NavLink = ({
     <Link
       href={href}
       className={`relative inline-flex items-center rounded-full px-4 py-2 text-[14px] font-semibold tracking-wide transition-all duration-300 ${isActive
-          ? 'bg-emerald-600 text-white shadow-sm'
-          : 'text-gray-700 hover:text-emerald-800 hover:bg-emerald-50'
+          ? 'bg-brand-green text-white shadow-sm'
+          : 'text-gray-700 hover:text-brand-greenDark hover:bg-brand-greenLight'
         }`}
     >
       <span className="relative z-10">{children}</span>
@@ -109,7 +109,7 @@ export default function Header() {
 
       <header
         className={`sticky top-0 z-50 pwa-header transition-all duration-500 ease-in-out border-b ${isScrolled
-            ? 'bg-white/90 backdrop-blur-xl border-emerald-200/60 shadow-[0_10px_30px_rgba(6,95,70,0.12)] py-2'
+            ? 'bg-white/90 backdrop-blur-xl border-brand-green/30 shadow-[0_10px_30px_rgba(42,181,42,0.2)] py-2'
             : 'bg-white border-transparent py-4'
           }`}
       >
@@ -132,14 +132,14 @@ export default function Header() {
                   className="flex items-center group"
                   aria-label="Go to homepage"
                 >
-                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 text-white text-[13px] font-extrabold tracking-wider shadow-sm">
+                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-green to-brand-greenDark text-white text-[13px] font-extrabold tracking-wider shadow-sm">
                     FF
                   </span>
                   <span className="ml-2 hidden sm:flex flex-col leading-none">
                     <span className="text-[17px] font-extrabold tracking-[0.2em] text-gray-900 transition-transform duration-500 group-hover:scale-[1.02]">
                       FREBYS
                     </span>
-                    <span className="text-[11px] font-medium tracking-[0.17em] text-emerald-700/80 mt-1">
+                    <span className="text-[11px] font-medium tracking-[0.17em] text-brand-greenDark/85 mt-1">
                       FASHION GH
                     </span>
                   </span>
@@ -148,7 +148,7 @@ export default function Header() {
 
               {/* Center: Desktop Navigation */}
               <div className="hidden lg:flex items-center justify-center flex-1">
-                <div className="inline-flex items-center gap-1 rounded-full border border-emerald-100 bg-white/90 p-1 shadow-sm">
+                <div className="inline-flex items-center gap-1 rounded-full border border-brand-green/20 bg-white/90 p-1 shadow-sm">
                   <NavLink href="/shop" isActive={pathname === '/shop'}>Shop</NavLink>
                   <NavLink href="/categories" isActive={pathname === '/categories'}>Categories</NavLink>
                   <NavLink href="/about" isActive={pathname === '/about'}>About</NavLink>
@@ -173,19 +173,19 @@ export default function Header() {
                   <input
                     type="search"
                     placeholder="Search kids styles..."
-                    className="w-56 focus:w-80 pl-11 pr-4 py-2.5 bg-emerald-50/60 hover:bg-emerald-50 focus:bg-white border border-emerald-100 focus:border-emerald-500 rounded-full transition-all duration-500 ease-out text-sm outline-none placeholder-gray-500 font-medium"
+                    className="w-56 focus:w-80 pl-11 pr-4 py-2.5 bg-brand-greenLight/70 hover:bg-brand-greenLight focus:bg-white border border-brand-green/20 focus:border-brand-green rounded-full transition-all duration-500 ease-out text-sm outline-none placeholder-gray-500 font-medium"
                     aria-label="Search products"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
                   />
-                  <i className="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-emerald-700/70 group-focus-within:text-emerald-700 transition-colors text-lg"></i>
+                  <i className="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-brand-greenDark/70 group-focus-within:text-brand-greenDark transition-colors text-lg"></i>
                 </div>
 
                 {/* Wishlist */}
                 <Link
                   href="/wishlist"
-                  className="relative w-10 h-10 flex items-center justify-center text-gray-700 hover:text-emerald-700 hover:bg-emerald-50 rounded-full transition-all duration-300 group"
+                  className="relative w-10 h-10 flex items-center justify-center text-gray-700 hover:text-brand-greenDark hover:bg-brand-greenLight rounded-full transition-all duration-300 group"
                   aria-label={`Wishlist, ${wishlistCount} items`}
                 >
                   <i className="ri-heart-3-line text-xl transition-transform group-hover:scale-110"></i>
@@ -199,7 +199,7 @@ export default function Header() {
                 {/* Cart */}
                 <div className="relative">
                   <button
-                    className="relative w-10 h-10 flex items-center justify-center text-gray-700 hover:text-emerald-700 hover:bg-emerald-50 rounded-full transition-all duration-300 group"
+                    className="relative w-10 h-10 flex items-center justify-center text-gray-700 hover:text-brand-greenDark hover:bg-brand-greenLight rounded-full transition-all duration-300 group"
                     onClick={() => setIsCartOpen(!isCartOpen)}
                     aria-label={`Shopping cart, ${cartCount} items`}
                     aria-expanded={isCartOpen}
@@ -219,7 +219,7 @@ export default function Header() {
                 {user ? (
                   <Link
                     href="/account"
-                    className="hidden lg:flex w-10 h-10 items-center justify-center text-gray-700 hover:text-emerald-700 hover:bg-emerald-50 rounded-full transition-all duration-300 group"
+                    className="hidden lg:flex w-10 h-10 items-center justify-center text-gray-700 hover:text-brand-greenDark hover:bg-brand-greenLight rounded-full transition-all duration-300 group"
                     aria-label="My account"
                     title="Account"
                   >
@@ -228,7 +228,7 @@ export default function Header() {
                 ) : (
                   <Link
                     href="/auth/login"
-                    className="hidden lg:flex w-10 h-10 items-center justify-center text-gray-700 hover:text-emerald-700 hover:bg-emerald-50 rounded-full transition-all duration-300 group"
+                    className="hidden lg:flex w-10 h-10 items-center justify-center text-gray-700 hover:text-brand-greenDark hover:bg-brand-greenLight rounded-full transition-all duration-300 group"
                     aria-label="Login"
                     title="Login"
                   >
@@ -295,7 +295,7 @@ export default function Header() {
             <div className="px-6 py-5 flex items-center justify-between bg-white relative z-10 border-b border-gray-100/50">
               <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
                 <span className="inline-flex items-center gap-2">
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-800 text-white text-[11px] font-extrabold tracking-wider">FF</span>
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-brand-green to-brand-greenDark text-white text-[11px] font-extrabold tracking-wider">FF</span>
                   <span className="text-lg font-extrabold tracking-[0.16em] text-gray-900">FREBYS</span>
                 </span>
               </Link>

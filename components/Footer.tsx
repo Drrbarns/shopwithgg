@@ -70,36 +70,47 @@ export default function Footer() {
     <footer className="bg-gray-900 text-white rounded-t-[2.5rem] mt-8 lg:mt-0 overflow-hidden">
 
       {/* Newsletter Section */}
-      <div className="bg-black/30 py-12 md:py-16 px-4">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="w-16 h-16 bg-gray-700/50 rounded-2xl flex items-center justify-center mx-auto mb-6 rotate-3">
-            <i className="ri-mail-star-line text-3xl text-gray-300"></i>
+      <div className="relative overflow-hidden py-12 md:py-16 px-4 border-b border-brand-green/25">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(248,119,26,0.18),transparent_40%),radial-gradient(circle_at_85%_85%,rgba(42,181,42,0.2),transparent_45%),linear-gradient(130deg,#0c1a11,#102215,#1a2f1a)]" />
+        <div className="max-w-7xl mx-auto text-center relative z-10">
+          <div className="w-16 h-16 bg-brand-green/20 border border-brand-green/40 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-[0_12px_30px_rgba(42,181,42,0.25)]">
+            <i className="ri-mail-star-line text-3xl text-brand-orange"></i>
           </div>
-          <h3 className="text-2xl md:text-3xl font-bold mb-3 font-serif">Join Our Community</h3>
-          <p className="text-gray-300 mb-8 max-w-md mx-auto leading-relaxed">
+          <h3 className="text-2xl md:text-3xl font-bold mb-3 font-serif text-white">Join Our Community</h3>
+          <p className="text-brand-greenLight mb-6 max-w-md mx-auto leading-relaxed">
             Get first access to new kids Ankara arrivals, styling tips, and special offers.
           </p>
+          <div className="mb-8 flex items-center justify-center gap-3 text-xs">
+            <span className="inline-flex items-center rounded-full border border-brand-green/45 bg-brand-green/20 px-3 py-1 text-brand-greenLight">
+              <i className="ri-sparkling-line mr-1.5 text-brand-orange" />
+              New drops
+            </span>
+            <span className="inline-flex items-center rounded-full border border-brand-orange/45 bg-brand-orange/20 px-3 py-1 text-brand-orangeLight">
+              <i className="ri-price-tag-3-line mr-1.5 text-brand-orange" />
+              Exclusive offers
+            </span>
+          </div>
 
-          <form onSubmit={handleSubmit} className="max-w-md mx-auto relative">
+          <form onSubmit={handleSubmit} className="max-w-lg mx-auto relative">
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email address"
-              className="w-full pl-6 pr-32 py-4 bg-white/10 border border-gray-600 rounded-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/20 transition-all backdrop-blur-sm"
+              className="w-full pl-6 pr-32 py-4 bg-white/10 border border-brand-green/35 rounded-full text-white placeholder-brand-greenLight/70 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-all backdrop-blur-sm"
             />
             <button
               type="submit"
               disabled={isSubmitting}
-              className="absolute right-1.5 top-1.5 bottom-1.5 bg-white hover:bg-gray-200 text-gray-900 font-bold px-6 rounded-full transition-all disabled:opacity-75 disabled:cursor-not-allowed shadow-lg"
+              className="absolute right-1.5 top-1.5 bottom-1.5 bg-brand-orange hover:bg-brand-orangeDark text-white font-bold px-6 rounded-full transition-all disabled:opacity-75 disabled:cursor-not-allowed shadow-lg"
             >
               {isSubmitting ? '...' : 'Join'}
             </button>
           </form>
 
           {submitStatus === 'success' && (
-            <p className="text-gray-300 text-sm mt-4 animate-in fade-in slide-in-from-bottom-2">
+            <p className="text-brand-greenLight text-sm mt-4 animate-in fade-in slide-in-from-bottom-2">
               <i className="ri-checkbox-circle-line mr-1 align-middle"></i> You're on the list!
             </p>
           )}

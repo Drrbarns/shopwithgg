@@ -69,7 +69,7 @@ export default function Home() {
   const renderBanners = () => {
     if (activeBanners.length === 0) return null;
     return (
-      <div className="bg-emerald-900 text-white py-2 overflow-hidden relative">
+      <div className="bg-brand-greenDark text-white py-2 overflow-hidden relative">
         <div className="flex animate-marquee whitespace-nowrap">
           {activeBanners.concat(activeBanners).map((banner, index) => (
             <span
@@ -125,7 +125,7 @@ export default function Home() {
           <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <Link
               href={heroPrimaryLink}
-              className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-amber-400 px-6 py-2.5 sm:px-9 sm:py-3 text-sm sm:text-base font-semibold text-gray-900 shadow-lg hover:bg-amber-300 transition-colors"
+              className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-brand-orange px-6 py-2.5 sm:px-9 sm:py-3 text-sm sm:text-base font-semibold text-white shadow-lg hover:bg-brand-orangeDark transition-colors"
             >
               {heroPrimaryText}
               <i className="ri-arrow-right-up-line ml-2 text-base" />
@@ -140,13 +140,13 @@ export default function Home() {
           <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-white/85">
             <div className="inline-flex items-center gap-2">
               <span className="inline-flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-white/15">
-                <i className="ri-shield-check-line text-emerald-200 text-sm sm:text-base" />
+                <i className="ri-shield-check-line text-brand-greenLight text-sm sm:text-base" />
               </span>
               <span className="font-medium">Quality Ankara fabrics</span>
             </div>
             <div className="inline-flex items-center gap-2">
               <span className="inline-flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-white/15">
-                <i className="ri-truck-line text-emerald-200 text-sm sm:text-base" />
+                <i className="ri-truck-line text-brand-greenLight text-sm sm:text-base" />
               </span>
               <span className="font-medium">Worldwide delivery from Accra</span>
             </div>
@@ -164,11 +164,11 @@ export default function Home() {
         </div>
       </section>
 
-      <AnimatedSection className="bg-white py-8 sm:py-10 border-b border-emerald-50">
+      <AnimatedSection className="bg-white py-8 sm:py-10 border-b border-brand-green/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
             <div>
-              <p className="text-xs font-semibold tracking-[0.25em] text-emerald-600 uppercase">
+              <p className="text-xs font-semibold tracking-[0.25em] text-brand-green uppercase">
                 Shop by vibe
               </p>
               <h2 className="mt-1 text-2xl font-bold text-gray-900">
@@ -177,7 +177,7 @@ export default function Home() {
             </div>
             <Link
               href="/shop"
-              className="inline-flex items-center text-sm font-medium text-emerald-700 hover:text-emerald-900"
+              className="inline-flex items-center text-sm font-medium text-brand-greenDark hover:text-brand-green"
             >
               Browse full catalogue
               <i className="ri-arrow-right-line ml-1" />
@@ -191,7 +191,7 @@ export default function Home() {
                 href: '/shop?search=casual',
                 chip: 'Everyday comfort',
                 icon: 'ri-shirt-line',
-                color: 'from-emerald-500 to-emerald-700',
+                color: 'from-brand-green to-brand-greenDark',
               },
               {
                 label: 'Luxury Kids Wear',
@@ -205,7 +205,7 @@ export default function Home() {
                 href: '/shop?search=occasion',
                 chip: 'Event ready',
                 icon: 'ri-t-shirt-air-line',
-                color: 'from-amber-400 to-orange-600',
+                color: 'from-brand-orange to-brand-orangeDark',
               },
               {
                 label: 'New Arrivals',
@@ -218,21 +218,21 @@ export default function Home() {
               <Link
                 key={item.label}
                 href={item.href}
-                className="group relative overflow-hidden rounded-2xl border border-emerald-50 bg-emerald-50/40 p-4 hover:border-emerald-300 transition-colors"
+                className="group relative overflow-hidden rounded-2xl border border-brand-green/10 bg-brand-greenLight/40 p-4 hover:border-brand-green transition-colors"
               >
                 <div
                   className={`pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gradient-to-br ${item.color} opacity-70 blur-2xl group-hover:opacity-100 transition-opacity`}
                 />
                 <div className="relative flex items-center justify-between gap-4">
                   <div>
-                    <span className="inline-flex items-center rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-medium text-emerald-700 mb-2">
+                    <span className="inline-flex items-center rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-medium text-brand-greenDark mb-2">
                       {item.chip}
                     </span>
                     <p className="text-sm font-semibold text-gray-900">
                       {item.label}
                     </p>
                   </div>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm text-emerald-700 group-hover:translate-y-[-2px] group-hover:shadow-md transition-all">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm text-brand-greenDark group-hover:translate-y-[-2px] group-hover:shadow-md transition-all">
                     <i className={`${item.icon} text-lg`} />
                   </div>
                 </div>
@@ -246,7 +246,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
             <div>
-              <p className="text-xs font-semibold tracking-[0.25em] text-emerald-600 uppercase">
+              <p className="text-xs font-semibold tracking-[0.25em] text-brand-green uppercase">
                 Trending now
               </p>
               <h2 className="mt-1 text-2xl sm:text-3xl font-extrabold text-gray-900">
@@ -255,7 +255,7 @@ export default function Home() {
             </div>
             <Link
               href="/shop?sort=bestsellers"
-              className="inline-flex items-center text-sm font-medium text-gray-800 hover:text-emerald-700"
+              className="inline-flex items-center text-sm font-medium text-gray-800 hover:text-brand-greenDark"
             >
               View bestselling outfits
               <i className="ri-arrow-right-line ml-1" />
@@ -337,18 +337,18 @@ export default function Home() {
         </div>
       </AnimatedSection>
 
-      <AnimatedSection className="bg-emerald-50/60 py-10 sm:py-14">
+      <AnimatedSection className="bg-brand-greenLight/55 py-10 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
             <div>
-              <p className="text-xs font-semibold tracking-[0.25em] text-emerald-700 uppercase">
+              <p className="text-xs font-semibold tracking-[0.25em] text-brand-greenDark uppercase">
                 Just landed
               </p>
-              <h2 className="mt-1 text-2xl sm:text-3xl font-extrabold text-emerald-950">
+              <h2 className="mt-1 text-2xl sm:text-3xl font-extrabold text-brand-greenDark">
                 Fresh designs & restocks
               </h2>
             </div>
-            <p className="text-sm text-emerald-900/80 max-w-md">
+            <p className="text-sm text-brand-greenDark/85 max-w-md">
               Discover new kids Ankara pieces for birthdays, celebrations,
               church, school events, and everyday style.
             </p>
@@ -362,7 +362,7 @@ export default function Home() {
                     key={`${product.id}-${index}`}
                     className="min-w-[180px] sm:min-w-[220px] max-w-[260px] w-[var(--card-width)] flex-shrink-0 rounded-xl sm:rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow"
                   >
-                    <div className="relative aspect-[4/5] rounded-xl sm:rounded-2xl overflow-hidden bg-emerald-900/5">
+                    <div className="relative aspect-[4/5] rounded-xl sm:rounded-2xl overflow-hidden bg-brand-green/10">
                       <Image
                         src={
                           product.product_images?.[0]?.url ||
@@ -374,7 +374,7 @@ export default function Home() {
                       />
                     </div>
                     <div className="p-3">
-                      <p className="text-xs uppercase tracking-wide text-emerald-500 mb-1">
+                      <p className="text-xs uppercase tracking-wide text-brand-green mb-1">
                         New drop
                       </p>
                       <p className="text-sm font-semibold text-gray-900 line-clamp-2">
@@ -386,7 +386,7 @@ export default function Home() {
                         </span>
                         <Link
                           href={`/product/${product.slug}`}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-white hover:bg-emerald-700 text-sm"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-green text-white hover:bg-brand-greenDark text-sm"
                         >
                           <i className="ri-arrow-right-line" />
                         </Link>
@@ -403,7 +403,7 @@ export default function Home() {
       <AnimatedSection className="bg-white py-10 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
-            <p className="text-xs font-semibold tracking-[0.25em] text-emerald-600 uppercase">
+              <p className="text-xs font-semibold tracking-[0.25em] text-brand-green uppercase">
               Why customers stay with us
             </p>
             <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold text-gray-900">
@@ -435,11 +435,11 @@ export default function Home() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="relative overflow-hidden rounded-2xl border border-emerald-50 bg-emerald-50/40 p-6"
+                className="relative overflow-hidden rounded-2xl border border-brand-green/10 bg-brand-greenLight/40 p-6"
               >
-                <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-emerald-200/40 blur-2xl pointer-events-none" />
+                <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-brand-green/25 blur-2xl pointer-events-none" />
                 <div className="relative">
-                  <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md">
+                  <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-green text-white shadow-md">
                     <i className={`${item.icon} text-xl`} />
                   </div>
                   <h3 className="text-base font-semibold text-gray-900 mb-2">
@@ -457,44 +457,44 @@ export default function Home() {
 
       <section className="pb-12 sm:pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-emerald-950 text-white flex flex-col md:flex-row items-center md:items-stretch">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(52,211,153,0.25),_transparent_55%),radial-gradient(circle_at_bottom_right,_rgba(16,185,129,0.4),_transparent_55%)] opacity-80" />
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-brand-greenDark text-white flex flex-col md:flex-row items-center md:items-stretch">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(248,119,26,0.28),_transparent_55%),radial-gradient(circle_at_bottom_right,_rgba(42,181,42,0.42),_transparent_55%)] opacity-80" />
             <div className="relative w-full md:w-3/5 px-5 sm:px-8 py-8 sm:py-10 flex flex-col justify-center space-y-3 text-center md:text-left">
-              <span className="inline-flex items-center text-xs font-semibold tracking-[0.25em] uppercase text-emerald-200">
+              <span className="inline-flex items-center text-xs font-semibold tracking-[0.25em] uppercase text-brand-greenLight">
                 Join the Frebys family
               </span>
               <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold">
                 Dress your kids in style for every occasion.
               </h3>
-              <p className="text-sm sm:text-base text-emerald-100 max-w-md mx-auto md:mx-0">
+              <p className="text-sm sm:text-base text-brand-greenLight max-w-md mx-auto md:mx-0">
                 Explore casual and luxury kids Ankara wear with comfort, quality
                 finishing, and worldwide delivery from Frebys Fashion GH.
               </p>
               <div className="pt-2 flex flex-wrap gap-3 justify-center md:justify-start">
                 <Link
                   href="/shop"
-                  className="inline-flex items-center rounded-full bg-white text-emerald-900 px-8 py-3 text-sm font-semibold shadow-lg hover:bg-emerald-100"
+                  className="inline-flex items-center rounded-full bg-brand-orange text-white px-8 py-3 text-sm font-semibold shadow-lg hover:bg-brand-orangeDark"
                 >
                   Start shopping kids wear
                   <i className="ri-arrow-right-up-line ml-2" />
                 </Link>
                 <Link
                   href="/account"
-                  className="inline-flex items-center rounded-full border border-emerald-200/70 px-6 py-3 text-sm font-semibold text-emerald-50 hover:bg-emerald-800/60"
+                  className="inline-flex items-center rounded-full border border-brand-green/40 px-6 py-3 text-sm font-semibold text-brand-greenLight hover:bg-brand-green/50"
                 >
                   Create an account
                 </Link>
               </div>
             </div>
             <div className="relative w-full md:w-2/5 py-4 sm:py-6 pr-4 pl-4 md:pl-0 flex justify-center">
-              <div className="relative h-40 sm:h-52 md:h-64 lg:h-full min-h-[12rem] w-full max-w-sm md:max-w-none rounded-2xl border border-emerald-300/20 bg-emerald-900/50 backdrop-blur-sm p-5 flex flex-col justify-center gap-3 shadow-[0_30px_70px_rgba(0,0,0,0.45)]">
-                <span className="inline-flex w-fit items-center rounded-full bg-emerald-500/20 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-100">
+              <div className="relative h-40 sm:h-52 md:h-64 lg:h-full min-h-[12rem] w-full max-w-sm md:max-w-none rounded-2xl border border-brand-green/25 bg-brand-greenDark/55 backdrop-blur-sm p-5 flex flex-col justify-center gap-3 shadow-[0_30px_70px_rgba(0,0,0,0.45)]">
+                <span className="inline-flex w-fit items-center rounded-full bg-brand-orange/25 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-orangeLight">
                   Frebys Fashion GH
                 </span>
                 <p className="text-lg sm:text-xl font-bold text-white leading-snug">
                   Casual and luxury kids Ankara wear
                 </p>
-                <div className="space-y-1 text-sm text-emerald-100/95">
+                <div className="space-y-1 text-sm text-brand-greenLight">
                   <p className="inline-flex items-center gap-2">
                     <i className="ri-map-pin-line" /> Haatso, Accra, Ghana
                   </p>
