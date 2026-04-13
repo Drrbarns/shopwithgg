@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import { createClient } from '@supabase/supabase-js';
 
 function getAccessToken(request: Request): string | null {
   const authHeader = request.headers.get('authorization');
@@ -31,12 +31,12 @@ function getAccessToken(request: Request): string | null {
 
 /**
  * GET /api/admin/me
- * Returns current admin/staff user and profile using service role (bypasses RLS).
+ * Returns current admin/staff user and profile using the caller session token.
  */
 export async function GET(request: Request) {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     return NextResponse.json(
-      { error: 'Server misconfiguration: SUPABASE_SERVICE_ROLE_KEY not set' },
+      { error: 'Server misconfiguration: missing Supabase env vars' },
       { status: 503 }
     );
   }
@@ -46,12 +46,21 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
 
-  const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      auth: { autoRefreshToken: false, persistSession: false },
+      global: { headers: { Authorization: `Bearer ${token}` } },
+    }
+  );
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) {
     return NextResponse.json({ error: 'Invalid or expired session' }, { status: 401 });
   }
 
-  const { data: profile, error: profileError } = await supabaseAdmin
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('role')
     .eq('id', user.id)
@@ -66,7 +75,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Not admin or staff' }, { status: 403 });
   }
 
-  const { data: roleConfig } = await supabaseAdmin
+  const { data: roleConfig } = await supabase
     .from('roles')
     .select('permissions, enabled')
     .eq('id', role)

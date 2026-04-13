@@ -17,6 +17,8 @@ export default function Home() {
   const { getSetting, getActiveBanners } = useCMS();
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const heroSlides = ['/hero-frebys-1.png', '/hero-frebys-2.png'];
+  const [currentHeroSlide, setCurrentHeroSlide] = useState(0);
 
   useEffect(() => {
     async function fetchData() {
@@ -58,8 +60,6 @@ export default function Home() {
   const heroSecondaryText =
     getSetting('hero_secondary_btn_text') || 'Browse Collections';
   const heroSecondaryLink = getSetting('hero_secondary_btn_link') || '/shop';
-  const heroSlides = ['/hero-frebys-1.png', '/hero-frebys-2.png'];
-  const [currentHeroSlide, setCurrentHeroSlide] = useState(0);
 
   const activeBanners = getActiveBanners('top');
 

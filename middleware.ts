@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
@@ -61,13 +61,14 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(loginUrl);
         }
 
-        if (supabaseServiceKey) {
+        if (supabaseAnonKey) {
             try {
-                const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-                    auth: { autoRefreshToken: false, persistSession: false }
+                const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+                    auth: { autoRefreshToken: false, persistSession: false },
+                    global: { headers: { Authorization: `Bearer ${token}` } },
                 });
 
-                const { data: { user }, error } = await supabase.auth.getUser(token);
+                const { data: { user }, error } = await supabase.auth.getUser();
 
                 if (error || !user) {
                     const loginUrl = new URL('/admin/login', request.url);
@@ -82,7 +83,8 @@ export async function middleware(request: NextRequest) {
                     .eq('id', user.id)
                     .single();
 
-                if (!profile || (profile.role !== 'admin' && profile.role !== 'staff')) {
+                const role = profile?.role ? String(profile.role) : '';
+                if (role !== 'admin' && role !== 'staff') {
                     const loginUrl = new URL('/admin/login', request.url);
                     loginUrl.searchParams.set('error', 'unauthorized');
                     return NextResponse.redirect(loginUrl);
@@ -91,7 +93,7 @@ export async function middleware(request: NextRequest) {
                 const { data: roleConfig } = await supabase
                     .from('roles')
                     .select('enabled')
-                    .eq('id', profile.role)
+                    .eq('id', role)
                     .single();
 
                 if (roleConfig && !roleConfig.enabled) {
@@ -101,7 +103,7 @@ export async function middleware(request: NextRequest) {
                 }
 
                 response.headers.set('x-user-id', user.id);
-                response.headers.set('x-user-role', profile.role);
+                response.headers.set('x-user-role', role);
 
             } catch (err) {
                 console.error('[Middleware] Auth check error:', err);
