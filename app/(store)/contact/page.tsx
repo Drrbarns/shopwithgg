@@ -147,9 +147,8 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-white">
       <PageHero
-        title="Get In Touch"
-        subtitle="Have a question or need assistance? Our friendly team is here to help."
-        image="/me.jpeg"
+        title={heroTitle}
+        subtitle={heroSubtitle}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

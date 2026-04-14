@@ -23,9 +23,10 @@ export async function GET() {
     try {
         const { data, error } = await supabase
             .from('categories')
-            .select('id, name, slug, image_url, parent_id, metadata')
+            .select('id, name, slug, image_url, parent_id, position, metadata')
             .eq('status', 'active')
-            .order('name');
+            .order('position', { ascending: true })
+            .order('name', { ascending: true });
 
         if (error) {
             console.error('[Storefront API] Categories error:', error);

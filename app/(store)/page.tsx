@@ -16,6 +16,7 @@ export default function Home() {
   usePageTitle('');
   const { getSetting, getActiveBanners } = useCMS();
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
+  const [featuredCategories, setFeaturedCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const heroSlides = [
     { src: '/hero-frebys-1.png', position: '50% 22%' },
@@ -26,15 +27,28 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const { data: productsData, error: productsError } = await supabase
-          .from('products')
-          .select('*, product_variants(*), product_images(*)')
-          .eq('status', 'active')
-          .order('created_at', { ascending: false })
-          .limit(12);
+        const [productsResult, categoriesResult] = await Promise.all([
+          supabase
+            .from('products')
+            .select('*, product_variants(*), product_images(*)')
+            .eq('status', 'active')
+            .order('created_at', { ascending: false })
+            .limit(12),
+          supabase
+            .from('categories')
+            .select('id, name, slug, parent_id, position, metadata')
+            .eq('status', 'active')
+            .contains('metadata', { featured: true })
+            .is('parent_id', null)
+            .order('position', { ascending: true })
+            .limit(4),
+        ]);
 
-        if (productsError) throw productsError;
-        setFeaturedProducts(productsData || []);
+        if (productsResult.error) throw productsResult.error;
+        setFeaturedProducts(productsResult.data || []);
+
+        if (categoriesResult.error) throw categoriesResult.error;
+        setFeaturedCategories(categoriesResult.data || []);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -86,6 +100,48 @@ export default function Home() {
 
   const popularProducts = featuredProducts.slice(0, 6);
   const latestProducts = featuredProducts;
+  const defaultCategoryStyles = [
+    {
+      chip: 'Everyday comfort',
+      icon: 'ri-shirt-line',
+      color: 'from-brand-green to-brand-greenDark',
+    },
+    {
+      chip: 'Premium looks',
+      icon: 'ri-vip-crown-line',
+      color: 'from-sky-400 to-cyan-600',
+    },
+    {
+      chip: 'Event ready',
+      icon: 'ri-t-shirt-air-line',
+      color: 'from-brand-orange to-brand-orangeDark',
+    },
+    {
+      chip: 'Just landed',
+      icon: 'ri-sparkling-line',
+      color: 'from-slate-600 to-slate-900',
+    },
+  ];
+  const fallbackCategories = [
+    { name: 'Casual Kids Wear', slug: 'casual-kids-wear', metadata: {} },
+    { name: 'Luxury Kids Wear', slug: 'luxury-kids-wear', metadata: {} },
+    { name: 'Occasion Outfits', slug: 'occasion-outfits', metadata: {} },
+    { name: 'New Arrivals', slug: 'new-arrivals', metadata: {} },
+  ];
+  const vibeCategories = (featuredCategories.length > 0
+    ? featuredCategories
+    : fallbackCategories
+  )
+    .slice(0, 4)
+    .map((category, index) => {
+      const style = defaultCategoryStyles[index % defaultCategoryStyles.length];
+      return {
+        ...category,
+        chip: category.metadata?.chip || style.chip,
+        icon: category.metadata?.icon || style.icon,
+        color: category.metadata?.color || style.color,
+      };
+    });
 
   return (
     <main className="flex-col items-center justify-between min-h-screen bg-white">
@@ -191,39 +247,10 @@ export default function Home() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                label: 'Casual Kids Wear',
-                href: '/shop?search=casual',
-                chip: 'Everyday comfort',
-                icon: 'ri-shirt-line',
-                color: 'from-brand-green to-brand-greenDark',
-              },
-              {
-                label: 'Luxury Kids Wear',
-                href: '/shop?search=luxury',
-                chip: 'Premium looks',
-                icon: 'ri-vip-crown-line',
-                color: 'from-sky-400 to-cyan-600',
-              },
-              {
-                label: 'Occasion Outfits',
-                href: '/shop?search=occasion',
-                chip: 'Event ready',
-                icon: 'ri-t-shirt-air-line',
-                color: 'from-brand-orange to-brand-orangeDark',
-              },
-              {
-                label: 'New Arrivals',
-                href: '/shop?sort=new',
-                chip: 'Just landed',
-                icon: 'ri-sparkling-line',
-                color: 'from-slate-600 to-slate-900',
-              },
-            ].map((item) => (
+            {vibeCategories.map((item) => (
               <Link
-                key={item.label}
-                href={item.href}
+                key={item.slug}
+                href={`/shop?category=${encodeURIComponent(item.slug)}`}
                 className="group relative overflow-hidden rounded-2xl border border-brand-green/10 bg-brand-greenLight/40 p-4 hover:border-brand-green transition-colors"
               >
                 <div
@@ -235,7 +262,7 @@ export default function Home() {
                       {item.chip}
                     </span>
                     <p className="text-sm font-semibold text-gray-900">
-                      {item.label}
+                      {item.name}
                     </p>
                   </div>
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm text-brand-greenDark group-hover:translate-y-[-2px] group-hover:shadow-md transition-all">
@@ -463,44 +490,43 @@ export default function Home() {
 
       <section className="pb-12 sm:pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-brand-greenDark text-white flex flex-col md:flex-row items-center md:items-stretch">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(248,119,26,0.28),_transparent_55%),radial-gradient(circle_at_bottom_right,_rgba(42,181,42,0.42),_transparent_55%)] opacity-80" />
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#166d1f] text-white border border-[#145b1a] shadow-[0_16px_45px_rgba(17,77,24,0.28)] flex flex-col md:flex-row items-center md:items-stretch">
             <div className="relative w-full md:w-3/5 px-5 sm:px-8 py-8 sm:py-10 flex flex-col justify-center space-y-3 text-center md:text-left">
-              <span className="inline-flex items-center text-xs font-semibold tracking-[0.25em] uppercase text-brand-greenLight">
+              <span className="inline-flex items-center text-xs font-semibold tracking-[0.25em] uppercase text-[#d9f1dd]">
                 Join the Frebys family
               </span>
               <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold">
                 Dress your kids in style for every occasion.
               </h3>
-              <p className="text-sm sm:text-base text-brand-greenLight max-w-md mx-auto md:mx-0">
+              <p className="text-sm sm:text-base text-[#e6f5e8] max-w-md mx-auto md:mx-0">
                 Explore casual and luxury kids Ankara wear with comfort, quality
                 finishing, and worldwide delivery from Frebys Fashion GH.
               </p>
               <div className="pt-2 flex flex-wrap gap-3 justify-center md:justify-start">
                 <Link
                   href="/shop"
-                  className="inline-flex items-center rounded-full bg-brand-orange text-white px-8 py-3 text-sm font-semibold shadow-lg hover:bg-brand-orangeDark"
+                  className="inline-flex items-center rounded-full bg-brand-orange text-white px-8 py-3 text-sm font-semibold shadow-lg hover:bg-brand-orangeDark transition-colors"
                 >
                   Start shopping kids wear
                   <i className="ri-arrow-right-up-line ml-2" />
                 </Link>
                 <Link
                   href="/account"
-                  className="inline-flex items-center rounded-full border border-brand-green/40 px-6 py-3 text-sm font-semibold text-brand-greenLight hover:bg-brand-green/50"
+                  className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-6 py-3 text-sm font-semibold text-white hover:bg-white/20 transition-colors"
                 >
                   Create an account
                 </Link>
               </div>
             </div>
             <div className="relative w-full md:w-2/5 py-4 sm:py-6 pr-4 pl-4 md:pl-0 flex justify-center">
-              <div className="relative h-40 sm:h-52 md:h-64 lg:h-full min-h-[12rem] w-full max-w-sm md:max-w-none rounded-2xl border border-brand-green/25 bg-brand-greenDark/55 backdrop-blur-sm p-5 flex flex-col justify-center gap-3 shadow-[0_30px_70px_rgba(0,0,0,0.45)]">
-                <span className="inline-flex w-fit items-center rounded-full bg-brand-orange/25 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-orangeLight">
+              <div className="relative h-40 sm:h-52 md:h-64 lg:h-full min-h-[12rem] w-full max-w-sm md:max-w-none rounded-2xl border border-white/20 bg-[#1b8124] p-5 flex flex-col justify-center gap-3 shadow-[0_22px_45px_rgba(0,0,0,0.24)]">
+                <span className="inline-flex w-fit items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white">
                   Frebys Fashion GH
                 </span>
                 <p className="text-lg sm:text-xl font-bold text-white leading-snug">
                   Casual and luxury kids Ankara wear
                 </p>
-                <div className="space-y-1 text-sm text-brand-greenLight">
+                <div className="space-y-1 text-sm text-[#eaf8ec]">
                   <p className="inline-flex items-center gap-2">
                     <i className="ri-map-pin-line" /> Haatso, Accra, Ghana
                   </p>

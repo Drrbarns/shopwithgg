@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useCMS } from '@/context/CMSContext';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import AnimatedSection, { AnimatedGrid } from '@/components/AnimatedSection';
+import PageHero from '@/components/PageHero';
 
 export default function AboutPage() {
   usePageTitle("Our Story");
@@ -13,33 +14,10 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-gray-900 overflow-hidden selection:bg-amber-200 selection:text-black pb-0 font-sans">
 
-      {/* GOD LEVEL HERO SECTION */}
-      <div className="relative h-[60vh] min-h-[450px] flex items-center justify-center overflow-hidden shadow-2xl">
-        {/* Abstract Background Elements */}
-        <div className="absolute inset-0 z-0 bg-black">
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black z-10" />
-          <img
-            src="/about.jpeg"
-            alt="Frebys Fashion GH story"
-            className="w-full h-full object-cover animate-pulse-glow"
-            style={{ animationDuration: "8s" }}
-          />
-        </div>
-
-        {/* Floating gradient orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-amber-600/20 rounded-full blur-[120px] mix-blend-screen z-0 animate-float" />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[150px] mix-blend-screen z-0 animate-float" style={{ animationDelay: "2s" }} />
-
-        <div className="relative z-20 text-center px-4 max-w-5xl mx-auto text-white">
-
-          <AnimatedSection animation="fade-up" delay={300}>
-            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl mb-0 leading-tight text-white font-normal drop-shadow-md tracking-tight">
-              Where Culture, Color <br /> and Childhood Style Meet
-            </h1>
-          </AnimatedSection>
-
-        </div>
-      </div>
+      <PageHero
+        title="Where Culture, Color and Childhood Style Meet"
+        subtitle="Discover the story behind Frebys Fashion GH and our passion for standout kids Ankara wear."
+      />
 
 
 
