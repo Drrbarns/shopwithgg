@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { escapeHtml } from '@/lib/sanitize';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 'missing_api_key');
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@standardecom.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@frebysfashiongh.com';
 const EMAIL_FROM = process.env.EMAIL_FROM || 'Frebys Fashion GH <noreply@frebysfashiongh.com>';
 const BRAND = {
     name: 'Frebys Fashion GH',

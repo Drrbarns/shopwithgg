@@ -260,7 +260,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
             ? [...new Set([
                 name.toLowerCase(),
                 ...name.toLowerCase().split(/\s+/).filter(w => w.length > 2),
-                'deliz beauty', 'beauty tools ghana', 'beauty supplies'
+                'frebys fashion', 'kids ankara ghana', 'kids fashion'
               ])].join(', ')
             : '';
         return { title, metaDesc, kw };

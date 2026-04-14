@@ -19,7 +19,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const heroSlides = [
     { src: '/hero-frebys-1.png', position: '50% 22%' },
-    { src: '/hero-frebys-2.png', position: '50% 24%' },
+    { src: '/hero-frebys-2.png', position: '50% 30%' },
   ];
   const [currentHeroSlide, setCurrentHeroSlide] = useState(0);
 
@@ -105,13 +105,19 @@ export default function Home() {
                 alt=""
                 fill
                 priority={index === 0}
+                quality={100}
+                unoptimized
+                sizes="100vw"
                 className="object-cover"
-                style={{ objectPosition: slide.position }}
+                style={{
+                  objectPosition: slide.position,
+                  filter: 'contrast(1.06) saturate(1.05)',
+                }}
               />
             </div>
           ))}
         </div>
-        <div className="absolute inset-0 bg-black/30" aria-hidden="true" />
+        <div className="absolute inset-0 bg-black/20" aria-hidden="true" />
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 text-center">
           <span className="inline-flex items-center rounded-full bg-white/15 border border-white/25 px-3 py-1 sm:px-4 sm:py-1.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-white/95 mb-4 sm:mb-5">
             Frebys Fashion GH · Kids Ankara Collection

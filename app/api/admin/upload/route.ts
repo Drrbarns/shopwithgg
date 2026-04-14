@@ -57,7 +57,12 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
-    const bucket = (formData.get('bucket') as string) || 'product-images';
+    const ALLOWED_BUCKETS = new Set([
+      'product-images', 'category-images', 'avatars', 'blog-covers',
+      'blog-images', 'cms-images', 'banners', 'review-images', 'site-media',
+    ]);
+    const rawBucket = (formData.get('bucket') as string) || 'product-images';
+    const bucket = ALLOWED_BUCKETS.has(rawBucket) ? rawBucket : 'product-images';
 
     if (!file || !(file instanceof Blob)) {
       return NextResponse.json({ error: 'Missing file' }, { status: 400 });

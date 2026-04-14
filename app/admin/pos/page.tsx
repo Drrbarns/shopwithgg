@@ -121,8 +121,8 @@ function printReceipt(order: {
     .footer { font-size: 10px; color: #555; margin-top: 8px; }
 </style></head><body>
     <div class="center">
-        <div class="store-name">DELIZ BEAUTY TOOLS</div>
-        <div style="font-size:10px;margin-top:2px;">Premium Quality Products</div>
+        <div class="store-name">FREBYS FASHION GH</div>
+        <div style="font-size:10px;margin-top:2px;">Kids Ready-to-Wear Ankara</div>
         <div style="font-size:10px;">Tel: 024 472 0197</div>
     </div>
     <div class="divider"></div>
