@@ -44,9 +44,9 @@ export default function Footer() {
           <div className="lg:col-span-1 space-y-6">
             <Link href="/" className="inline-block">
               <img
-                src="/shopwithgg-logo.png"
+                src="/shopwithgg-logo-white.png"
                 alt={siteName}
-                className="h-16 w-auto object-contain"
+                className="h-24 w-auto object-contain"
               />
             </Link>
             <p className="text-[#AB9462]/80 leading-relaxed text-sm">

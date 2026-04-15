@@ -59,6 +59,7 @@ const siteName = getSetting('site_name') || 'ShopWithGG';
   };
 
   const navLinks = [
+    { label: 'Home', href: '/' },
     { label: 'Shop', href: '/shop' },
     { label: 'Categories', href: '/categories' },
     { label: 'About', href: '/about' },
