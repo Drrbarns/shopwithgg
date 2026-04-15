@@ -54,7 +54,16 @@ export default function Footer() {
               <Link href="/admin" className="text-inherit hover:text-inherit no-underline">Less.</Link>
             </p>
 
-            <div className="flex gap-4 pt-2">
+            <div className="flex gap-3 pt-2">
+              <a
+                href="https://www.instagram.com/_shopwithgg_"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-[#2C1D00]/50 rounded-full flex items-center justify-center text-[#FFCC00] hover:bg-[#FFCC00] hover:text-[#2C1D00] transition-all hover:-translate-y-1"
+                aria-label="Follow us on Instagram"
+              >
+                <i className="ri-instagram-line"></i>
+              </a>
               <a
                 href={whatsappLink}
                 target="_blank"
@@ -63,6 +72,15 @@ export default function Footer() {
                 aria-label="Chat on WhatsApp"
               >
                 <i className="ri-whatsapp-line"></i>
+              </a>
+              <a
+                href="https://chat.whatsapp.com/H2275EJgtYtDVahPIlHGJm"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-[#2C1D00]/50 rounded-full flex items-center justify-center text-[#FFCC00] hover:bg-[#FFCC00] hover:text-[#2C1D00] transition-all hover:-translate-y-1"
+                aria-label="Join our WhatsApp community"
+              >
+                <i className="ri-group-line"></i>
               </a>
             </div>
 

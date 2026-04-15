@@ -158,7 +158,7 @@ export default function RootLayout({
                   "logo": `${siteUrl}/shopwithgg-logo.png`,
                   "image": `${siteUrl}/og-image.png`,
                   "description": "Your trusted global sourcing and procurement partner. Premium products from vetted international suppliers at direct-from-supplier pricing.",
-                  "sameAs": ["https://wa.me/2348071363567", "https://instagram.com/_shopwithgg_"],
+                  "sameAs": ["https://www.instagram.com/_shopwithgg_", "https://wa.me/2348071363567", "https://chat.whatsapp.com/H2275EJgtYtDVahPIlHGJm"],
                   "contactPoint": {
                     "@type": "ContactPoint",
                     "contactType": "customer service",
