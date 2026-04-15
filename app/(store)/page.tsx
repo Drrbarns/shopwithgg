@@ -147,7 +147,7 @@ export default function Home() {
     <main className="flex-col items-center justify-between min-h-screen bg-white">
       {renderBanners()}
 
-      <section className="relative w-full min-h-[91vmin] sm:min-h-[83vmin] md:min-h-[93vmin] flex items-center justify-center overflow-hidden">
+      <section className="relative w-full min-h-[95vmin] sm:min-h-[83vmin] md:min-h-[93vmin] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           {heroSlides.map((slide, index) => (
             <div
@@ -198,20 +198,6 @@ export default function Home() {
             >
               {heroSecondaryText}
             </Link>
-          </div>
-          <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-white/85">
-            <div className="inline-flex items-center gap-2">
-              <span className="inline-flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-white/15">
-                <i className="ri-shield-check-line text-brand-cream text-sm sm:text-base" />
-              </span>
-              <span className="font-medium">Quality assured products</span>
-            </div>
-            <div className="inline-flex items-center gap-2">
-              <span className="inline-flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-white/15">
-                <i className="ri-truck-line text-brand-cream text-sm sm:text-base" />
-              </span>
-              <span className="font-medium">Sourced from trusted global partners</span>
-            </div>
           </div>
           <div className="mt-5 flex items-center justify-center gap-2">
             {heroSlides.map((slide, index) => (
