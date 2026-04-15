@@ -452,18 +452,18 @@ export default function Home() {
             {[
               {
                 icon: 'ri-shield-check-line',
-                title: 'Quality assurance guaranteed',
-                body: 'Every product is carefully sourced and inspected before it reaches you — no surprises, no compromises.',
+                title: 'Quality assured',
+                body: 'Every product is sourced and inspected before it reaches you.',
               },
               {
                 icon: 'ri-customer-service-2-line',
-                title: 'Expert guidance & support',
-                body: 'Our team provides product selection support, supplier coordination, and personalized recommendations.',
+                title: 'Expert support',
+                body: 'Product selection help, supplier coordination, and personalized guidance.',
               },
               {
                 icon: 'ri-money-dollar-circle-line',
-                title: 'Affordable, transparent pricing',
-                body: 'Direct-from-supplier pricing without inflated costs — quality products for personal use, resale, or business.',
+                title: 'Transparent pricing',
+                body: 'Direct-from-supplier pricing — no inflated costs.',
               },
             ].map((item) => (
               <div
@@ -518,26 +518,14 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-            <div className="relative w-full md:w-2/5 py-4 sm:py-6 pr-4 pl-4 md:pl-0 flex justify-center">
-              <div className="relative h-40 sm:h-52 md:h-64 lg:h-full min-h-[12rem] w-full max-w-sm md:max-w-none rounded-2xl border border-white/15 bg-[#2C1D00]/60 backdrop-blur-sm p-5 flex flex-col justify-center gap-3 shadow-[0_22px_45px_rgba(0,0,0,0.2)]">
-                <span className="inline-flex w-fit items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white">
-                  ShopWithGG
-                </span>
-                <p className="text-lg sm:text-xl font-bold text-white leading-snug">
-                  Your trusted sourcing & procurement partner
-                </p>
-                <div className="space-y-1 text-sm text-white/80">
-                  <p className="inline-flex items-center gap-2">
-                    <i className="ri-map-pin-line" /> Lagos, Nigeria
-                  </p>
-                  <p className="inline-flex items-center gap-2">
-                    <i className="ri-phone-line" /> 08071363567
-                  </p>
-                  <p className="inline-flex items-center gap-2">
-                    <i className="ri-earth-line" /> Globally sourced, delivered worldwide
-                  </p>
-                </div>
-              </div>
+            <div className="relative w-full md:w-2/5 min-h-[14rem] md:min-h-0">
+              <Image
+                src="/hero-1.png"
+                alt="ShopWithGG products"
+                fill
+                className="object-cover md:rounded-r-2xl sm:md:rounded-r-3xl rounded-b-2xl sm:rounded-b-3xl md:rounded-bl-none"
+                sizes="(max-width: 768px) 100vw, 40vw"
+              />
             </div>
           </div>
         </div>
