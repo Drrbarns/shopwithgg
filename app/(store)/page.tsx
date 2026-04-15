@@ -147,7 +147,7 @@ export default function Home() {
     <main className="flex-col items-center justify-between min-h-screen bg-white">
       {renderBanners()}
 
-      <section className="relative w-full min-h-[95vmin] sm:min-h-[83vmin] md:min-h-[93vmin] flex items-center justify-center overflow-hidden">
+      <section className="relative w-full min-h-[92vh] sm:min-h-[83vmin] md:min-h-[93vmin] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           {heroSlides.map((slide, index) => (
             <div
