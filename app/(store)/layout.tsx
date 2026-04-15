@@ -7,7 +7,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import ScrollToTop from '@/components/ScrollToTop';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import NavigationProgress from '@/components/NavigationProgress';
-import CookieConsent from '@/components/CookieConsent';
+
 import { CMSProvider } from '@/context/CMSContext';
 
 // Lazy-load non-critical components
@@ -16,7 +16,7 @@ const SessionTimeoutWarning = dynamic(() => import('@/components/SessionTimeoutW
 const PWAPrompt = dynamic(() => import('@/components/PWAPrompt'), { ssr: false });
 const PWAInstaller = dynamic(() => import('@/components/PWAInstaller'), { ssr: false });
 const PWASplash = dynamic(() => import('@/components/PWASplash'), { ssr: false });
-const PushNotificationManager = dynamic(() => import('@/components/PushNotificationManager'), { ssr: false });
+
 const OfflineIndicator = dynamic(() => import('@/components/OfflineIndicator'), { ssr: false });
 const NetworkStatusMonitor = dynamic(() => import('@/components/NetworkStatusMonitor'), { ssr: false });
 const UpdatePrompt = dynamic(() => import('@/components/UpdatePrompt'), { ssr: false });
@@ -102,12 +102,12 @@ export default function StoreLayout({
         <MobileBottomNav />
         <SessionTimeoutWarning />
         <PWAPrompt />
-        <PushNotificationManager />
+
         <OfflineIndicator />
         <NetworkStatusMonitor />
         <UpdatePrompt />
         <LiveSalesNotification />
-        <CookieConsent />
+
         {shouldShowChat && <ChatWidget />}
       </div>
     </CMSProvider>
