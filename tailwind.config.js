@@ -22,6 +22,15 @@ module.exports = {
         sans: ['Montserrat', 'sans-serif'],
         display: ['Montserrat', 'sans-serif'],
       },
+      animation: {
+        'just-landed-scroll': 'just-landed-scroll 30s linear infinite',
+      },
+      keyframes: {
+        'just-landed-scroll': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+      },
     },
   },
   plugins: [],

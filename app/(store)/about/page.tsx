@@ -88,7 +88,7 @@ export default function AboutPage() {
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   href="/shop"
-                  className="inline-flex items-center rounded-full bg-brand-brown px-7 py-3 text-sm font-semibold text-white hover:bg-brand-gold transition-colors"
+                  className="inline-flex items-center rounded-full bg-brand-brown px-7 py-3 text-sm font-semibold text-white hover:bg-[#3D2A00] transition-colors"
                 >
                   Browse products
                   <i className="ri-arrow-right-up-line ml-2" />
@@ -215,31 +215,44 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="py-14 sm:py-16">
+      <section className="pb-12 sm:pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-3xl bg-[#2C1D00] border border-[#1a1200] px-6 py-10 sm:px-10 sm:py-12 text-white text-center">
-            <p className="text-xs font-semibold tracking-[0.25em] uppercase text-[#F3F3F3]">
-              Start sourcing with us
-            </p>
-            <h2 className="mt-3 text-2xl sm:text-3xl font-extrabold">
-              Quality and functionality, without breaking the bank.
-            </h2>
-            <p className="mt-3 text-[#F3F3F3]/80 max-w-2xl mx-auto">
-              Whether for personal use, resale, or business growth — discover carefully curated international products delivered to your doorstep.
-            </p>
-            <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-              <Link
-                href="/shop"
-                className="inline-flex items-center rounded-full bg-brand-brown px-7 py-3 text-sm font-semibold text-white hover:bg-brand-gold transition-colors"
-              >
-                Shop now
-              </Link>
-              <Link
-                href="/contact"
-                className="inline-flex items-center rounded-full border border-white/35 bg-white/10 px-7 py-3 text-sm font-semibold text-white hover:bg-white/20 transition-colors"
-              >
-                Talk to us
-              </Link>
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#AB9462] via-[#8A7750] to-[#2C1D00] text-white border border-[#AB9462]/30 shadow-[0_16px_45px_rgba(171,148,98,0.2)] flex flex-col md:flex-row items-center md:items-stretch">
+            <div className="relative w-full md:w-3/5 px-5 sm:px-8 py-8 sm:py-10 flex flex-col justify-center space-y-3 text-center md:text-left">
+              <span className="inline-flex items-center text-xs font-semibold tracking-[0.25em] uppercase text-white/80">
+                Start sourcing with ShopWithGG
+              </span>
+              <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold">
+                Quality and functionality, without breaking the bank.
+              </h3>
+              <p className="text-sm sm:text-base text-white/75 max-w-md mx-auto md:mx-0">
+                Whether it&apos;s for personal use, resale, or business growth — we handle
+                sourcing, logistics, and delivery so you don&apos;t have to.
+              </p>
+              <div className="pt-2 flex flex-wrap gap-3 justify-center md:justify-start">
+                <Link
+                  href="/shop"
+                  className="inline-flex items-center rounded-full bg-white text-[#2C1D00] px-8 py-3 text-sm font-semibold shadow-lg hover:bg-[#F3F3F3] transition-colors"
+                >
+                  Start shopping
+                  <i className="ri-arrow-right-up-line ml-2" />
+                </Link>
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-6 py-3 text-sm font-semibold text-white hover:bg-white/20 transition-colors"
+                >
+                  Talk to us
+                </Link>
+              </div>
+            </div>
+            <div className="relative w-full md:w-2/5 min-h-[14rem] md:min-h-0">
+              <Image
+                src="/hero-1.png"
+                alt="ShopWithGG products"
+                fill
+                className="object-cover md:rounded-r-2xl sm:md:rounded-r-3xl rounded-b-2xl sm:rounded-b-3xl md:rounded-bl-none"
+                sizes="(max-width: 768px) 100vw, 40vw"
+              />
             </div>
           </div>
         </div>
