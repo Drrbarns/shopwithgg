@@ -168,6 +168,9 @@ export default function SignupPage() {
     <main className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
+          <Link href="/" className="inline-block mb-5">
+            <img src="/shopwithgg-logo.png" alt="ShopWithGG" className="h-10 mx-auto" />
+          </Link>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Create Account</h1>
           <p className="text-gray-600">Join us and start shopping today</p>
         </div>

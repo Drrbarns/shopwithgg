@@ -490,22 +490,22 @@ export default function Home() {
 
       <section className="pb-12 sm:pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#2C1D00] text-white border border-[#2C1D00] shadow-[0_16px_45px_rgba(44,29,0,0.28)] flex flex-col md:flex-row items-center md:items-stretch">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#AB9462] via-[#8A7750] to-[#2C1D00] text-white border border-[#AB9462]/30 shadow-[0_16px_45px_rgba(171,148,98,0.2)] flex flex-col md:flex-row items-center md:items-stretch">
             <div className="relative w-full md:w-3/5 px-5 sm:px-8 py-8 sm:py-10 flex flex-col justify-center space-y-3 text-center md:text-left">
-              <span className="inline-flex items-center text-xs font-semibold tracking-[0.25em] uppercase text-[#F3F3F3]">
+              <span className="inline-flex items-center text-xs font-semibold tracking-[0.25em] uppercase text-white/80">
                 Start sourcing with ShopWithGG
               </span>
               <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold">
                 Quality and functionality, without breaking the bank.
               </h3>
-              <p className="text-sm sm:text-base text-[#F3F3F3]/80 max-w-md mx-auto md:mx-0">
-                Whether it's for personal use, resale, or business growth — we handle
-                sourcing, logistics, and delivery so you don't have to.
+              <p className="text-sm sm:text-base text-white/75 max-w-md mx-auto md:mx-0">
+                Whether it&apos;s for personal use, resale, or business growth — we handle
+                sourcing, logistics, and delivery so you don&apos;t have to.
               </p>
               <div className="pt-2 flex flex-wrap gap-3 justify-center md:justify-start">
                 <Link
                   href="/shop"
-                  className="inline-flex items-center rounded-full bg-brand-brown text-white px-8 py-3 text-sm font-semibold shadow-lg hover:bg-brand-gold transition-colors"
+                  className="inline-flex items-center rounded-full bg-white text-[#2C1D00] px-8 py-3 text-sm font-semibold shadow-lg hover:bg-[#F3F3F3] transition-colors"
                 >
                   Start shopping
                   <i className="ri-arrow-right-up-line ml-2" />
@@ -519,14 +519,14 @@ export default function Home() {
               </div>
             </div>
             <div className="relative w-full md:w-2/5 py-4 sm:py-6 pr-4 pl-4 md:pl-0 flex justify-center">
-              <div className="relative h-40 sm:h-52 md:h-64 lg:h-full min-h-[12rem] w-full max-w-sm md:max-w-none rounded-2xl border border-white/20 bg-[#2C1D00] p-5 flex flex-col justify-center gap-3 shadow-[0_22px_45px_rgba(0,0,0,0.24)]">
+              <div className="relative h-40 sm:h-52 md:h-64 lg:h-full min-h-[12rem] w-full max-w-sm md:max-w-none rounded-2xl border border-white/15 bg-[#2C1D00]/60 backdrop-blur-sm p-5 flex flex-col justify-center gap-3 shadow-[0_22px_45px_rgba(0,0,0,0.2)]">
                 <span className="inline-flex w-fit items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white">
                   ShopWithGG
                 </span>
                 <p className="text-lg sm:text-xl font-bold text-white leading-snug">
                   Your trusted sourcing & procurement partner
                 </p>
-                <div className="space-y-1 text-sm text-[#F3F3F3]/90">
+                <div className="space-y-1 text-sm text-white/80">
                   <p className="inline-flex items-center gap-2">
                     <i className="ri-map-pin-line" /> Lagos, Nigeria
                   </p>
