@@ -64,8 +64,7 @@ export default function ContactPage() {
         });
 
       if (error) {
-        // Table might not exist, still show success
-        console.log('Note: contact_submissions table may not exist');
+        console.error('contact_submissions insert error:', error.message);
       }
 
       // Send Contact Notification
@@ -88,9 +87,9 @@ export default function ContactPage() {
   };
 
   // Get contact details from CMS settings
-  const contactEmail = getSetting("contact_email") || "hello@frebysfashiongh.com";
-  const contactPhone = getSetting("contact_phone") || "0244720197";
-  const contactAddress = getSetting("contact_address") || "Haatso, Accra, Ghana";
+  const contactEmail = getSetting("contact_email") || "hello@shopwithgg.com";
+  const contactPhone = getSetting("contact_phone") || "08071363567";
+  const contactAddress = getSetting("contact_address") || "Lagos, Nigeria";
 
   const heroTitle = pageContent?.title || 'Get In Touch';
   const heroSubtitle = pageContent?.subtitle || 'Have a question or need assistance?';
@@ -101,7 +100,7 @@ export default function ContactPage() {
       title: 'Call Us',
       value: contactPhone,
       link: `tel:${contactPhone.replace(/\s/g, '')}`,
-      description: "Mon-Sat, 8am-6pm GMT",
+      description: "Mon-Sat, 9am-6pm WAT",
     },
     {
       icon: 'ri-mail-line',
@@ -114,7 +113,7 @@ export default function ContactPage() {
       icon: 'ri-whatsapp-line',
       title: 'WhatsApp',
       value: contactPhone,
-      link: `https://wa.me/233${contactPhone.replace(/^0/, '')}`,
+      link: `https://wa.me/234${contactPhone.replace(/^0/, '')}`,
       description: 'Chat with us instantly'
     },
     {
@@ -122,7 +121,7 @@ export default function ContactPage() {
       title: 'Visit Us',
       value: contactAddress,
       link: 'https://maps.google.com',
-      description: "Mon-Sat, 9am-6pm",
+      description: "Mon-Sat, 9am-6pm WAT",
     }
   ];
 
@@ -135,7 +134,7 @@ export default function ContactPage() {
     {
       question: 'Do you offer international shipping?',
       answer:
-        "Yes. Frebys Fashion GH offers worldwide delivery from Haatso, Accra, Ghana.",
+        "Yes. ShopWithGG offers worldwide delivery from Lagos, Nigeria.",
     },
     {
       question: 'What payment methods do you accept?',
@@ -149,6 +148,7 @@ export default function ContactPage() {
       <PageHero
         title={heroTitle}
         subtitle={heroSubtitle}
+        image="/hero-2.png"
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -224,7 +224,7 @@ export default function ContactPage() {
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm"
-                  placeholder="+233 XX XXX XXXX"
+                  placeholder="+234 XX XXX XXXX"
                 />
               </div>
 
@@ -240,7 +240,7 @@ export default function ContactPage() {
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm"
-                placeholder="Sizing question, order inquiry, custom request, etc."
+                placeholder="Order inquiry, product sourcing, custom request, etc."
                 />
               </div>
 
@@ -270,7 +270,7 @@ export default function ContactPage() {
               )}
 
               {submitStatus === 'error' && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+                <div className="bg-[#FFCCCC]/50 border border-[#FF6666]/30 text-[#9A1900] px-4 py-3 rounded-xl">
                   <i className="ri-error-warning-line mr-2"></i>
                   Failed to send message. Please try again or contact us directly.
                 </div>
@@ -311,10 +311,10 @@ export default function ContactPage() {
               </div>
               <h3 className="text-2xl font-bold mb-3">Need Immediate Help?</h3>
               <p className="text-gray-200 mb-6 leading-relaxed">
-                Our customer support team is available Monday to Saturday, 8am-6pm GMT. For urgent matters, reach out via WhatsApp.
+                Our customer support team is available Monday to Saturday, 9am-6pm WAT. For urgent matters, reach out via WhatsApp.
               </p>
               <a
-                href={`https://wa.me/233${contactPhone.replace(/^0/, '')}`}
+                href={`https://wa.me/234${contactPhone.replace(/^0/, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-full font-medium hover:bg-gray-100 transition-colors whitespace-nowrap"
@@ -332,7 +332,7 @@ export default function ContactPage() {
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Visit Our Store</h2>
             <p className="text-gray-600 mb-6 leading-relaxed">
-              Prefer to shop in person? Visit our store in Haatso. We will help you choose the perfect Ankara outfit for every occasion.
+              Prefer to visit in person? Stop by our office in Lagos. We are happy to discuss your sourcing needs and walk you through our process.
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-gray-600">
               <div className="flex items-center gap-2">
@@ -341,7 +341,7 @@ export default function ContactPage() {
               </div>
               <div className="flex items-center gap-2">
                 <i className="ri-time-line text-gray-900"></i>
-                <span>Mon-Sat: 9am-6pm</span>
+                <span>Mon-Sat: 9am-6pm WAT</span>
               </div>
             </div>
           </div>

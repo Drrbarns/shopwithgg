@@ -157,12 +157,12 @@ function OrderTrackingContent() {
     if (!order) return { label: 'Unknown', color: 'bg-gray-100 text-gray-800' };
     
     const statusMap: Record<string, { label: string; color: string }> = {
-      'pending': { label: 'Pending', color: 'bg-amber-100 text-amber-800' },
-      'processing': { label: 'Processing', color: 'bg-blue-100 text-blue-800' },
-      'shipped': { label: 'Packaged', color: 'bg-purple-100 text-purple-800' },
-      'dispatched_to_rider': { label: 'Dispatched To Rider', color: 'bg-indigo-100 text-indigo-800' },
+      'pending': { label: 'Pending', color: 'bg-[#FFFFCC] text-[#996633]' },
+      'processing': { label: 'Processing', color: 'bg-[#AB9462]/10 text-[#AB9462]' },
+      'shipped': { label: 'Packaged', color: 'bg-[#AB9462]/10 text-[#AB9462]' },
+      'dispatched_to_rider': { label: 'Dispatched To Rider', color: 'bg-[#AB9462]/10 text-[#AB9462]' },
       'delivered': { label: 'Delivered', color: 'bg-gray-100 text-gray-800' },
-      'cancelled': { label: 'Cancelled', color: 'bg-red-100 text-red-800' }
+      'cancelled': { label: 'Cancelled', color: 'bg-[#FFCCCC] text-[#9A1900]' }
     };
 
     return statusMap[order.status] || { label: order.status, color: 'bg-gray-100 text-gray-800' };
@@ -195,7 +195,7 @@ function OrderTrackingContent() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Email Address <span className="text-red-500 font-normal">*</span>
+                  Email Address <span className="text-[#FF6666] font-normal">*</span>
                 </label>
                 <input
                   type="email"
@@ -207,8 +207,8 @@ function OrderTrackingContent() {
               </div>
 
               {error && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-700">{error}</p>
+                <div className="p-4 bg-[#FFCCCC]/50 border border-[#FF6666]/30 rounded-lg">
+                  <p className="text-sm text-[#9A1900]">{error}</p>
                 </div>
               )}
 
@@ -226,12 +226,12 @@ function OrderTrackingContent() {
               </button>
             </form>
 
-            <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="mt-8 p-4 bg-[#AB9462]/5 border border-[#AB9462]/20 rounded-lg">
               <div className="flex items-start space-x-3">
-                <i className="ri-information-line text-xl text-blue-700 mt-0.5"></i>
+                <i className="ri-information-line text-xl text-[#AB9462] mt-0.5"></i>
                 <div>
-                  <p className="text-sm font-semibold text-blue-900">Need Help?</p>
-                  <p className="text-sm text-blue-700 mt-1">
+                  <p className="text-sm font-semibold text-[#2C1D00]">Need Help?</p>
+                  <p className="text-sm text-[#AB9462] mt-1">
                     You can find your order number and tracking number in the SMS or email we sent you after your order was confirmed.
                   </p>
                 </div>
@@ -297,7 +297,7 @@ function OrderTrackingContent() {
                 <div>
                   <p className="text-sm text-gray-600">Shipping To</p>
                   <p className="font-semibold text-gray-900">
-                    {shippingAddress.city || shippingAddress.region || 'Ghana'}
+                    {shippingAddress.city || shippingAddress.region || 'Nigeria'}
                   </p>
                 </div>
               </div>
@@ -306,11 +306,11 @@ function OrderTrackingContent() {
             <div className="p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full">
-                  <i className="ri-money-cny-circle-line text-xl text-gray-900"></i>
+                  <i className="ri-money-dollar-circle-line text-xl text-gray-900"></i>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Total</p>
-                  <p className="font-semibold text-gray-900">GH₵ {Number(order.total).toFixed(2)}</p>
+                  <p className="font-semibold text-gray-900">₦ {Number(order.total).toFixed(2)}</p>
                 </div>
               </div>
             </div>
@@ -398,7 +398,7 @@ function OrderTrackingContent() {
                     <p className="text-xs text-gray-500">{item.variant_name}</p>
                   )}
                 </div>
-                <p className="font-bold text-gray-900">GH₵ {Number(item.unit_price).toFixed(2)}</p>
+                <p className="font-bold text-gray-900">₦ {Number(item.unit_price).toFixed(2)}</p>
               </div>
             ))}
           </div>

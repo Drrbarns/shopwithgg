@@ -167,7 +167,7 @@ export default function ImageZoom({ images, media, isOpen, onClose, initialIndex
                   }}
                   className={`h-1.5 rounded-full transition-all ${
                     index === currentIndex
-                      ? itemIsVideo ? 'w-8 bg-blue-400' : 'w-8 bg-white'
+                      ? itemIsVideo ? 'w-8 bg-[#2C1D00]' : 'w-8 bg-white'
                       : 'w-1.5 bg-white/40'
                   }`}
                 />

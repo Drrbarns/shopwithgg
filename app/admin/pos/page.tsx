@@ -121,9 +121,9 @@ function printReceipt(order: {
     .footer { font-size: 10px; color: #555; margin-top: 8px; }
 </style></head><body>
     <div class="center">
-        <div class="store-name">FREBYS FASHION GH</div>
-        <div style="font-size:10px;margin-top:2px;">Kids Ready-to-Wear Ankara</div>
-        <div style="font-size:10px;">Tel: 024 472 0197</div>
+        <div class="store-name">SHOPWITHGG</div>
+        <div style="font-size:10px;margin-top:2px;">Smart Sourcing, Seamless Shopping</div>
+        <div style="font-size:10px;">Tel: 080 7136 3567</div>
     </div>
     <div class="divider"></div>
     <div style="display:flex;justify-content:space-between;font-size:10px;">
@@ -145,21 +145,21 @@ function printReceipt(order: {
     </table>
     <div class="divider"></div>
     <table>
-        <tr><td>Subtotal</td><td style="text-align:right;">GH₵${order.subtotal.toFixed(2)}</td></tr>
-        ${order.discount > 0 ? `<tr><td>Discount</td><td style="text-align:right;">-GH₵${order.discount.toFixed(2)}</td></tr>` : ''}
-        <tr class="total-row"><td>TOTAL</td><td style="text-align:right;">GH₵${order.total.toFixed(2)}</td></tr>
+        <tr><td>Subtotal</td><td style="text-align:right;">₦${order.subtotal.toFixed(2)}</td></tr>
+        ${order.discount > 0 ? `<tr><td>Discount</td><td style="text-align:right;">-₦${order.discount.toFixed(2)}</td></tr>` : ''}
+        <tr class="total-row"><td>TOTAL</td><td style="text-align:right;">₦${order.total.toFixed(2)}</td></tr>
     </table>
     <div class="divider"></div>
     <div>Payment: ${paymentLabel[order.paymentMethod] || order.paymentMethod}</div>
     ${order.paymentMethod === 'cash' && order.amountTendered ? `
-        <div>Tendered: GH₵${order.amountTendered.toFixed(2)}</div>
-        <div class="bold">Change: GH₵${(order.change || 0).toFixed(2)}</div>
+        <div>Tendered: ₦${order.amountTendered.toFixed(2)}</div>
+        <div class="bold">Change: ₦${(order.change || 0).toFixed(2)}</div>
     ` : ''}
     ${order.paymentPending ? '<div class="bold" style="margin-top:4px;">*** PAYMENT PENDING ***</div>' : ''}
     <div class="divider"></div>
     <div class="center footer">
         <div>Thank you for shopping with us!</div>
-        <div>www.frebysfashiongh.com</div>
+        <div>www.shopwithgg.com</div>
     </div>
     <div style="margin-top:12px;"></div>
 </body></html>`;
@@ -237,10 +237,12 @@ export default function POSPage() {
     const barcodeBuffer = useRef('');
     const barcodeTimeout = useRef<NodeJS.Timeout | null>(null);
 
-    const ghanaRegions = [
-        'Greater Accra', 'Ashanti', 'Western', 'Central', 'Eastern',
-        'Northern', 'Volta', 'Upper East', 'Upper West', 'Brong-Ahafo',
-        'Ahafo', 'Bono', 'Bono East', 'North East', 'Savannah', 'Oti', 'Western North'
+    const nigeriaStates = [
+        'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno',
+        'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'Gombe', 'Imo',
+        'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos',
+        'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers',
+        'Sokoto', 'Taraba', 'Yobe', 'Zamfara', 'Federal Capital Territory'
     ];
 
     // ─── Init ───────────────────────────────────────────────────────────────
@@ -509,7 +511,7 @@ export default function POSPage() {
             id: `hold-${Date.now()}`,
             cart: [...cart],
             customer: selectedCustomer,
-            note: holdNote || `${cart.length} items - GH₵${grandTotal.toFixed(2)}`,
+            note: holdNote || `${cart.length} items - ₦${grandTotal.toFixed(2)}`,
             heldAt: Date.now(),
         };
         const updated = [...heldOrders, held];
@@ -855,7 +857,7 @@ export default function POSPage() {
                                 title="Today's Sales"
                             >
                                 <i className="ri-line-chart-line mr-1" />
-                                {dailySummary ? `GH₵${dailySummary.totalSales.toFixed(0)}` : '...'}
+                                {dailySummary ? `₦${dailySummary.totalSales.toFixed(0)}` : '...'}
                             </button>
 
                             {lastReceipt && (
@@ -965,7 +967,7 @@ export default function POSPage() {
                                         <div className="p-2.5 flex flex-col flex-1">
                                             <h3 className="text-xs font-semibold text-gray-900 line-clamp-2 mb-auto">{product.name}</h3>
                                             <div className="flex items-center justify-between mt-1.5">
-                                                <span className="text-gray-900 font-bold text-sm">GH₵{product.price.toFixed(2)}</span>
+                                                <span className="text-gray-900 font-bold text-sm">₦{product.price.toFixed(2)}</span>
                                                 {!outOfStock && (
                                                     <div className="w-7 h-7 rounded-full bg-gray-50 text-gray-900 flex items-center justify-center group-hover:bg-gray-900 group-hover:text-white transition-colors">
                                                         <i className="ri-add-line text-sm" />
@@ -992,7 +994,7 @@ export default function POSPage() {
                                 Items
                             </span>
                             <span>View Cart</span>
-                            <span>GH₵{grandTotal.toFixed(2)}</span>
+                            <span>₦{grandTotal.toFixed(2)}</span>
                         </button>
                     </div>
                 )}
@@ -1061,8 +1063,8 @@ export default function POSPage() {
                                             </button>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-xs font-bold text-gray-900">GH₵{(item.price * item.cartQuantity * (1 - item.discount / 100)).toFixed(2)}</p>
-                                            {item.discount > 0 && <p className="text-[10px] text-red-500 line-through">GH₵{(item.price * item.cartQuantity).toFixed(2)}</p>}
+                                            <p className="text-xs font-bold text-gray-900">₦{(item.price * item.cartQuantity * (1 - item.discount / 100)).toFixed(2)}</p>
+                                            {item.discount > 0 && <p className="text-[10px] text-red-500 line-through">₦{(item.price * item.cartQuantity).toFixed(2)}</p>}
                                         </div>
                                     </div>
                                     {item.discount > 0 && (
@@ -1079,17 +1081,17 @@ export default function POSPage() {
                     <div className="space-y-1 text-sm">
                         <div className="flex justify-between text-gray-600">
                             <span>Subtotal</span>
-                            <span>GH₵{cartSubtotal.toFixed(2)}</span>
+                            <span>₦{cartSubtotal.toFixed(2)}</span>
                         </div>
                         {totalDiscount > 0 && (
                             <div className="flex justify-between text-red-600">
                                 <span>Discount</span>
-                                <span>-GH₵{totalDiscount.toFixed(2)}</span>
+                                <span>-₦{totalDiscount.toFixed(2)}</span>
                             </div>
                         )}
                         <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t border-gray-200 mt-1">
                             <span>Total</span>
-                            <span>GH₵{grandTotal.toFixed(2)}</span>
+                            <span>₦{grandTotal.toFixed(2)}</span>
                         </div>
                     </div>
 
@@ -1134,7 +1136,7 @@ export default function POSPage() {
                             disabled={cart.length === 0}
                             className="px-3 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-900 font-bold text-sm shadow-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                         >
-                            Charge GH₵{grandTotal.toFixed(2)}
+                            Charge ₦{grandTotal.toFixed(2)}
                         </button>
                     </div>
                 </div>
@@ -1158,7 +1160,7 @@ export default function POSPage() {
                                     {!completedOrder.paymentPending && paymentMethod === 'cash' && changeDue > 0 && (
                                         <div className="mt-3 bg-gray-50 border border-gray-200 rounded-xl p-4">
                                             <p className="text-sm text-gray-900">Change Due</p>
-                                            <p className="text-3xl font-bold text-gray-800">GH₵{changeDue.toFixed(2)}</p>
+                                            <p className="text-3xl font-bold text-gray-800">₦{changeDue.toFixed(2)}</p>
                                         </div>
                                     )}
 
@@ -1211,8 +1213,8 @@ export default function POSPage() {
 
                                     <div className="text-center py-4 bg-gray-50 rounded-xl border border-gray-100">
                                         <p className="text-xs text-gray-800 uppercase tracking-wider font-semibold">Amount to Pay</p>
-                                        <p className="text-4xl font-extrabold text-gray-900 mt-1">GH₵{grandTotal.toFixed(2)}</p>
-                                        {totalDiscount > 0 && <p className="text-xs text-red-500 mt-1">Discount: -GH₵{totalDiscount.toFixed(2)}</p>}
+                                        <p className="text-4xl font-extrabold text-gray-900 mt-1">₦{grandTotal.toFixed(2)}</p>
+                                        {totalDiscount > 0 && <p className="text-xs text-red-500 mt-1">Discount: -₦{totalDiscount.toFixed(2)}</p>}
                                     </div>
 
                                     {/* Customer */}
@@ -1305,7 +1307,7 @@ export default function POSPage() {
                                                     <select value={guestDetails.region} onChange={e => setGuestDetails({ ...guestDetails, region: e.target.value })}
                                                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-blue-500 outline-none">
                                                         <option value="">Region *</option>
-                                                        {ghanaRegions.map(r => <option key={r} value={r}>{r}</option>)}
+                                                        {nigeriaStates.map(r => <option key={r} value={r}>{r}</option>)}
                                                     </select>
                                                 </div>
                                             </div>
@@ -1340,12 +1342,12 @@ export default function POSPage() {
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-2">Amount Tendered</label>
                                             <div className="relative">
-                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">GH₵</span>
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">₦</span>
                                                 <input type="number" value={amountTendered} onChange={(e) => setAmountTendered(e.target.value)}
                                                     className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 outline-none font-bold text-lg"
                                                     placeholder="0.00" autoFocus />
                                             </div>
-                                            {changeDue > 0 && <p className="text-right text-gray-700 font-bold mt-2">Change: GH₵{changeDue.toFixed(2)}</p>}
+                                            {changeDue > 0 && <p className="text-right text-gray-700 font-bold mt-2">Change: ₦{changeDue.toFixed(2)}</p>}
                                             {changeDue < 0 && amountTendered && <p className="text-right text-red-500 font-medium mt-2">Insufficient</p>}
                                             <div className="grid grid-cols-4 gap-2 mt-3">
                                                 {[1, 2, 5, 10, 20, 50, 100, 200].map(amount => (
@@ -1354,7 +1356,7 @@ export default function POSPage() {
                                                             parseFloat(amountTendered) === amount
                                                                 ? 'bg-gray-700 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                                                         }`}>
-                                                        GH₵{amount}
+                                                        ₦{amount}
                                                     </button>
                                                 ))}
                                             </div>
@@ -1362,7 +1364,7 @@ export default function POSPage() {
                                                 {[grandTotal, Math.ceil(grandTotal / 10) * 10, Math.ceil(grandTotal / 50) * 50].filter((v, i, a) => v > 0 && a.indexOf(v) === i).map(amount => (
                                                     <button key={`exact-${amount}`} onClick={() => setAmountTendered(amount.toString())}
                                                         className="flex-1 px-2 py-2 bg-gray-50 border border-gray-200 hover:bg-gray-100 rounded-lg text-xs font-semibold text-gray-900 transition-colors">
-                                                        Exact: GH₵{amount.toFixed(2)}
+                                                        Exact: ₦{amount.toFixed(2)}
                                                     </button>
                                                 ))}
                                             </div>
@@ -1398,7 +1400,7 @@ export default function POSPage() {
                                         ) : paymentMethod === 'momo' ? (
                                             <><i className="ri-smartphone-line" /><span>Generate Payment Link</span></>
                                         ) : (
-                                            <><i className="ri-secure-payment-line" /><span>Complete Payment — GH₵{grandTotal.toFixed(2)}</span></>
+                                            <><i className="ri-secure-payment-line" /><span>Complete Payment — ₦{grandTotal.toFixed(2)}</span></>
                                         )}
                                     </button>
                                 </div>
@@ -1439,7 +1441,7 @@ export default function POSPage() {
                                                 </p>
                                             </div>
                                             <p className="font-bold text-gray-900 text-sm">
-                                                GH₵{held.cart.reduce((s, i) => s + i.price * i.cartQuantity, 0).toFixed(2)}
+                                                ₦{held.cart.reduce((s, i) => s + i.price * i.cartQuantity, 0).toFixed(2)}
                                             </p>
                                         </div>
                                         <div className="text-xs text-gray-500 mb-3">
@@ -1479,23 +1481,23 @@ export default function POSPage() {
                         <div className="p-5 space-y-4">
                             <div className="text-center py-4 bg-gray-50 rounded-xl">
                                 <p className="text-xs text-gray-700 uppercase tracking-wider font-semibold">Total Sales</p>
-                                <p className="text-3xl font-extrabold text-gray-900">GH₵{dailySummary.totalSales.toFixed(2)}</p>
+                                <p className="text-3xl font-extrabold text-gray-900">₦{dailySummary.totalSales.toFixed(2)}</p>
                                 <p className="text-sm text-gray-500 mt-1">{dailySummary.orderCount} order{dailySummary.orderCount !== 1 ? 's' : ''}</p>
                             </div>
                             <div className="grid grid-cols-3 gap-3">
                                 <div className="text-center p-3 bg-gray-50 rounded-xl">
                                     <i className="ri-money-cny-circle-line text-lg text-gray-500" />
-                                    <p className="text-sm font-bold text-gray-900">GH₵{dailySummary.cashSales.toFixed(0)}</p>
+                                    <p className="text-sm font-bold text-gray-900">₦{dailySummary.cashSales.toFixed(0)}</p>
                                     <p className="text-[10px] text-gray-500">Cash</p>
                                 </div>
                                 <div className="text-center p-3 bg-gray-50 rounded-xl">
                                     <i className="ri-bank-card-line text-lg text-gray-500" />
-                                    <p className="text-sm font-bold text-gray-900">GH₵{dailySummary.cardSales.toFixed(0)}</p>
+                                    <p className="text-sm font-bold text-gray-900">₦{dailySummary.cardSales.toFixed(0)}</p>
                                     <p className="text-[10px] text-gray-500">Card</p>
                                 </div>
                                 <div className="text-center p-3 bg-gray-50 rounded-xl">
                                     <i className="ri-smartphone-line text-lg text-gray-500" />
-                                    <p className="text-sm font-bold text-gray-900">GH₵{dailySummary.momoSales.toFixed(0)}</p>
+                                    <p className="text-sm font-bold text-gray-900">₦{dailySummary.momoSales.toFixed(0)}</p>
                                     <p className="text-[10px] text-gray-500">MoMo</p>
                                 </div>
                             </div>

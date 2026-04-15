@@ -1,14 +1,14 @@
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-white">
-      <div className="bg-gradient-to-br from-gray-100 via-white to-amber-50 py-16">
+      <div className="bg-gradient-to-br from-gray-100 via-white to-[#FFFFCC]/40 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-5xl font-bold text-gray-900 mb-6">Terms & Conditions</h1>
             <p className="text-xl text-gray-600 leading-relaxed">
               Please read these terms carefully before using our website and services.
             </p>
-            <p className="text-sm text-gray-500 mt-4">Last updated: December 2024</p>
+            <p className="text-sm text-gray-500 mt-4">Last updated: April 2026</p>
           </div>
         </div>
       </div>
@@ -18,7 +18,7 @@ export default function TermsPage() {
           <section className="mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-6">1. Agreement to Terms</h2>
             <p className="text-gray-600 leading-relaxed mb-4">
-              By accessing and using this website (frebysfashiongh.com), you accept and agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you must not use our website or services.
+              By accessing and using this website (shopwithgg.com), you accept and agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you must not use our website or services.
             </p>
             <p className="text-gray-600 leading-relaxed">
               These terms apply to all visitors, users, and customers who access or use our service. We reserve the right to update or modify these terms at any time without prior notice. Your continued use of the website following any changes indicates your acceptance of the new terms.
@@ -34,27 +34,27 @@ export default function TermsPage() {
             </p>
             <ul className="space-y-2 text-gray-600 mb-6">
               <li className="flex items-start gap-2">
-                <i className="ri-close-circle-line text-red-500 mt-1"></i>
+                <i className="ri-close-circle-line text-[#FF6666] mt-1"></i>
                 <span>Violate any local, national, or international law or regulation</span>
               </li>
               <li className="flex items-start gap-2">
-                <i className="ri-close-circle-line text-red-500 mt-1"></i>
+                <i className="ri-close-circle-line text-[#FF6666] mt-1"></i>
                 <span>Transmit any harmful code, viruses, or malicious software</span>
               </li>
               <li className="flex items-start gap-2">
-                <i className="ri-close-circle-line text-red-500 mt-1"></i>
+                <i className="ri-close-circle-line text-[#FF6666] mt-1"></i>
                 <span>Attempt to gain unauthorised access to our systems or networks</span>
               </li>
               <li className="flex items-start gap-2">
-                <i className="ri-close-circle-line text-red-500 mt-1"></i>
+                <i className="ri-close-circle-line text-[#FF6666] mt-1"></i>
                 <span>Use the website for fraudulent purposes or in connection with any criminal activity</span>
               </li>
               <li className="flex items-start gap-2">
-                <i className="ri-close-circle-line text-red-500 mt-1"></i>
+                <i className="ri-close-circle-line text-[#FF6666] mt-1"></i>
                 <span>Impersonate any person or entity or misrepresent your affiliation</span>
               </li>
               <li className="flex items-start gap-2">
-                <i className="ri-close-circle-line text-red-500 mt-1"></i>
+                <i className="ri-close-circle-line text-[#FF6666] mt-1"></i>
                 <span>Interfere with or disrupt the website or servers</span>
               </li>
             </ul>
@@ -75,7 +75,7 @@ export default function TermsPage() {
 
             <h3 className="text-xl font-bold text-gray-900 mb-4 mt-8">3.2 Pricing</h3>
             <p className="text-gray-600 leading-relaxed mb-4">
-              All prices are listed in Ghana Cedis (GHS) and include VAT where applicable. We reserve the right to:
+              All prices are listed in Nigerian Naira (NGN) and include VAT where applicable. We reserve the right to:
             </p>
             <ul className="space-y-2 text-gray-600 mb-6">
               <li className="flex items-start gap-2">
@@ -139,7 +139,7 @@ export default function TermsPage() {
               <ul className="space-y-2 text-gray-600">
                 <li className="flex items-center gap-2">
                   <i className="ri-smartphone-line text-gray-900"></i>
-                  <span>Mobile Money (MTN, Vodafone, AirtelTigo) via Moolre</span>
+                  <span>Bank transfers and mobile payments</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <i className="ri-bank-card-line text-gray-900"></i>
@@ -173,7 +173,7 @@ export default function TermsPage() {
           <section className="mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-6">6. Returns & Refunds</h2>
             <p className="text-gray-600 leading-relaxed mb-4">
-              We offer local and worldwide delivery options from Ghana. Contact us for any order issues or product exchanges. See our Returns page for complete details.
+              We offer local and worldwide delivery options from Nigeria. Contact us for any order issues or product exchanges. See our Returns page for complete details.
             </p>
             <p className="text-gray-600 leading-relaxed">
               Refunds are processed within 5-7 business days of receiving your return. Refunds are issued to the original payment method.
@@ -183,7 +183,7 @@ export default function TermsPage() {
           <section className="mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-6">7. Intellectual Property</h2>
             <p className="text-gray-600 leading-relaxed mb-4">
-              All content on this website, including text, graphics, logos, images, videos, and software, is the property of Frebys Fashion GH or its content suppliers and is protected by copyright, trademark, and other intellectual property laws.
+              All content on this website, including text, graphics, logos, images, videos, and software, is the property of ShopWithGG or its content suppliers and is protected by copyright, trademark, and other intellectual property laws.
             </p>
             <p className="text-gray-600 leading-relaxed mb-4">
               You may not reproduce, distribute, modify, create derivative works of, publicly display, or otherwise use any content from this website without our express written permission.
@@ -227,7 +227,7 @@ export default function TermsPage() {
           <section className="mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-6">9. Limitation of Liability</h2>
             <p className="text-gray-600 leading-relaxed mb-4">
-              To the fullest extent permitted by law, Frebys Fashion GH shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from:
+              To the fullest extent permitted by law, ShopWithGG shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from:
             </p>
             <ul className="space-y-2 text-gray-600 mb-6">
               <li className="flex items-start gap-2">
@@ -259,14 +259,14 @@ export default function TermsPage() {
           <section className="mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-6">10. Indemnification</h2>
             <p className="text-gray-600 leading-relaxed">
-              You agree to indemnify and hold harmless Frebys Fashion GH, its affiliates, officers, directors, employees, and agents from any claims, damages, losses, liabilities, and expenses (including legal fees) arising from your use of the website, violation of these terms, or infringement of any third-party rights.
+              You agree to indemnify and hold harmless ShopWithGG, its affiliates, officers, directors, employees, and agents from any claims, damages, losses, liabilities, and expenses (including legal fees) arising from your use of the website, violation of these terms, or infringement of any third-party rights.
             </p>
           </section>
 
           <section className="mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-6">11. Governing Law & Disputes</h2>
             <p className="text-gray-600 leading-relaxed mb-4">
-              These terms are governed by the laws of Ghana. Any disputes arising from these terms or your use of the website shall be subject to the exclusive jurisdiction of the courts of Ghana.
+              These terms are governed by the laws of Nigeria. Any disputes arising from these terms or your use of the website shall be subject to the exclusive jurisdiction of the courts of Nigeria.
             </p>
             <p className="text-gray-600 leading-relaxed">
               Before initiating any legal action, you agree to first contact us to seek resolution through informal negotiation.
@@ -292,7 +292,7 @@ export default function TermsPage() {
                   <i className="ri-mail-line text-gray-900 text-xl mt-1"></i>
                   <div>
                     <p className="font-medium text-gray-900">Email</p>
-                    <a href="mailto:hello@frebysfashiongh.com" className="text-gray-900 hover:underline">hello@frebysfashiongh.com</a>
+                    <a href="mailto:hello@shopwithgg.com" className="text-gray-900 hover:underline">hello@shopwithgg.com</a>
                   </div>
                 </div>
 
@@ -300,7 +300,7 @@ export default function TermsPage() {
                   <i className="ri-phone-line text-gray-900 text-xl mt-1"></i>
                   <div>
                     <p className="font-medium text-gray-900">Phone</p>
-                    <a href="tel:0244720197" className="text-gray-900 hover:underline">024 472 0197</a>
+                    <a href="tel:08071363567" className="text-gray-900 hover:underline">080 7136 3567</a>
                   </div>
                 </div>
 
@@ -308,7 +308,7 @@ export default function TermsPage() {
                   <i className="ri-map-pin-line text-gray-900 text-xl mt-1"></i>
                   <div>
                     <p className="font-medium text-gray-900">Address</p>
-                    <p className="text-gray-600">Frebys Fashion GH<br />Haatso, Accra<br />Ghana</p>
+                    <p className="text-gray-600">ShopWithGG<br />Lagos, Nigeria</p>
                   </div>
                 </div>
               </div>

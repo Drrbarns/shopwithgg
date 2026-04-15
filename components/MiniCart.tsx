@@ -115,7 +115,7 @@ export default function MiniCart({ isOpen, onClose }: MiniCartProps) {
 
                       <div className="flex items-center justify-between mt-2">
                         <span className="text-lg font-bold text-gray-900">
-                          GH₵{item.price.toFixed(2)}
+                          ₦{item.price.toFixed(2)}
                         </span>
 
                         <div className="flex items-center border border-gray-300 rounded bg-white">
@@ -124,7 +124,7 @@ export default function MiniCart({ isOpen, onClose }: MiniCartProps) {
                             className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer"
                           >
                             {item.quantity <= (item.moq || 1) ? (
-                              <i className="ri-delete-bin-line text-red-500"></i>
+                              <i className="ri-delete-bin-line text-[#FF6666]"></i>
                             ) : (
                               <i className="ri-subtract-line text-gray-700"></i>
                             )}
@@ -140,15 +140,15 @@ export default function MiniCart({ isOpen, onClose }: MiniCartProps) {
                         </div>
                       </div>
                       {item.quantity >= item.maxStock && (
-                        <p className="text-xs text-amber-600 mt-1">Max stock reached</p>
+                        <p className="text-xs text-[#AB9462] mt-1">Max stock reached</p>
                       )}
                     </div>
 
                     <button
                       onClick={() => removeFromCart(item.id, item.variant)}
-                      className="w-8 h-8 flex items-center justify-center hover:bg-red-50 rounded-full transition-colors flex-shrink-0 cursor-pointer"
+                      className="w-8 h-8 flex items-center justify-center hover:bg-[#FFCCCC]/50 rounded-full transition-colors flex-shrink-0 cursor-pointer"
                     >
-                      <i className="ri-delete-bin-line text-red-600"></i>
+                      <i className="ri-delete-bin-line text-[#9A1900]"></i>
                     </button>
                   </div>
                 ))}
@@ -158,7 +158,7 @@ export default function MiniCart({ isOpen, onClose }: MiniCartProps) {
             <div className="border-t border-gray-200 p-6 bg-gray-50">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-gray-700 font-medium">Subtotal</span>
-                <span className="text-2xl font-bold text-gray-900">GH₵{subtotal.toFixed(2)}</span>
+                <span className="text-2xl font-bold text-gray-900">₦{subtotal.toFixed(2)}</span>
               </div>
 
               <p className="text-sm text-gray-600 mb-4 text-center">

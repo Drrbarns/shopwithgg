@@ -144,14 +144,14 @@ export default function ReturnsPortalPage() {
                 </button>
               </form>
 
-              <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="mt-8 p-4 bg-[#AB9462]/5 border border-[#AB9462]/20 rounded-lg">
                 <div className="flex items-start space-x-3">
-                  <i className="ri-information-line text-xl text-blue-700 mt-0.5"></i>
-                  <div className="text-sm text-blue-700">
+                  <i className="ri-information-line text-xl text-[#AB9462] mt-0.5"></i>
+                  <div className="text-sm text-[#AB9462]">
                     <p className="font-semibold mb-1">Delivery &amp; Returns</p>
                     <ul className="space-y-1">
                       <li>• Delivers within 24 - 48 hours nationwide</li>
-                      <li>• Pickup available at our Haatso, Accra location</li>
+                      <li>• Pickup available at our Lagos location</li>
                       <li>• Contact us for any issues with your order</li>
                       <li>• Exchange or replacement for defective items</li>
                     </ul>
@@ -186,7 +186,7 @@ export default function ReturnsPortalPage() {
                       </div>
                       <div className="flex-1">
                         <p className="font-semibold text-gray-900 mb-1">{item.name}</p>
-                        <p className="text-lg font-bold text-gray-900 mb-3">GH₵{item.price.toFixed(2)}</p>
+                        <p className="text-lg font-bold text-gray-900 mb-3">₦{item.price.toFixed(2)}</p>
                         
                         {selectedItems.includes(item.id) && (
                           <div className="mt-4">
@@ -283,7 +283,7 @@ export default function ReturnsPortalPage() {
                           <p className="font-semibold text-gray-900">{item.name}</p>
                           <p className="text-sm text-gray-600">Reason: {returnReasons[item.id]}</p>
                         </div>
-                        <p className="font-bold text-gray-900">GH₵{item.price.toFixed(2)}</p>
+                        <p className="font-bold text-gray-900">₦{item.price.toFixed(2)}</p>
                       </div>
                     ))}
                 </div>

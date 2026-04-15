@@ -20,12 +20,12 @@ export default function FAQsPage() {
     {
       category: 'orders',
       question: 'How do I place an order?',
-      answer: "Browse our kids Ankara collections, add your selected outfits to cart, proceed to checkout, provide delivery details, choose payment, and confirm your order. You'll receive an order confirmation and updates."
+      answer: "Browse our product collections, add your selected items to cart, proceed to checkout, provide delivery details, choose payment, and confirm your order. You'll receive an order confirmation and updates."
     },
     {
       category: 'orders',
       question: 'Can I modify or cancel my order?',
-      answer: "You can request changes within 1 hour of placing your order. Contact support immediately at 024 472 0197 or hello@frebysfashiongh.com. Once processing starts, changes may be limited."
+      answer: "You can request changes within 1 hour of placing your order. Contact support immediately at 080 7136 3567 or hello@shopwithgg.com. Once processing starts, changes may be limited."
     },
     {
       category: 'orders',
@@ -40,7 +40,7 @@ export default function FAQsPage() {
     {
       category: 'shipping',
       question: 'What are your delivery times?',
-      answer: 'Delivery times depend on destination. We ship from Haatso, Accra, Ghana and offer worldwide delivery. Final delivery timelines are shown at checkout and in your order updates.'
+      answer: 'Delivery times depend on destination. We ship from Lagos, Nigeria and offer worldwide delivery. Final delivery timelines are shown at checkout and in your order updates.'
     },
     {
       category: 'shipping',
@@ -49,8 +49,8 @@ export default function FAQsPage() {
     },
     {
       category: 'shipping',
-      question: 'Do you ship outside Ghana?',
-      answer: 'Yes. Frebys Fashion GH offers worldwide delivery from Ghana.'
+      question: 'Do you ship outside Nigeria?',
+      answer: 'Yes. ShopWithGG offers worldwide delivery from Nigeria.'
     },
     {
       category: 'shipping',
@@ -60,32 +60,32 @@ export default function FAQsPage() {
     {
       category: 'returns',
       question: 'How fast is delivery?',
-      answer: 'Delivery speed depends on your location. We dispatch from Haatso, Accra, Ghana and share estimated timing during checkout and after order confirmation.'
+      answer: 'Delivery speed depends on your location. We dispatch from Lagos, Nigeria and share estimated timing during checkout and after order confirmation.'
     },
     {
       category: 'returns',
       question: 'Which items cannot be returned?',
-      answer: 'Items with clear signs of wear, damage caused after delivery, or custom/personalised outfit alterations may not qualify for return unless there is a manufacturing issue.'
+      answer: 'Items with clear signs of use, damage caused after delivery, or custom/personalised orders may not qualify for return unless there is a manufacturing defect.'
     },
     {
       category: 'returns',
       question: 'Who pays for return shipping?',
-      answer: 'If you\'re returning due to a defect or our error, we cover return shipping. For change-of-mind returns, customers pay return shipping costs (GHS 15 standard rate). Free shipping on returns for defective items.'
+      answer: 'If you\'re returning due to a defect or our error, we cover return shipping. For change-of-mind returns, customers pay return shipping at our standard flat rate. Free shipping on returns for defective items.'
     },
     {
       category: 'returns',
       question: 'Can I exchange an item instead of returning it?',
-      answer: 'Yes! If you need a different size or colour, select "Exchange" when initiating your return. We\'ll send the replacement as soon as we receive your original item. Exchange shipping is FREE.'
+      answer: 'Yes! If you need a different variant or specification, select "Exchange" when initiating your return. We\'ll send the replacement as soon as we receive your original item. Exchange shipping is FREE.'
     },
     {
       category: 'payment',
       question: 'What payment methods do you accept?',
-      answer: 'We accept MTN Mobile Money, Vodafone Cash, AirtelTigo Money, Visa/Mastercard credit and debit cards, and Cash on Delivery (available for orders under GHS 1,000). All payments are processed securely.'
+      answer: 'We accept bank transfers, Visa/Mastercard credit and debit cards, and Cash on Delivery for eligible orders within Lagos. All payments are processed securely.'
     },
     {
       category: 'payment',
       question: 'Is it safe to use my credit card on your site?',
-      answer: 'Absolutely. We use industry-standard SSL encryption and partner with secure payment processors (Paystack, Flutterwave). We never store your full card details on our servers. All transactions are PCI-DSS compliant.'
+      answer: 'Absolutely. We use industry-standard SSL encryption and partner with trusted, secure payment processors. We never store your full card details on our servers. All transactions are PCI-DSS compliant.'
     },
     {
       category: 'payment',
@@ -125,7 +125,7 @@ export default function FAQsPage() {
     {
       category: 'account',
       question: 'What are loyalty points and how do they work?',
-      answer: 'Earn 1 point for every GHS 10 spent. 100 points = GHS 10 discount on your next purchase. Points are automatically added to your account after each order. Check your points balance in your account dashboard.'
+      answer: 'Earn 1 point for every NGN 10 spent. 100 points = NGN 10 discount on your next purchase. Points are automatically added to your account after each order. Check your points balance in your account dashboard.'
     }
   ];
 
@@ -139,7 +139,7 @@ export default function FAQsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="bg-gradient-to-br from-gray-50 via-white to-amber-50 py-16">
+      <div className="bg-gradient-to-br from-gray-50 via-white to-[#FFFFCC]/40 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-5xl font-bold text-gray-900 mb-6">
@@ -229,7 +229,7 @@ export default function FAQsPage() {
               Contact Support
             </Link>
             <a
-              href="https://wa.me/233244720197"
+              href="https://wa.me/2348071363567"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-gray-700 text-white px-8 py-4 rounded-full font-medium hover:bg-gray-600 transition-colors whitespace-nowrap"

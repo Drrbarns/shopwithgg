@@ -170,10 +170,10 @@ export default function ProductEditor({ productId }: { productId: string }) {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    Price (GH₵) *
+                    Price (₦) *
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-semibold">GH₵</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-semibold">₦</span>
                     <input
                       type="number"
                       value={price}
@@ -186,10 +186,10 @@ export default function ProductEditor({ productId }: { productId: string }) {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    Compare at Price (GH₵)
+                    Compare at Price (₦)
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-semibold">GH₵</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-semibold">₦</span>
                     <input
                       type="number"
                       value={comparePrice}
@@ -205,7 +205,7 @@ export default function ProductEditor({ productId }: { productId: string }) {
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-blue-900 font-semibold mb-1">Discount Calculation</p>
                 <p className="text-blue-800">
-                  Savings: GH₵ {(parseFloat(comparePrice) - parseFloat(price)).toFixed(2)} 
+                  Savings: ₦ {(parseFloat(comparePrice) - parseFloat(price)).toFixed(2)} 
                   <span className="ml-2">
                     ({(((parseFloat(comparePrice) - parseFloat(price)) / parseFloat(comparePrice)) * 100).toFixed(0)}% off)
                   </span>

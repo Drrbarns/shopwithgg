@@ -16,29 +16,29 @@ interface SEOProps {
 }
 
 export function generateMetadata({
-  title = "Kids Ready-to-Wear Ankara Clothes in Ghana",
-  description = "Shop unique casual and luxury kids Ankara wear for all occasions. Frebys Fashion GH delivers worldwide from Haatso, Accra, Ghana.",
+  title = "Smart Sourcing & Procurement Partner",
+  description = "ShopWithGG is your trusted global sourcing and procurement partner. Carefully curated international products at direct-from-supplier pricing, delivered worldwide.",
   keywords = [],
-  ogImage = "https://frebysfashiongh.com/og-image.png",
+  ogImage = "https://shopwithgg.com/og-image.png",
   ogType = "website",
   price,
-  currency = "GHS",
+  currency = "NGN",
   availability,
   category,
   publishedTime,
   author,
   noindex = false
 }: SEOProps): Metadata {
-  const siteName = "Frebys Fashion GH";
-  const siteUrl = "https://frebysfashiongh.com";
+  const siteName = "ShopWithGG";
+  const siteUrl = "https://shopwithgg.com";
   const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
 
   const defaultKeywords = [
-    "kids Ankara clothes",
-    "kids fashion Ghana",
-    "children Ankara outfits",
-    "casual kids wear",
-    "luxury kids wear",
+    "global sourcing partner",
+    "procurement",
+    "international suppliers",
+    "premium products",
+    "direct-from-supplier pricing",
     "worldwide delivery",
   ];
 
@@ -55,7 +55,7 @@ export function generateMetadata({
       images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
       type: ogType as any,
       siteName,
-      locale: "en_GH",
+      locale: "en_NG",
     },
     twitter: {
       card: "summary_large_image",
@@ -114,12 +114,12 @@ export function generateProductSchema(product: {
     sku: product.sku,
     brand: {
       "@type": "Brand",
-      name: product.brand || "Frebys Fashion GH",
+      name: product.brand || "ShopWithGG",
     },
     offers: {
       "@type": "Offer",
       price: product.price,
-      priceCurrency: product.currency || "GHS",
+      priceCurrency: product.currency || "NGN",
       availability:
         product.availability === "in_stock"
           ? "https://schema.org/InStock"
@@ -165,17 +165,23 @@ export function generateOrganizationSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Frebys Fashion GH",
-    url: "https://frebysfashiongh.com",
-    logo: "https://frebysfashiongh.com/frebys-logo.png",
+    name: "ShopWithGG",
+    url: "https://shopwithgg.com",
+    logo: "https://shopwithgg.com/shopwithgg-logo.png",
+    email: "hello@shopwithgg.com",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Lagos",
+      addressCountry: "NG",
+    },
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: "+233244720197",
+      telephone: "+2348071363567",
       contactType: "Customer Service",
-      areaServed: "GH",
+      areaServed: "NG",
       availableLanguage: ["English"],
     },
-    sameAs: ["https://wa.me/233244720197"],
+    sameAs: ["https://wa.me/2348071363567"],
   };
 }
 
@@ -183,13 +189,13 @@ export function generateWebsiteSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Frebys Fashion GH",
-    url: "https://frebysfashiongh.com",
+    name: "ShopWithGG",
+    url: "https://shopwithgg.com",
     potentialAction: {
       "@type": "SearchAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: "https://frebysfashiongh.com/shop?search={search_term_string}",
+        urlTemplate: "https://shopwithgg.com/shop?search={search_term_string}",
       },
       "query-input": "required name=search_term_string",
     },

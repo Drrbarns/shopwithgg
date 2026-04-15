@@ -29,13 +29,13 @@ export default function PWASplash() {
     <div className="pwa-splash" aria-hidden="true">
       <div className="pwa-splash-logo mb-6">
         <img
-          src="/frebys-logo.png"
-          alt="Frebys Fashion GH"
+          src="/shopwithgg-logo.png"
+          alt="ShopWithGG"
           className="w-20 h-20 object-contain"
         />
       </div>
-      <h1 className="text-white text-xl font-bold font-serif mb-2">Frebys Fashion GH</h1>
-      <p className="text-gray-300 text-sm font-medium mb-8">Premium Imports</p>
+      <h1 className="text-white text-xl font-bold mb-2">ShopWithGG</h1>
+      <p className="text-[#AB9462] text-sm font-medium mb-8">Smart Sourcing, Seamless Shopping</p>
       <div className="pwa-splash-dots flex gap-1.5">
         <span className="w-2 h-2 bg-white rounded-full" />
         <span className="w-2 h-2 bg-white rounded-full" />

@@ -47,11 +47,11 @@ export default function PrintInventoryPage() {
             }
 
             const pdfBlob = pdf.output('blob');
-            const fileName = `Frebys-Inventory-${new Date().toISOString().slice(0, 10)}.pdf`;
+            const fileName = `ShopWithGG-Inventory-${new Date().toISOString().slice(0, 10)}.pdf`;
             const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
             if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-                await navigator.share({ files: [pdfFile], title: 'Frebys Fashion GH — Inventory Report' });
+                await navigator.share({ files: [pdfFile], title: 'ShopWithGG — Inventory Report' });
             } else {
                 // Fallback: download the PDF
                 const url = URL.createObjectURL(pdfBlob);
@@ -152,13 +152,13 @@ export default function PrintInventoryPage() {
             <div ref={contentRef}>
             <div className="flex items-center justify-between mb-8 border-b-2 border-black pb-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-['Pacifico']">Frebys Fashion GH</h1>
+                    <h1 className="text-3xl font-bold">ShopWithGG</h1>
                     <h2 className="text-xl mt-1 uppercase tracking-wider font-semibold text-gray-800">Inventory Product List</h2>
                 </div>
                 <div className="text-right">
                     <p className="font-medium">Date: {currentDate}</p>
                     <p className="font-medium">Total Products: {products.length}</p>
-                    <p className="font-bold text-lg mt-1">Total Value: GH₵ {totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                    <p className="font-bold text-lg mt-1">Total Value: ₦ {totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
             </div>
 
@@ -192,9 +192,9 @@ export default function PrintInventoryPage() {
                             <td className="p-3 border border-gray-300 font-semibold text-sm">{product.name}</td>
                             <td className="p-3 border border-gray-300 text-sm font-mono text-gray-700">{product.sku || '-'}</td>
                             <td className="p-3 border border-gray-300 text-sm">{product.category || '-'}</td>
-                            <td className="p-3 border border-gray-300 text-right font-medium whitespace-nowrap">GH₵ {(Number(product.price) || 0).toFixed(2)}</td>
+                            <td className="p-3 border border-gray-300 text-right font-medium whitespace-nowrap">₦ {(Number(product.price) || 0).toFixed(2)}</td>
                             <td className="p-3 border border-gray-300 text-center font-bold">{product.stock ?? 0}</td>
-                            <td className="p-3 border border-gray-300 text-right font-semibold whitespace-nowrap">GH₵ {((Number(product.price) || 0) * (Number(product.stock) ?? 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td className="p-3 border border-gray-300 text-right font-semibold whitespace-nowrap">₦ {((Number(product.price) || 0) * (Number(product.stock) ?? 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             <td className="p-3 border border-gray-300 text-center text-xs uppercase font-semibold tracking-wider">{product.status}</td>
                         </tr>
                     ))}
@@ -202,11 +202,11 @@ export default function PrintInventoryPage() {
             </table>
 
             <div className="mt-6 p-4 bg-gray-100 border-2 border-gray-400 rounded print:bg-gray-100">
-                <p className="text-right font-bold text-lg">Total Inventory Value: GH₵ {totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                <p className="text-right font-bold text-lg">Total Inventory Value: ₦ {totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
             </div>
 
             <div className="mt-8 text-center text-sm font-medium border-t-2 border-black pt-4">
-                <p>End of Inventory Report &mdash; Generated from Frebys Fashion GH Admin Panel</p>
+                <p>End of Inventory Report &mdash; Generated from ShopWithGG Admin Panel</p>
             </div>
             </div> {/* end contentRef */}
         </div>

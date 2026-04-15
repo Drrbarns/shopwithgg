@@ -79,14 +79,14 @@ export default function SizeGuideModal({ isOpen, onClose, category = 'General' }
           </div>
 
           <div className="p-6">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="bg-[#F3F3F3] border border-[#AB9462]/30 rounded-lg p-4 mb-6">
               <div className="flex items-start">
                 <div className="w-6 h-6 flex items-center justify-center mr-3">
-                  <i className="ri-information-line text-xl text-blue-600"></i>
+                  <i className="ri-information-line text-xl text-[#AB9462]"></i>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-blue-900 mb-2">How to Measure</h3>
-                  <ul className="text-sm text-blue-800 space-y-1">
+                  <h3 className="font-semibold text-[#2C1D00] mb-2">How to Measure</h3>
+                  <ul className="text-sm text-[#2C1D00] space-y-1">
                     <li>• Use a soft measuring tape for accurate measurements</li>
                     <li>• Measure over light clothing or undergarments</li>
                     <li>• Keep the tape parallel to the floor</li>

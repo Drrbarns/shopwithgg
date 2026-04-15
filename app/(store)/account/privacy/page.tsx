@@ -80,12 +80,12 @@ export default function PrivacySettingsPage() {
       </div>
 
       <div className="max-w-4xl mx-auto p-4 space-y-6">
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+        <div className="bg-[#AB9462]/5 border border-[#AB9462]/20 rounded-xl p-4">
           <div className="flex gap-3">
-            <i className="ri-shield-check-line text-xl text-blue-600 flex-shrink-0 mt-0.5"></i>
+            <i className="ri-shield-check-line text-xl text-[#AB9462] flex-shrink-0 mt-0.5"></i>
             <div>
-              <h3 className="font-semibold text-blue-900 mb-1">Your Privacy Matters</h3>
-              <p className="text-sm text-blue-800">
+              <h3 className="font-semibold text-[#2C1D00] mb-1">Your Privacy Matters</h3>
+              <p className="text-sm text-[#AB9462]">
                 We are committed to protecting your personal information in compliance with GDPR, CCPA, and other privacy regulations.
               </p>
             </div>
@@ -150,42 +150,42 @@ export default function PrivacySettingsPage() {
           </div>
 
           <div className="border-t pt-6">
-            <h2 className="text-lg font-bold mb-4 text-red-600">Danger Zone</h2>
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <h3 className="font-semibold text-red-900 mb-2 flex items-center gap-2">
+            <h2 className="text-lg font-bold mb-4 text-[#9A1900]">Danger Zone</h2>
+            <div className="bg-[#FFCCCC]/50 border border-[#FF6666]/30 rounded-lg p-4">
+              <h3 className="font-semibold text-[#9A1900] mb-2 flex items-center gap-2">
                 <i className="ri-delete-bin-line text-lg"></i>
                 Delete Account
               </h3>
-              <p className="text-sm text-red-800 mb-4">
+              <p className="text-sm text-[#9A1900] mb-4">
                 Permanently delete your account and all associated data. This action cannot be undone.
               </p>
               
               {!showDeleteConfirm ? (
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium whitespace-nowrap"
+                  className="px-4 py-2 bg-[#9A1900] text-white rounded-lg hover:bg-[#9A1900]/90 transition-colors font-medium whitespace-nowrap"
                 >
                   Request Account Deletion
                 </button>
               ) : (
                 <div className="space-y-4">
-                  <div className="bg-white rounded-lg p-4 border border-red-300">
-                    <h4 className="font-semibold text-red-900 mb-2">⚠️ Before You Continue:</h4>
+                  <div className="bg-white rounded-lg p-4 border border-[#FF6666]/50">
+                    <h4 className="font-semibold text-[#9A1900] mb-2">⚠️ Before You Continue:</h4>
                     <ul className="space-y-2 text-sm text-gray-700 mb-4">
                       <li className="flex items-start gap-2">
-                        <i className="ri-alert-line text-red-600 mt-0.5 flex-shrink-0"></i>
+                        <i className="ri-alert-line text-[#FF6666] mt-0.5 flex-shrink-0"></i>
                         <span>All your orders and purchase history will be deleted</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <i className="ri-alert-line text-red-600 mt-0.5 flex-shrink-0"></i>
+                        <i className="ri-alert-line text-[#FF6666] mt-0.5 flex-shrink-0"></i>
                         <span>Your loyalty points and rewards will be forfeited</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <i className="ri-alert-line text-red-600 mt-0.5 flex-shrink-0"></i>
+                        <i className="ri-alert-line text-[#FF6666] mt-0.5 flex-shrink-0"></i>
                         <span>Active subscriptions will be cancelled</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <i className="ri-alert-line text-red-600 mt-0.5 flex-shrink-0"></i>
+                        <i className="ri-alert-line text-[#FF6666] mt-0.5 flex-shrink-0"></i>
                         <span>This action cannot be reversed</span>
                       </li>
                     </ul>
@@ -199,7 +199,7 @@ export default function PrivacySettingsPage() {
                         value={deleteConfirmText}
                         onChange={(e) => setDeleteConfirmText(e.target.value)}
                         placeholder="DELETE"
-                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF6666] focus:border-transparent"
                       />
                     </div>
 
@@ -216,7 +216,7 @@ export default function PrivacySettingsPage() {
                       <button
                         onClick={handleDeleteAccount}
                         disabled={deleteConfirmText !== 'DELETE' || deleting}
-                        className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed font-medium whitespace-nowrap"
+                        className="flex-1 px-4 py-2 bg-[#9A1900] text-white rounded-lg hover:bg-[#9A1900]/90 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed font-medium whitespace-nowrap"
                       >
                         {deleting ? (
                           <>

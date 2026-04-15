@@ -100,7 +100,7 @@ export default function ProductCard({
             </span>
           )}
           {discount > 0 && (
-            <span className="rounded-full bg-brand-orange px-2.5 py-1 text-[10px] font-semibold text-white shadow-sm">
+            <span className="rounded-full bg-brand-brown px-2.5 py-1 text-[10px] font-semibold text-white shadow-sm">
               -{discount}%
             </span>
           )}
@@ -118,19 +118,19 @@ export default function ProductCard({
       <div className="flex flex-col p-4">
         <div className="mb-2 flex items-center justify-between gap-2 text-xs">
           <span className={`inline-flex items-center rounded-full px-2.5 py-1 font-medium ${
-            inStock ? 'bg-brand-greenLight text-brand-greenDark' : 'bg-gray-100 text-gray-500'
+            inStock ? 'bg-brand-cream text-brand-brown' : 'bg-gray-100 text-gray-500'
           }`}>
             {inStock ? 'In stock' : 'Unavailable'}
           </span>
           <div className="inline-flex items-center gap-1 text-gray-500">
-            <i className="ri-star-fill text-brand-orange" />
+            <i className="ri-star-fill text-brand-gold" />
             <span>{rating.toFixed(1)}</span>
             {reviewCount > 0 && <span>({reviewCount})</span>}
           </div>
         </div>
 
         <Link href={`/product/${slug}`} className="mb-2">
-          <h3 className="line-clamp-2 text-base font-semibold leading-snug text-gray-900 transition-colors group-hover:text-brand-greenDark">
+          <h3 className="line-clamp-2 text-base font-semibold leading-snug text-gray-900 transition-colors group-hover:text-brand-brown">
             {name}
           </h3>
         </Link>
@@ -147,7 +147,7 @@ export default function ProductCard({
                 }}
                 className={`h-4 w-4 flex-shrink-0 rounded-full border transition-all duration-200 ${
                   activeColor === color.name
-                    ? 'scale-110 ring-2 ring-brand-green ring-offset-1'
+                    ? 'scale-110 ring-2 ring-brand-carton ring-offset-1'
                     : 'hover:scale-110'
                 } ${color.hex === '#FFFFFF' ? 'border-gray-300' : 'border-transparent'}`}
                 style={{ backgroundColor: color.hex }}
@@ -171,7 +171,7 @@ export default function ProductCard({
         {hasVariants ? (
           <Link
             href={`/product/${slug}`}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-green/25 bg-white py-3 text-sm font-semibold text-brand-greenDark transition-colors hover:bg-brand-greenLight"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-carton/25 bg-white py-3 text-sm font-semibold text-brand-brown transition-colors hover:bg-brand-cream"
           >
             <i className="ri-list-check text-base" />
             <span>Select options</span>
@@ -183,7 +183,7 @@ export default function ProductCard({
               addToCart({ id, name, price, image, quantity: moq, slug, maxStock, moq });
             }}
             disabled={!inStock}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-orange py-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-brand-orangeDark disabled:cursor-not-allowed disabled:bg-gray-300"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-brown py-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-brand-gold disabled:cursor-not-allowed disabled:bg-gray-300"
           >
             <i className="ri-shopping-cart-2-line text-base" />
             <span>{moq > 1 ? `Add ${moq} to cart` : 'Add to cart'}</span>

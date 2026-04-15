@@ -87,12 +87,12 @@ export default function ForgotPasswordPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${
-                  error ? 'border-red-500' : 'border-gray-300'
+                  error ? 'border-[#FF6666]' : 'border-gray-300'
                 }`}
                 placeholder="you@example.com"
               />
               {error && (
-                <p className="text-sm text-red-600 mt-2">{error}</p>
+                <p className="text-sm text-[#9A1900] mt-2">{error}</p>
               )}
             </div>
 

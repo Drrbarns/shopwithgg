@@ -19,9 +19,9 @@ export default function OrderBumpUpsell({ products, onToggle }: OrderBumpUpsellP
   if (products.length === 0) return null;
 
   return (
-    <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 border-2 border-amber-200">
+    <div className="bg-gradient-to-br from-[#FFFFCC]/50 to-[#F3F3F3] rounded-xl p-6 border-2 border-[#FFCC00]/30">
       <div className="flex items-center space-x-2 mb-4">
-        <div className="w-10 h-10 flex items-center justify-center bg-amber-500 rounded-full">
+        <div className="w-10 h-10 flex items-center justify-center bg-[#FFCC00] rounded-full">
           <i className="ri-gift-line text-white text-xl"></i>
         </div>
         <div>
@@ -61,11 +61,11 @@ export default function OrderBumpUpsell({ products, onToggle }: OrderBumpUpsellP
                 <h4 className="font-semibold text-gray-900 mb-1">{product.name}</h4>
                 <p className="text-sm text-gray-600 mb-2">{product.description}</p>
                 <div className="flex items-center space-x-2">
-                  <span className="text-lg font-bold text-gray-900">GH₵{product.price.toFixed(2)}</span>
+                  <span className="text-lg font-bold text-gray-900">₦{product.price.toFixed(2)}</span>
                   {product.originalPrice && (
                     <>
-                      <span className="text-sm text-gray-400 line-through">GH₵{product.originalPrice.toFixed(2)}</span>
-                      <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-semibold whitespace-nowrap">
+                      <span className="text-sm text-gray-400 line-through">₦{product.originalPrice.toFixed(2)}</span>
+                      <span className="text-xs bg-[#FFCCCC] text-[#9A1900] px-2 py-1 rounded-full font-semibold whitespace-nowrap">
                         Save {Math.round((1 - product.price / product.originalPrice) * 100)}%
                       </span>
                     </>
@@ -85,8 +85,8 @@ export default function OrderBumpUpsell({ products, onToggle }: OrderBumpUpsellP
         ))}
       </div>
 
-      <div className="mt-4 p-3 bg-amber-100 rounded-lg">
-        <p className="text-sm text-amber-800 font-medium text-center">
+      <div className="mt-4 p-3 bg-[#FFFFCC] rounded-lg">
+        <p className="text-sm text-[#2C1D00] font-medium text-center">
           <i className="ri-flashlight-fill mr-1"></i>
           Limited time offer - Add to your order now!
         </p>

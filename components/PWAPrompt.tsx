@@ -112,8 +112,8 @@ export default function PWAPrompt() {
                 <div className="flex items-center gap-4 mb-5">
                   <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-lg flex-shrink-0 bg-gray-100 flex items-center justify-center">
                     <img
-                      src="/frebys-logo.png"
-                      alt="Frebys Fashion GH"
+                      src="/shopwithgg-logo.png"
+                      alt="ShopWithGG"
                       className="w-10 h-10 object-contain"
                     />
                   </div>
@@ -138,7 +138,7 @@ export default function PWAPrompt() {
                         <p className="text-xs text-gray-500 mt-0.5">
                           Tap the{' '}
                           <span className="inline-flex items-center bg-white border border-gray-200 rounded px-1.5 py-0.5 mx-0.5">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#AB9462]">
                               <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
                               <polyline points="16 6 12 2 8 6" />
                               <line x1="12" y1="2" x2="12" y2="15" />
@@ -174,7 +174,7 @@ export default function PWAPrompt() {
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-gray-800">Tap &quot;Add&quot;</p>
                         <p className="text-xs text-gray-500 mt-0.5">
-                          Confirm by tapping <span className="font-semibold text-blue-500">Add</span> in the top right corner
+                          Confirm by tapping <span className="font-semibold text-[#AB9462]">Add</span> in the top right corner
                         </p>
                       </div>
                     </div>
@@ -206,17 +206,17 @@ export default function PWAPrompt() {
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-lg flex-shrink-0 bg-gray-100 flex items-center justify-center">
                     <img
-                      src="/frebys-logo.png"
-                      alt="Frebys Fashion GH"
+                      src="/shopwithgg-logo.png"
+                      alt="ShopWithGG"
                       className="w-10 h-10 object-contain"
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-gray-900 text-lg truncate">Frebys Fashion GH</h3>
-                    <p className="text-sm text-gray-500">frebysfashiongh.com</p>
+                    <h3 className="font-bold text-gray-900 text-lg truncate">ShopWithGG</h3>
+                    <p className="text-sm text-gray-500">shopwithgg.com</p>
                     <div className="flex items-center gap-1 mt-1">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <i key={star} className="ri-star-fill text-amber-400 text-xs" />
+                        <i key={star} className="ri-star-fill text-[#FFCC00] text-xs" />
                       ))}
                       <span className="text-xs text-gray-400 ml-1">Shopping</span>
                     </div>

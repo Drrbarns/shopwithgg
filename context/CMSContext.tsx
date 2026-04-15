@@ -63,19 +63,19 @@ interface CMSContextType {
 }
 
 const defaultSettings: SiteSettings = {
-    site_name: 'Frebys Fashion GH',
-    site_tagline: 'Unique kids ready-to-wear Ankara clothes for all occasions.',
-    site_logo: '/frebys-logo.png',
-    contact_email: 'hello@frebysfashiongh.com',
-    contact_phone: '0244720197',
-    contact_address: 'Haatso, Accra, Ghana',
+    site_name: 'ShopWithGG',
+    site_tagline: 'Your trusted sourcing and procurement partner.',
+    site_logo: '/shopwithgg-logo.png',
+    contact_email: 'hello@shopwithgg.com',
+    contact_phone: '08071363567',
+    contact_address: 'Lagos, Nigeria',
     social_facebook: '',
-    social_instagram: '',
+    social_instagram: '_shopwithgg_',
     social_twitter: '',
-    primary_color: '#059669',
-    secondary_color: '#0D9488',
-    currency: 'GHS',
-    currency_symbol: 'GH₵',
+    primary_color: '#2C1D00',
+    secondary_color: '#AB9462',
+    currency: 'NGN',
+    currency_symbol: '₦',
 };
 
 const CMSContext = createContext<CMSContextType>({
@@ -91,19 +91,19 @@ const CMSContext = createContext<CMSContextType>({
 
 export function CMSProvider({ children }: { children: ReactNode }) {
     const [settings, setSettings] = useState<SiteSettings>({
-        site_name: 'Frebys Fashion GH',
-        site_tagline: 'Unique kids ready-to-wear Ankara clothes for all occasions.',
-        site_logo: '/frebys-logo.png',
-        contact_email: 'hello@frebysfashiongh.com',
-        contact_phone: '0244720197',
-        contact_address: 'Haatso, Accra, Ghana',
+        site_name: 'ShopWithGG',
+        site_tagline: 'Your trusted sourcing and procurement partner.',
+        site_logo: '/shopwithgg-logo.png',
+        contact_email: 'hello@shopwithgg.com',
+        contact_phone: '08071363567',
+        contact_address: 'Lagos, Nigeria',
         social_facebook: '',
-        social_instagram: '',
+        social_instagram: '_shopwithgg_',
         social_twitter: '',
         primary_color: '#FBF6F2',
         secondary_color: '#A14F57',
-        currency: 'GHS',
-        currency_symbol: 'GH₵',
+        currency: 'NGN',
+        currency_symbol: '₦',
     });
     const [content, setContent] = useState<CMSContent[]>([]);
     const [banners, setBanners] = useState<Banner[]>([]);

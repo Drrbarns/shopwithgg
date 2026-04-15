@@ -60,8 +60,8 @@ export default function SessionTimeoutWarning() {
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-            <i className="ri-time-line text-2xl text-orange-600"></i>
+          <div className="w-12 h-12 bg-[#FFFFCC] rounded-full flex items-center justify-center">
+            <i className="ri-time-line text-2xl text-[#AB9462]"></i>
           </div>
           <div>
             <h3 className="font-bold text-lg">Session Timeout Warning</h3>
@@ -69,18 +69,18 @@ export default function SessionTimeoutWarning() {
           </div>
         </div>
 
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+        <div className="bg-[#FFFFCC]/50 border border-[#FFCC00]/30 rounded-lg p-4 mb-6">
           <p className="text-sm text-gray-700 mb-2">
             You will be automatically logged out in:
           </p>
           <div className="flex items-center gap-2">
-            <div className="flex-1 h-2 bg-orange-200 rounded-full overflow-hidden">
+            <div className="flex-1 h-2 bg-[#FFCC00]/30 rounded-full overflow-hidden">
               <div
-                className="h-full bg-orange-500 transition-all duration-1000"
+                className="h-full bg-[#FFCC00] transition-all duration-1000"
                 style={{ width: `${(countdown / 60) * 100}%` }}
               />
             </div>
-            <span className="text-2xl font-bold text-orange-600 tabular-nums">
+            <span className="text-2xl font-bold text-[#AB9462] tabular-nums">
               {countdown}s
             </span>
           </div>

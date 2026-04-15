@@ -180,7 +180,7 @@ export default function InventoryManagementPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Total Retail Value</p>
-                <p className="text-3xl font-bold text-gray-700">GH₵{totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                <p className="text-3xl font-bold text-gray-700">₦{totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
               </div>
               <div className="w-12 h-12 flex items-center justify-center bg-gray-100 rounded-lg">
                 <i className="ri-money-dollar-circle-line text-2xl text-gray-700"></i>
@@ -315,7 +315,7 @@ export default function InventoryManagementPage() {
                       </td>
                       <td className="px-6 py-4">
                         <span className="font-semibold text-gray-900">
-                          GH₵{(product.currentStock * product.price).toFixed(2)}
+                          ₦{(product.currentStock * product.price).toFixed(2)}
                         </span>
                       </td>
                       <td className="px-6 py-4">

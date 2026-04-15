@@ -72,7 +72,7 @@ export default function CartPage() {
                 <i className="ri-shopping-cart-line text-5xl text-gray-400"></i>
               </div>
               <h2 className="text-3xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
-              <p className="text-gray-600 mb-8 text-lg">Looks like you&#39;t added anything to your cart yet</p>
+              <p className="text-gray-600 mb-8 text-lg">Looks like you haven&apos;t added anything to your cart yet</p>
               <Link href="/shop" className="inline-block bg-gray-900 hover:bg-gray-800 text-white px-8 py-4 rounded-lg font-semibold transition-colors whitespace-nowrap">
                 Continue Shopping
               </Link>
@@ -87,7 +87,7 @@ export default function CartPage() {
                     <div className="flex items-center justify-between mb-6">
                       <h2 className="text-2xl font-bold text-gray-900">Cart Items ({cartItems.length})</h2>
                       {savings > 0 && (
-                        <span className="text-gray-900 font-semibold">You save GH₵{savings.toFixed(2)}</span>
+                        <span className="text-gray-900 font-semibold">You save ₦{savings.toFixed(2)}</span>
                       )}
                     </div>
 
@@ -105,7 +105,7 @@ export default function CartPage() {
                               </Link>
                               <button
                                 onClick={() => removeFromCart(item.id, item.variant)}
-                                className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-600 transition-colors"
+                                className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-[#9A1900] transition-colors"
                               >
                                 <i className="ri-close-line text-xl"></i>
                               </button>
@@ -119,7 +119,7 @@ export default function CartPage() {
 
                             <div className="flex items-center justify-between flex-wrap gap-4">
                               <div className="flex items-baseline space-x-3">
-                                <span className="text-xl font-bold text-gray-900">GH₵{item.price.toFixed(2)}</span>
+                                <span className="text-xl font-bold text-gray-900">₦{item.price.toFixed(2)}</span>
                               </div>
 
                               <div className="flex items-center space-x-4">
@@ -131,7 +131,7 @@ export default function CartPage() {
                                       title={item.quantity <= (item.moq || 1) ? 'Remove item' : 'Decrease quantity'}
                                     >
                                       {item.quantity <= (item.moq || 1) ? (
-                                        <i className="ri-delete-bin-line text-red-500"></i>
+                                        <i className="ri-delete-bin-line text-[#FF6666]"></i>
                                       ) : (
                                         <i className="ri-subtract-line"></i>
                                       )}
@@ -152,7 +152,7 @@ export default function CartPage() {
                                     </button>
                                   </div>
                                   {(item.moq || 1) > 1 && (
-                                    <span className="text-xs text-amber-600 mt-1">
+                                    <span className="text-xs text-[#AB9462] mt-1">
                                       Min. order: {item.moq} units
                                     </span>
                                   )}
@@ -186,7 +186,7 @@ export default function CartPage() {
                             </div>
                             <div className="flex-1">
                               <p className="font-semibold text-gray-900 mb-1">{item.name}</p>
-                              <p className="text-lg font-bold text-gray-900 mb-2">GH₵{item.price.toFixed(2)}</p>
+                              <p className="text-lg font-bold text-gray-900 mb-2">₦{item.price.toFixed(2)}</p>
                               {/* Move to cart disabled for now */}
                             </div>
                           </div>
@@ -203,7 +203,7 @@ export default function CartPage() {
                     <div className="space-y-4 mb-6">
                       <div className="flex justify-between text-gray-700">
                         <span>Subtotal</span>
-                        <span className="font-semibold">GH₵{subtotal.toFixed(2)}</span>
+                        <span className="font-semibold">₦{subtotal.toFixed(2)}</span>
                       </div>
 
                       {appliedCoupon && (
@@ -211,17 +211,17 @@ export default function CartPage() {
                           <div className="flex items-center space-x-2">
                             <span>Coupon ({appliedCoupon.code})</span>
                           </div>
-                          <span className="font-semibold">-GH₵{couponDiscount.toFixed(2)}</span>
+                          <span className="font-semibold">-₦{couponDiscount.toFixed(2)}</span>
                         </div>
                       )}
 
                       <div className="flex justify-between text-gray-700">
                         <span>Shipping</span>
-                        <span className="font-semibold">{shipping === 0 ? 'FREE' : `GH₵${shipping.toFixed(2)}`}</span>
+                        <span className="font-semibold">{shipping === 0 ? 'FREE' : `₦${shipping.toFixed(2)}`}</span>
                       </div>
 
                       {shipping > 0 && (
-                        <p className="text-sm text-amber-600">
+                        <p className="text-sm text-[#AB9462]">
                           {/* Shipping threshold text removed */}
                         </p>
                       )}
@@ -230,7 +230,7 @@ export default function CartPage() {
                     <div className="border-t border-gray-200 pt-4 mb-6">
                       <div className="flex justify-between text-xl font-bold text-gray-900">
                         <span>Total</span>
-                        <span>GH₵{total.toFixed(2)}</span>
+                        <span>₦{total.toFixed(2)}</span>
                       </div>
                     </div>
 
@@ -262,7 +262,7 @@ export default function CartPage() {
                       </div>
                       <div className="flex items-center text-sm text-gray-600">
                         <i className="ri-truck-line text-gray-900 mr-2"></i>
-                        <span>Delivers in 24 - 48 hours</span>
+                        <span>Estimated delivery shown at checkout</span>
                       </div>
                       <div className="flex items-center text-sm text-gray-600">
                         <i className="ri-customer-service-line text-gray-900 mr-2"></i>

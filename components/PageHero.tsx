@@ -8,7 +8,7 @@ interface PageHeroProps {
 
 export default function PageHero({ title, subtitle, image }: PageHeroProps) {
   return (
-    <div className="relative overflow-hidden bg-[#166d1f]">
+    <div className="relative overflow-hidden bg-[#2C1D00]">
       {image ? (
         <>
           <img
@@ -16,12 +16,12 @@ export default function PageHero({ title, subtitle, image }: PageHeroProps) {
             alt={title}
             className="absolute inset-0 h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-[#166d1f]/75" />
+          <div className="absolute inset-0 bg-black/60" />
         </>
       ) : (
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[#166d1f]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.08),transparent_45%),radial-gradient(circle_at_80%_15%,rgba(255,255,255,0.06),transparent_40%)]" />
+          <div className="absolute inset-0 bg-[#2C1D00]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(171,148,98,0.12),transparent_45%),radial-gradient(circle_at_80%_15%,rgba(171,148,98,0.08),transparent_40%)]" />
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
         </div>
       )}
@@ -31,7 +31,7 @@ export default function PageHero({ title, subtitle, image }: PageHeroProps) {
           {title}
         </h1>
         {subtitle && (
-          <p className="text-xl md:text-2xl text-[#e6f5e8] max-w-3xl mx-auto leading-relaxed animate-in slide-in-from-bottom-5 duration-700 delay-100">
+          <p className="text-xl md:text-2xl text-[#F3F3F3]/80 max-w-3xl mx-auto leading-relaxed animate-in slide-in-from-bottom-5 duration-700 delay-100">
             {subtitle}
           </p>
         )}

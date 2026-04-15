@@ -263,7 +263,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
     description: product.description,
     image: product.images[0],
     price: hasVariants ? minVariantPrice : product.price,
-    currency: 'GHS',
+    currency: 'NGN',
     sku: product.sku,
     rating: product.rating,
     reviewCount: product.reviewCount,
@@ -272,10 +272,10 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
   });
 
   const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: 'Home', url: 'https://frebysfashiongh.com' },
-    { name: 'Shop', url: 'https://frebysfashiongh.com/shop' },
-    { name: product.category, url: `https://frebysfashiongh.com/shop?category=${product.category.toLowerCase().replace(/\s+/g, '-')}` },
-    { name: product.name, url: `https://frebysfashiongh.com/product/${slug}` }
+    { name: 'Home', url: 'https://shopwithgg.com' },
+    { name: 'Shop', url: 'https://shopwithgg.com/shop' },
+    { name: product.category, url: `https://shopwithgg.com/shop?category=${product.category.toLowerCase().replace(/\s+/g, '-')}` },
+    { name: product.name, url: `https://shopwithgg.com/product/${slug}` }
   ]);
 
   return (
@@ -332,7 +332,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                         />
                       ) : null}
                       {discount > 0 && (
-                        <span className="absolute top-6 right-6 bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-full">
+                        <span className="absolute top-6 right-6 bg-[#9A1900] text-white text-sm font-semibold px-4 py-2 rounded-full">
                           Save {discount}%
                         </span>
                       )}
@@ -387,7 +387,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                     onClick={() => setIsWishlisted(!isWishlisted)}
                     className="w-12 h-12 flex items-center justify-center border-2 border-gray-200 hover:border-gray-900 rounded-full transition-colors cursor-pointer"
                   >
-                    <i className={`${isWishlisted ? 'ri-heart-fill text-red-600' : 'ri-heart-line text-gray-700'} text-xl`}></i>
+                    <i className={`${isWishlisted ? 'ri-heart-fill text-[#9A1900]' : 'ri-heart-line text-gray-700'} text-xl`}></i>
                   </button>
                 </div>
 
@@ -396,7 +396,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                     {[1, 2, 3, 4, 5].map((star) => (
                       <i
                         key={star}
-                        className={`${star <= Math.round(product.rating) ? 'ri-star-fill text-amber-400' : 'ri-star-line text-gray-300'} text-lg`}
+                        className={`${star <= Math.round(product.rating) ? 'ri-star-fill text-[#FFCC00]' : 'ri-star-line text-gray-300'} text-lg`}
                       ></i>
                     ))}
                   </div>
@@ -406,13 +406,13 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 <div className="flex items-baseline space-x-4 mb-6">
                   {hasVariants && !selectedVariant ? (
                     <span className="text-3xl lg:text-4xl font-bold text-gray-900">
-                      From GH₵{minVariantPrice.toFixed(2)}
+                      From ₦{minVariantPrice.toFixed(2)}
                     </span>
                   ) : (
-                    <span className="text-3xl lg:text-4xl font-bold text-gray-900">GH₵{activePrice.toFixed(2)}</span>
+                    <span className="text-3xl lg:text-4xl font-bold text-gray-900">₦{activePrice.toFixed(2)}</span>
                   )}
                   {product.compare_at_price && product.compare_at_price > activePrice && (
-                    <span className="text-xl text-gray-400 line-through">GH₵{product.compare_at_price.toFixed(2)}</span>
+                    <span className="text-xl text-gray-400 line-through">₦{product.compare_at_price.toFixed(2)}</span>
                   )}
                 </div>
 
@@ -431,7 +431,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                           </span>
                           {selectedColor
                             ? <span className="text-sm font-semibold text-gray-900">{selectedColor}</span>
-                            : <span className="text-xs text-red-500 font-medium animate-pulse">← Pick a color</span>
+                            : <span className="text-xs text-[#FF6666] font-medium animate-pulse">← Pick a color</span>
                           }
                         </div>
                         <div className="flex flex-wrap gap-2">
@@ -503,8 +503,8 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-xs font-bold uppercase tracking-widest text-gray-400">{stepLabel}Size / Type</span>
                             {selectedVariant
-                              ? <span className="text-sm font-semibold text-gray-900">GH₵{(selectedVariant.price || product.price).toFixed(2)}</span>
-                              : <span className="text-xs text-red-500 font-medium animate-pulse">← Pick a size</span>
+                              ? <span className="text-sm font-semibold text-gray-900">₦{(selectedVariant.price || product.price).toFixed(2)}</span>
+                              : <span className="text-xs text-[#FF6666] font-medium animate-pulse">← Pick a size</span>
                             }
                           </div>
 
@@ -531,7 +531,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                                       <span className="w-full aspect-square bg-gray-100 flex items-center justify-center text-xs text-gray-500 font-medium px-1 text-center">{variant.name}</span>
                                     )}
                                     <span className={`block text-center text-[11px] font-semibold py-1 px-1 truncate ${isSelected ? 'bg-gray-900 text-white' : 'bg-white text-gray-600'}`}>
-                                      GH₵{(variant.price || product.price).toFixed(2)}
+                                      ₦{(variant.price || product.price).toFixed(2)}
                                     </span>
                                     {isSelected && (
                                       <span className="absolute top-1 right-1 w-5 h-5 bg-gray-900 rounded-full flex items-center justify-center">
@@ -564,7 +564,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                                   >
                                     <span>{variant.name}</span>
                                     <span className={`block text-[11px] mt-0.5 ${isSelected ? 'text-gray-300' : 'text-gray-400'}`}>
-                                      GH₵{(variant.price || product.price).toFixed(2)}
+                                      ₦{(variant.price || product.price).toFixed(2)}
                                     </span>
                                   </button>
                                 );
@@ -615,12 +615,12 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                         </span>
                       )}
                       {activeStock > 0 ? (
-                        <span className="text-green-600 font-medium text-sm">
+                        <span className="text-[#AB9462] font-medium text-sm">
                           <i className="ri-checkbox-circle-line mr-1"></i>
                           In Stock
                         </span>
                       ) : (
-                        <span className="text-red-600 font-medium">
+                        <span className="text-[#9A1900] font-medium">
                           <i className="ri-close-circle-line mr-1"></i>
                           Out of Stock
                         </span>

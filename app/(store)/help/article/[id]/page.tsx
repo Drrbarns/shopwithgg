@@ -85,7 +85,7 @@ const articles: any = {
       <h2>Delivery &amp; Support</h2>
       <ul>
         <li>Delivers within 24 - 48 hours nationwide</li>
-        <li>Pickup available at our Haatso, Accra location</li>
+        <li>Pickup available at our Lagos location</li>
         <li>Contact us for any issues with your order</li>
         <li>Exchange or replacement for defective items</li>
       </ul>
@@ -196,8 +196,8 @@ export default function ArticlePage() {
                   </>
                 ) : (
                   <>
-                    <div className="w-16 h-16 flex items-center justify-center bg-blue-100 rounded-full mx-auto mb-4">
-                      <i className="ri-customer-service-line text-3xl text-blue-700"></i>
+                    <div className="w-16 h-16 flex items-center justify-center bg-[#AB9462]/10 rounded-full mx-auto mb-4">
+                      <i className="ri-customer-service-line text-3xl text-[#AB9462]"></i>
                     </div>
                     <p className="text-lg font-semibold text-gray-900 mb-2">
                       Sorry we couldn't help
@@ -207,7 +207,7 @@ export default function ArticlePage() {
                     </p>
                     <Link
                       href="/support/ticket"
-                      className="inline-block bg-blue-700 hover:bg-blue-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors whitespace-nowrap"
+                      className="inline-block bg-[#2C1D00] hover:bg-[#2C1D00]/90 text-white px-6 py-3 rounded-lg font-semibold transition-colors whitespace-nowrap"
                     >
                       Contact Support
                     </Link>

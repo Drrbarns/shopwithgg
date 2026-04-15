@@ -135,8 +135,8 @@ export default function MobileFilterDrawer({ isOpen, onClose }: MobileFilterDraw
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-gray-900"
               />
               <div className="flex items-center justify-between text-sm text-gray-700">
-                <span>GH₵{priceRange[0]}</span>
-                <span>GH₵{priceRange[1]}</span>
+                <span>₦{priceRange[0]}</span>
+                <span>₦{priceRange[1]}</span>
               </div>
             </div>
           </div>
@@ -199,7 +199,7 @@ export default function MobileFilterDrawer({ isOpen, onClose }: MobileFilterDraw
                   <div className="flex items-center space-x-1">
                     {[...Array(5)].map((_, i) => (
                       <div key={i} className="w-4 h-4 flex items-center justify-center">
-                        <i className={`${i < rating ? 'ri-star-fill text-yellow-400' : 'ri-star-line text-gray-300'} text-sm`}></i>
+                        <i className={`${i < rating ? 'ri-star-fill text-[#FFCC00]' : 'ri-star-line text-gray-300'} text-sm`}></i>
                       </div>
                     ))}
                     <span className="text-sm text-gray-600 ml-1">& Up</span>

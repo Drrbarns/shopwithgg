@@ -98,7 +98,7 @@ function OrderSuccessContent() {
     return (
       <main className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <i className="ri-error-warning-line text-4xl text-red-500 mb-4 block"></i>
+          <i className="ri-error-warning-line text-4xl text-[#FF6666] mb-4 block"></i>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Order Not Found</h1>
           <p className="text-gray-600 mb-6">We couldn't locate the order details.</p>
           <Link href="/shop" className="text-gray-900 font-semibold hover:underline">
@@ -114,7 +114,7 @@ function OrderSuccessContent() {
   const pointsEarned = Math.floor(order.total / 10); // Example logic: 1 point per 10 currency units
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-[#F3F3F3]">
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
           {[...Array(50)].map((_, i) => (
@@ -128,7 +128,7 @@ function OrderSuccessContent() {
                 animationDuration: `${3 + Math.random() * 2}s`
               }}
             >
-              <i className={`ri-${['heart', 'star', 'gift'][Math.floor(Math.random() * 3)]}-fill text-${['gray', 'amber', 'blue'][Math.floor(Math.random() * 3)]}-500 text-xl opacity-70`}></i>
+              <i className={`ri-${['heart', 'star', 'gift'][Math.floor(Math.random() * 3)]}-fill ${['text-gray-500', 'text-[#FFCC00]', 'text-[#AB9462]'][Math.floor(Math.random() * 3)]} text-xl opacity-70`}></i>
             </div>
           ))}
         </div>
@@ -180,10 +180,10 @@ function OrderSuccessContent() {
               </Link>
             </div>
 
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 border-2 border-amber-200">
+            <div className="bg-gradient-to-r from-[#FFFFCC]/50 to-[#F3F3F3] rounded-xl p-6 border-2 border-[#FFCC00]/30">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 flex items-center justify-center bg-amber-500 rounded-full">
+                  <div className="w-12 h-12 flex items-center justify-center bg-[#FFCC00] rounded-full">
                     <i className="ri-star-fill text-white text-2xl"></i>
                   </div>
                   <div className="text-left">
@@ -193,7 +193,7 @@ function OrderSuccessContent() {
                 </div>
                 <Link
                   href="/register"
-                  className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors whitespace-nowrap"
+                  className="bg-[#FFCC00] hover:bg-[#AB9462] text-white px-6 py-3 rounded-lg font-semibold transition-colors whitespace-nowrap"
                 >
                   Join Now
                 </Link>
@@ -221,28 +221,28 @@ function OrderSuccessContent() {
                         <p className="text-xs text-gray-500">{item.variant_name}</p>
                       )}
                       {item.metadata?.preorder_shipping && (
-                        <p className="text-xs text-amber-700 bg-amber-50 inline-flex items-center gap-1 px-2 py-0.5 rounded mt-1 border border-amber-200">
+                        <p className="text-xs text-[#996633] bg-[#FFFFCC]/50 inline-flex items-center gap-1 px-2 py-0.5 rounded mt-1 border border-[#FFCC00]/30">
                           <i className="ri-time-line"></i> {item.metadata.preorder_shipping}
                         </p>
                       )}
                     </div>
-                    <p className="font-bold text-gray-900">GH₵{item.unit_price.toFixed(2)}</p>
+                    <p className="font-bold text-gray-900">₦{item.unit_price.toFixed(2)}</p>
                   </div>
                 ))}
               </div>
               <div className="border-t border-gray-200 mt-4 pt-4">
                 <div className="flex justify-between text-sm text-gray-600 mb-2">
                   <span>Subtotal</span>
-                  <span>GH₵{order.subtotal.toFixed(2)}</span>
+                  <span>₦{order.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-600 mb-2">
                   <span>Shipping</span>
-                  <span>GH₵{order.shipping_total.toFixed(2)}</span>
+                  <span>₦{order.shipping_total.toFixed(2)}</span>
                 </div>
 
                 <div className="flex justify-between text-xl font-bold text-gray-900 border-t border-gray-200 pt-2">
                   <span>Total Paid</span>
-                  <span>GH₵{order.total.toFixed(2)}</span>
+                  <span>₦{order.total.toFixed(2)}</span>
                 </div>
               </div>
             </div>

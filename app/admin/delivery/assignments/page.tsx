@@ -225,7 +225,7 @@ export default function AssignmentsPage() {
                                         <div className="text-xs text-gray-500 space-y-1">
                                             <p><i className="ri-map-pin-line mr-1" />{order.shipping_address?.city || 'N/A'}, {order.shipping_address?.region || ''}</p>
                                             <p><i className="ri-phone-line mr-1" />{order.phone || order.email}</p>
-                                            <p><i className="ri-money-cny-circle-line mr-1" />GH₵ {order.total?.toFixed(2)}</p>
+                                            <p><i className="ri-money-cny-circle-line mr-1" />₦ {order.total?.toFixed(2)}</p>
                                         </div>
                                         <button onClick={() => openAssignModal(order)}
                                             className="mt-2 w-full py-2 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors">
@@ -312,7 +312,7 @@ export default function AssignmentsPage() {
                                                     </span>
                                                 </td>
                                                 <td className="px-5 py-3 text-sm text-gray-700 hidden lg:table-cell">
-                                                    GH₵ {a.delivery_fee?.toFixed(2)}
+                                                    ₦ {a.delivery_fee?.toFixed(2)}
                                                 </td>
                                                 <td className="px-5 py-3 text-xs text-gray-500 hidden sm:table-cell">
                                                     {new Date(a.assigned_at).toLocaleDateString()}
@@ -370,7 +370,7 @@ export default function AssignmentsPage() {
                                 <div className="mt-2 text-xs text-gray-600 space-y-1">
                                     <p><i className="ri-map-pin-line mr-1" />{selectedOrder.shipping_address?.street_address || ''}, {selectedOrder.shipping_address?.city || ''}, {selectedOrder.shipping_address?.region || ''}</p>
                                     <p><i className="ri-phone-line mr-1" />{selectedOrder.phone || selectedOrder.email}</p>
-                                    <p><i className="ri-money-cny-circle-line mr-1" />Order Total: GH₵ {selectedOrder.total?.toFixed(2)}</p>
+                                    <p><i className="ri-money-cny-circle-line mr-1" />Order Total: ₦ {selectedOrder.total?.toFixed(2)}</p>
                                 </div>
                             </div>
 
@@ -400,7 +400,7 @@ export default function AssignmentsPage() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-900 mb-2">Delivery Fee (GH₵)</label>
+                                    <label className="block text-sm font-semibold text-gray-900 mb-2">Delivery Fee (₦)</label>
                                     <input type="number" step="0.01" value={assignForm.delivery_fee}
                                         onChange={e => setAssignForm(f => ({ ...f, delivery_fee: e.target.value }))}
                                         className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-600"

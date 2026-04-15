@@ -218,7 +218,7 @@ export default function SupportTicketPage() {
                     </div>
                   </label>
                   <label className={`flex-1 p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    formData.priority === 'normal' ? 'border-blue-700 bg-blue-50' : 'border-gray-300'
+                    formData.priority === 'normal' ? 'border-[#AB9462] bg-[#AB9462]/5' : 'border-gray-300'
                   }`}>
                     <input
                       type="radio"
@@ -233,7 +233,7 @@ export default function SupportTicketPage() {
                     </div>
                   </label>
                   <label className={`flex-1 p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    formData.priority === 'high' ? 'border-red-700 bg-red-50' : 'border-gray-300'
+                    formData.priority === 'high' ? 'border-[#9A1900] bg-[#FFCCCC]/50' : 'border-gray-300'
                   }`}>
                     <input
                       type="radio"
@@ -345,13 +345,13 @@ export default function SupportTicketPage() {
             </form>
           </div>
 
-          <div className="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
+          <div className="mt-8 bg-[#AB9462]/5 border border-[#AB9462]/20 rounded-xl p-6">
             <div className="flex items-start space-x-3">
-              <i className="ri-information-line text-2xl text-blue-700 mt-0.5"></i>
+              <i className="ri-information-line text-2xl text-[#AB9462] mt-0.5"></i>
               <div>
-                <p className="font-semibold text-blue-900 mb-2">Before submitting a ticket</p>
-                <ul className="text-sm text-blue-700 space-y-1">
-                  <li>• Check our <Link href="/help" className="underline hover:text-blue-900">Help Center</Link> for quick answers</li>
+                <p className="font-semibold text-[#2C1D00] mb-2">Before submitting a ticket</p>
+                <ul className="text-sm text-[#AB9462] space-y-1">
+                  <li>• Check our <Link href="/help" className="underline hover:text-[#2C1D00]">Help Center</Link> for quick answers</li>
                   <li>• Average response time: 24 hours</li>
                   <li>• Include your order number for faster assistance</li>
                   <li>• Attach photos if reporting a product issue</li>

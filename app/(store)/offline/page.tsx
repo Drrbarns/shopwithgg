@@ -52,14 +52,14 @@ export default function OfflinePage() {
               <div className="relative">
                 <i className="ri-wifi-off-line text-5xl text-gray-700" />
                 {/* Animated dots */}
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#FFCC00] rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
               </div>
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <h1 className="font-serif text-3xl font-bold text-gray-900 mb-3">
+        <h1 className="text-3xl font-bold text-gray-900 mb-3">
           You&apos;re Offline
         </h1>
         <p className="text-gray-500 mb-8 leading-relaxed">
@@ -99,7 +99,7 @@ export default function OfflinePage() {
         {/* Tips */}
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <h3 className="font-semibold text-gray-900 text-sm mb-3 flex items-center gap-2 justify-center">
-            <i className="ri-lightbulb-line text-amber-500" />
+            <i className="ri-lightbulb-line text-[#FFCC00]" />
             While offline you can:
           </h3>
           <div className="grid grid-cols-2 gap-3">
@@ -122,7 +122,7 @@ export default function OfflinePage() {
 
         {/* Status indicator */}
         <div className="mt-6 flex items-center justify-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-gray-600' : 'bg-red-400'} ${!isOnline && 'animate-pulse'}`} />
+          <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-gray-600' : 'bg-[#FF6666]'} ${!isOnline && 'animate-pulse'}`} />
           <span className="text-xs text-gray-400 font-medium">
             {isOnline ? 'Connected' : 'No connection'}
           </span>

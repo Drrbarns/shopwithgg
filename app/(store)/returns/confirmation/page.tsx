@@ -23,9 +23,9 @@ export default function ReturnConfirmationPage() {
               Return ID: <span className="font-semibold">{returnId}</span>
             </p>
 
-            <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-xl text-left">
+            <div className="mb-8 p-6 bg-[#AB9462]/5 border border-[#AB9462]/20 rounded-xl text-left">
               <h2 className="font-bold text-gray-900 mb-4 flex items-center">
-                <i className="ri-mail-line text-2xl text-blue-700 mr-2"></i>
+                <i className="ri-mail-line text-2xl text-[#AB9462] mr-2"></i>
                 Check Your Email
               </h2>
               <p className="text-sm text-gray-700 mb-3">
@@ -118,12 +118,12 @@ export default function ReturnConfirmationPage() {
             </div>
           </div>
 
-          <div className="mt-8 bg-amber-50 border border-amber-200 rounded-xl p-6">
+          <div className="mt-8 bg-[#FFFFCC] border border-[#AB9462]/30 rounded-xl p-6">
             <div className="flex items-start space-x-3">
-              <i className="ri-alert-line text-2xl text-amber-700 mt-0.5"></i>
+              <i className="ri-alert-line text-2xl text-[#996633] mt-0.5"></i>
               <div>
-                <p className="font-semibold text-amber-900 mb-2">Important Reminders</p>
-                <ul className="text-sm text-amber-800 space-y-1">
+                <p className="font-semibold text-[#2C1D00] mb-2">Important Reminders</p>
+                <ul className="text-sm text-[#996633] space-y-1">
                   <li>• Return must be shipped within 7 days</li>
                   <li>• Items must be unused with original tags</li>
                   <li>• Keep your tracking number for reference</li>

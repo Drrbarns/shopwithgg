@@ -78,8 +78,8 @@ export default function AdminLoginPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
             <img
-              src="/frebys-logo.png"
-              alt="Frebys Fashion GH"
+              src="/shopwithgg-logo.png"
+              alt="ShopWithGG"
               className="h-16 sm:h-20 w-auto object-contain mx-auto"
             />
           </Link>
@@ -110,7 +110,7 @@ export default function AdminLoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
-                  placeholder="admin@frebysfashiongh.com"
+                  placeholder="admin@shopwithgg.com"
                   required
                 />
               </div>

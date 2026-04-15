@@ -5,48 +5,48 @@ export default function ShippingPage() {
     {
       type: 'Standard Delivery',
       time: '2-5 Business Days',
-      cost: 'GHS 20',
+      cost: 'NGN 20',
       description: 'Perfect for regular orders with no rush',
       icon: 'ri-truck-line'
     },
     {
       type: 'Express Delivery',
       time: 'Next Day',
-      cost: 'GHS 40',
-      description: 'Available for Accra & Kumasi orders placed before 2pm',
+      cost: 'NGN 40',
+      description: 'Available for Lagos & Abuja orders placed before 2pm',
       icon: 'ri-rocket-line'
     },
     {
       type: 'Store Pickup',
       time: 'Same Day',
       cost: 'FREE',
-      description: 'Collect from our East Legon store',
+      description: 'Collect from our Lagos store',
       icon: 'ri-store-2-line'
     }
   ];
 
   const zones = [
     {
-      zone: 'Zone 1 - Accra Metro',
-      areas: 'East Legon, Osu, Labone, Airport, Dzorwulu, Cantonments, Adabraka, Tema',
+      zone: 'Zone 1 - Lagos Metro',
+      areas: 'Victoria Island, Ikoyi, Lekki Phase 1, Surulere, Yaba, Ikeja GRA, Apapa',
       standard: '1-2 days',
       express: 'Next day'
     },
     {
-      zone: 'Zone 2 - Greater Accra',
-      areas: 'Madina, Legon, Haatso, Achimota, Dansoman, Spintex, Teshie, Kasoa',
+      zone: 'Zone 2 - Greater Lagos',
+      areas: 'Ikeja, Maryland, Magodo, Gbagada, Festac, Ajah, Sangotedo, Badagry corridor',
       standard: '2-3 days',
       express: 'Next day'
     },
     {
       zone: 'Zone 3 - Major Cities',
-      areas: 'Kumasi, Takoradi, Cape Coast, Tamale, Sunyani, Ho, Koforidua',
+      areas: 'Abuja, Port Harcourt, Kano, Ibadan, Enugu, Benin City, Calabar, Kaduna',
       standard: '3-4 days',
       express: '1-2 days'
     },
     {
       zone: 'Zone 4 - Other Areas',
-      areas: 'All other locations within Ghana',
+      areas: 'All other locations within Nigeria',
       standard: '4-5 days',
       express: 'Not available'
     }
@@ -54,12 +54,12 @@ export default function ShippingPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="bg-gradient-to-br from-gray-100 via-white to-amber-50 py-16">
+      <div className="bg-gradient-to-br from-gray-100 via-white to-[#FFFFCC]/40 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-5xl font-bold text-gray-900 mb-6">Shipping & Delivery</h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Fast, reliable delivery across Ghana. Free standard shipping on orders over GHS 300.
+              Fast, reliable delivery across Nigeria. Free standard shipping on orders over NGN 300.
             </p>
           </div>
         </div>
@@ -89,7 +89,7 @@ export default function ShippingPage() {
           </div>
           <h3 className="text-2xl font-bold text-gray-900 mb-3">Free Standard Shipping</h3>
           <p className="text-lg text-gray-600">
-            Spend GHS 300 or more and get <span className="font-bold text-gray-900">FREE standard delivery</span> anywhere in Ghana
+            Spend NGN 300 or more and get <span className="font-bold text-gray-900">FREE standard delivery</span> anywhere in Nigeria
           </p>
         </div>
 
@@ -238,20 +238,20 @@ export default function ShippingPage() {
           </p>
           <div className="grid md:grid-cols-4 gap-6">
             <div className="text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <i className="ri-checkbox-circle-line text-2xl text-blue-700"></i>
+              <div className="w-12 h-12 bg-[#AB9462]/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                <i className="ri-checkbox-circle-line text-2xl text-[#AB9462]"></i>
               </div>
               <p className="font-medium text-gray-900">Order Confirmed</p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <i className="ri-package-line text-2xl text-amber-700"></i>
+              <div className="w-12 h-12 bg-[#FFFFCC] rounded-full flex items-center justify-center mx-auto mb-3">
+                <i className="ri-package-line text-2xl text-[#996633]"></i>
               </div>
               <p className="font-medium text-gray-900">Processing</p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <i className="ri-truck-line text-2xl text-purple-700"></i>
+              <div className="w-12 h-12 bg-[#AB9462]/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                <i className="ri-truck-line text-2xl text-[#AB9462]"></i>
               </div>
               <p className="font-medium text-gray-900">Out for Delivery</p>
             </div>

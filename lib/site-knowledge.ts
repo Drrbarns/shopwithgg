@@ -14,48 +14,53 @@ export interface SiteKnowledgeEntry {
 export const SITE_KNOWLEDGE: SiteKnowledgeEntry[] = [
   {
     id: "business-overview",
-    title: "About Frebys Fashion GH",
+    title: "About ShopWithGG",
     path: "/about",
     category: "company",
-    content: `Frebys Fashion GH is a kids ready-to-wear Ankara clothing brand.
+    content: `ShopWithGG is a premium global sourcing and procurement brand. We leverage a network of carefully vetted international suppliers and manufacturers to bring you high-quality, functional products at direct-from-supplier pricing.
 
-We create unique kids wear for all occasions with both casual and luxury options.
+We simplify the sourcing process by handling product selection support, supplier coordination and logistics through a preorder-based fulfillment system — so you can shop confidently without stress, uncertainty or inflated costs.
 
-Location: Haatso, Accra, Ghana.
+Whether you're buying for personal use, resale or business growth, ShopWithGG exists to make smart sourcing seamless, reliable and accessible.
+
+Vision: To make luxury, quality and functionality easily accessible, without breaking the bank.
+Mission: To become a globally trusted, personalized sourcing and shopping partner, delivering carefully curated international products, expert guidance and dependable logistics; one order at a time.
+
 Delivery: Worldwide delivery.`,
-    keywords: ["frebys", "kids wear", "ankara", "about", "fashion", "ghana", "haatso", "accra"],
+    keywords: ["shopwithgg", "global sourcing", "procurement", "international suppliers", "premium products", "preorder", "about", "supplier", "logistics"],
   },
   {
     id: "contact-info",
     title: "Contact Information",
     path: "/contact",
     category: "contact",
-    content: `Contact Frebys Fashion GH:
+    content: `Contact ShopWithGG:
 
-Phone/WhatsApp: 024 472 0197
-Email: hello@frebysfashiongh.com
-Address: Haatso, Accra, Ghana
-Support Hours: Monday to Saturday, 8 AM - 8 PM GMT`,
-    keywords: ["contact", "phone", "whatsapp", "email", "address", "support", "0244720197", "haatso"],
+Phone/WhatsApp: 08071363567
+Email: hello@shopwithgg.com
+Instagram: @_shopwithgg_
+Address: Lagos, Nigeria
+Support Hours: Monday to Saturday, 9 AM - 6 PM WAT`,
+    keywords: ["contact", "phone", "whatsapp", "email", "address", "support", "08071363567", "lagos", "nigeria", "instagram", "shopwithgg", "_shopwithgg_"],
   },
   {
     id: "shipping-policy",
     title: "Shipping & Delivery Policy",
     path: "/shipping",
     category: "shipping",
-    content: `Frebys Fashion GH ships from Haatso, Accra, Ghana and offers worldwide delivery.
+    content: `ShopWithGG ships from Lagos, Nigeria and offers worldwide delivery.
 
 Shipping fees and delivery timelines depend on destination and are shown at checkout.
 
 Customers receive order updates and can track orders using order number and email.`,
-    keywords: ["shipping", "delivery", "worldwide", "international", "timeline", "tracking"],
+    keywords: ["shipping", "delivery", "worldwide", "international", "timeline", "tracking", "lagos", "nigeria", "shopwithgg"],
   },
   {
     id: "returns-policy",
     title: "Returns & Refunds Policy",
     path: "/returns",
     category: "returns",
-    content: `Returns are accepted for eligible unworn items in original condition within 30 days of delivery.
+    content: `Returns are accepted for eligible unused items in original condition within 30 days of delivery.
 
 Custom or altered items may not be returnable unless there is a quality issue.
 
@@ -70,8 +75,8 @@ Refunds are processed after item inspection.`,
     content: `Secure payment options are available at checkout.
 
 Mobile Money is supported for eligible local orders.
-All prices are shown in GH₵ unless otherwise stated.`,
-    keywords: ["payment", "momo", "checkout", "secure", "ghs", "cedi"],
+All prices are shown in ₦ (NGN) unless otherwise stated.`,
+    keywords: ["payment", "momo", "checkout", "secure", "ngn", "naira", "nigeria"],
   },
   {
     id: "order-tracking-guide",
@@ -101,7 +106,7 @@ Customers can contact support via WhatsApp, email, or support ticket for unresol
     category: "legal",
     content: `Privacy Policy and Terms explain data handling, order conditions, returns, and user responsibilities.
 
-For legal questions, contact hello@frebysfashiongh.com.`,
+For legal questions, contact hello@shopwithgg.com.`,
     keywords: ["privacy", "terms", "legal", "data", "policy"],
   },
   {
@@ -110,7 +115,7 @@ For legal questions, contact hello@frebysfashiongh.com.`,
     path: "/checkout",
     category: "shopping",
     content: `Checkout steps:
-1. Add kids wear items to cart
+1. Add products to cart
 2. Enter shipping details
 3. Choose delivery method
 4. Complete payment
@@ -184,11 +189,11 @@ export function getSiteMapSummary(): string {
 - /returns — Start a return request (30-day policy)
 - /account — Profile, order history, addresses, security settings
 - /wishlist — Saved products
-- /about — Frebys Fashion GH story and mission
+- /about — ShopWithGG story and mission
 - /contact — Phone numbers, email, WhatsApp, visit info
 - /faqs — 25+ frequently asked questions
 - /help — Help center with 50+ articles across 6 categories
-- /blog — Shopping tips, product guides, and trends
+- /blog — Shopping tips, product guides, and sourcing insights
 - /shipping — Detailed shipping & delivery policy
 - /privacy — Privacy policy
 - /terms — Terms & conditions

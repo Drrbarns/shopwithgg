@@ -239,7 +239,7 @@ const LLM_TOOLS = [
     type: 'function' as const,
     function: {
       name: 'get_website_info',
-      description: 'Search the website\'s pages and content for information. Use this to answer ANY question about the business, policies, how things work, FAQs, contact info, shipping, returns, payment methods, account management, checkout process, blog content, or anything else about Frebys Fashion GH. This searches all public pages of the website. ALWAYS use this tool when a customer asks about the business, policies, processes, or anything non-product related.',
+      description: 'Search the website\'s pages and content for information. Use this to answer ANY question about the business, policies, how things work, FAQs, contact info, shipping, returns, payment methods, account management, checkout process, blog content, or anything else about ShopWithGG. This searches all public pages of the website. ALWAYS use this tool when a customer asks about the business, policies, processes, or anything non-product related.',
       parameters: {
         type: 'object',
         properties: {
@@ -286,12 +286,12 @@ const LLM_TOOLS = [
           delivery_method: {
             type: 'string',
             enum: ['standard', 'express', 'pickup'],
-            description: 'Delivery method. Standard: GH₵20, Express: GH₵40, Pickup: Free',
+            description: 'Delivery method. Standard: ₦3,000, Express: ₦6,000, Pickup: Free',
           },
           payment_method: {
             type: 'string',
             enum: ['moolre', 'cod'],
-            description: 'Payment method. moolre = Mobile Money, cod = Cash on Delivery (Accra only)',
+            description: 'Payment method. moolre = online payment (card or bank transfer), cod = Cash on Delivery (Lagos only)',
           },
         },
         required: ['items', 'shipping', 'delivery_method', 'payment_method'],
@@ -305,7 +305,7 @@ const LLM_TOOLS = [
 function buildSystemPrompt(profile: ChatCustomerProfile | null, pagePath?: string): string {
   const now = new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-  let prompt = `You are the AI shopping assistant for Frebys Fashion GH — a kids ready-to-wear Ankara clothing brand. We create unique kids wear for all occasions, offering both casual and luxury styles. We are located in Haatso, Accra, Ghana and deliver worldwide. Today is ${now}.
+  let prompt = `You are the AI shopping assistant for ShopWithGG — a premium global sourcing and procurement brand. We leverage a network of carefully vetted international suppliers and manufacturers to bring customers high-quality, functional products at direct-from-supplier pricing. We simplify the sourcing process through product selection support, supplier coordination, and seamless logistics — so customers can shop confidently. We operate a preorder-based fulfillment system and deliver worldwide. Today is ${now}.
 
 ABSOLUTE RULES — NEVER BREAK THESE:
 - NEVER show your internal reasoning, thinking steps, chain-of-thought, or planning process. NEVER output anything like "Step 1:", "## Step", "Let me think", or similar. Only output the final customer-facing response.
@@ -314,7 +314,7 @@ ABSOLUTE RULES — NEVER BREAK THESE:
 
 CORE BEHAVIORS:
 - Be warm, helpful, and concise. Use a friendly but professional tone.
-- Always quote prices in GH₵ (Ghana Cedis).
+- Always quote prices in ₦ (NGN, Nigerian Naira).
 - When mentioning products, include the exact name and price.
 - If a product is out of stock, say so and proactively suggest alternatives using get_recommendations.
 - For order tracking, always ask for both order number AND email if not provided.
@@ -345,8 +345,8 @@ WHEN CREATING SUPPORT TICKETS:
 STORE POLICIES (quick reference):
 - Delivery: Local and worldwide delivery available (timing depends on destination)
 - Returns: Within 30 days of delivery, unused items in original packaging
-- Payment: Mobile Money (MTN, Vodafone, AirtelTigo), Cash on Delivery (Accra only)
-- Support hours: Mon-Sat, 8 AM - 8 PM GMT
+- Payment: bank transfer, card payment, Cash on Delivery (Lagos only)
+- Support hours: Mon-Sat, 9 AM - 6 PM WAT
 
 CAPABILITIES (what you CAN do):
 - Search and recommend products
@@ -372,15 +372,15 @@ You can help customers place orders directly in this chat. Here is how:
    - Phone number
    - Delivery address, city, and region
 3. Ask them to choose a delivery method:
-   - **Standard** — GH₵20 (1-3 business days in Accra, 3-7 days outside)
-   - **Express** — GH₵40 (same-day/next-day in Accra)
+   - **Standard** — ₦3,000 (1-3 business days in Lagos, 3-7 days outside)
+   - **Express** — ₦6,000 (same-day/next-day in Lagos)
    - **Pickup** — Free (collect from our location)
 4. Ask them to choose a payment method:
-   - **Mobile Money** (MTN, Vodafone, AirtelTigo via Moolre) — default
-   - **Cash on Delivery** — Accra only
+   - **Online payment** (card or bank transfer via checkout) — default
+   - **Cash on Delivery** — Lagos only
 5. Summarize the order (items, subtotal, delivery fee, total) and ask the customer to confirm.
 6. Once confirmed, call the create_order tool with the cart items (product IDs and quantities from the cart context), shipping info, delivery method, and payment method.
-7. The tool will return a payment link (for Mobile Money) — present it to the customer. For COD, just confirm the order is placed.
+7. The tool will return a payment link (for online payment) — present it to the customer. For COD, just confirm the order is placed.
 IMPORTANT: Do NOT ask the customer to list their cart items — you already have them. Just reference what is in their cart and proceed. If the cart is empty, tell them to add products first.
 
 LIMITATIONS (what you CANNOT do directly):
@@ -393,7 +393,7 @@ LIMITATIONS (what you CANNOT do directly):
 WHEN YOU CANNOT HELP OR ANSWER A QUESTION:
 If you genuinely cannot answer a question or resolve an issue (whether it's beyond your capabilities, the customer is frustrated, or anything else), you MUST do TWO things:
 1. AUTOMATICALLY create a support ticket using the create_support_ticket tool — don't just offer to, actually do it. Use whatever info the customer already provided (email, name, issue details).
-2. ALWAYS provide the customer with direct contact information for faster help. Share: Phone/WhatsApp 024 472 0197, email hello@frebysfashiongh.com, or visit Haatso, Accra, Ghana. Say something like: "I've created a support ticket for you. For a faster response, you can also reach us at 024 472 0197 (call or WhatsApp) or hello@frebysfashiongh.com."
+2. ALWAYS provide the customer with direct contact information for faster help. Share: Phone/WhatsApp 080 7136 3567 (https://wa.me/2348071363567), email hello@shopwithgg.com, Instagram @_shopwithgg_, or visit Lagos, Nigeria. Say something like: "I've created a support ticket for you. For a faster response, you can also reach us at 080 7136 3567 (call or WhatsApp) or hello@shopwithgg.com."
 Never leave a customer stuck without a path forward.
 
 ${getSiteMapSummary()}`;
@@ -403,7 +403,7 @@ ${getSiteMapSummary()}`;
 - Name: ${profile.name}
 - Email: ${profile.email}
 - Total orders: ${profile.total_orders}
-- Total spent: GH₵${profile.total_spent.toFixed(2)}
+- Total spent: ₦${profile.total_spent.toFixed(2)}
 - Last order: ${profile.last_order_at ? new Date(profile.last_order_at).toLocaleDateString('en-GB') : 'N/A'}
 Address the customer by their first name. You can access their orders and profile directly.`;
   } else {
@@ -797,7 +797,7 @@ async function handleWithoutAI(supabase: any, userText: string, profile: ChatCus
   }
 
   return {
-    message: "I'm not quite sure what you're looking for. I can help with:\n- Finding and buying products\n- Tracking orders\n- Checking coupons\n- Store policies and info\n- Creating support tickets\n\nFor immediate assistance, call or WhatsApp 024 472 0197 or email hello@frebysfashiongh.com.",
+    message: "I'm not quite sure what you're looking for. I can help with:\n- Finding and buying products\n- Tracking orders\n- Checking coupons\n- Store policies and info\n- Creating support tickets\n\nFor immediate assistance, call or WhatsApp 080 7136 3567 or email hello@shopwithgg.com.",
     quickReplies: ['Find a product', 'Track my order', 'What do you recommend?', 'Call us'],
   };
 }
@@ -836,9 +836,9 @@ async function handleWithAI(
   // Inject cart context so AI knows what the customer wants to buy
   if (cartItems && cartItems.length > 0) {
     const cartTotal = cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
-    systemPrompt += `\n\nCUSTOMER'S CURRENT CART (${cartItems.length} item${cartItems.length > 1 ? 's' : ''}, subtotal GH₵${cartTotal.toFixed(2)}):`;
+    systemPrompt += `\n\nCUSTOMER'S CURRENT CART (${cartItems.length} item${cartItems.length > 1 ? 's' : ''}, subtotal ₦${cartTotal.toFixed(2)}):`;
     for (const item of cartItems) {
-      systemPrompt += `\n- ${item.name} × ${item.quantity} = GH₵${(item.price * item.quantity).toFixed(2)} (ID: ${item.id})`;
+      systemPrompt += `\n- ${item.name} × ${item.quantity} = ₦${(item.price * item.quantity).toFixed(2)} (ID: ${item.id})`;
     }
     systemPrompt += `\nWhen the customer wants to checkout, use these product IDs and quantities for the create_order tool.`;
   }
@@ -955,7 +955,7 @@ async function handleWithAI(
       } else if (couponCard) {
         assistantContent = `Here's the coupon information:`;
       } else {
-        assistantContent = `I'm sorry, I wasn't able to process that properly. You can try rephrasing your request, or for immediate help reach us at 024 472 0197 (call or WhatsApp) or hello@frebysfashiongh.com. Our team is available Mon-Sat, 8am-8pm GMT.`;
+        assistantContent = `I'm sorry, I wasn't able to process that properly. You can try rephrasing your request, or for immediate help reach us at 080 7136 3567 (call or WhatsApp) or hello@shopwithgg.com. Our team is available Mon-Sat, 9am-6pm WAT.`;
       }
     }
 
@@ -1181,7 +1181,7 @@ async function executeToolCall(
           type: 'payment_link',
           paymentUrl: orderResult.paymentUrl,
           orderNumber: orderResult.orderNumber,
-          label: `Pay GH₵${orderResult.total?.toFixed(2)} Now`,
+          label: `Pay ₦${orderResult.total?.toFixed(2)} Now`,
         };
       }
 

@@ -17,7 +17,10 @@ export async function POST(request: Request) {
 
     // Clean text for natural speech
     let cleaned = text
-      .replace(/GH₵/g, 'Ghana Cedis ')
+      .replace(/₦/g, 'Naira ')
+      .replace(/GH₵/g, 'Naira ')
+      .replace(/\bGHS\b/gi, 'Naira ')
+      .replace(/\bNGN\b/gi, 'Naira ')
       .replace(/\*\*/g, '')
       .replace(/\*/g, '')
       .replace(/#{1,6}\s?/g, '')

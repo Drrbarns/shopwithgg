@@ -72,13 +72,13 @@ export default function OrderHistory() {
       case 'delivered':
         return 'bg-gray-100 text-gray-700';
       case 'dispatched_to_rider':
-        return 'bg-indigo-100 text-indigo-700';
+        return 'bg-[#AB9462]/10 text-[#AB9462]';
       case 'shipped':
-        return 'bg-blue-100 text-blue-700';
+        return 'bg-[#AB9462]/10 text-[#AB9462]';
       case 'processing':
-        return 'bg-yellow-100 text-yellow-700';
+        return 'bg-[#FFFFCC] text-[#996633]';
       case 'cancelled':
-        return 'bg-red-100 text-red-700';
+        return 'bg-[#FFCCCC] text-[#9A1900]';
       default: // pending
         return 'bg-gray-100 text-gray-700';
     }
@@ -150,7 +150,7 @@ export default function OrderHistory() {
                   </div>
                   <div className="w-full sm:w-auto">
                     <p className="text-xs text-gray-600 mb-1">Total</p>
-                    <p className="font-bold text-gray-900">GH₵{order.total.toFixed(2)}</p>
+                    <p className="font-bold text-gray-900">₦{order.total.toFixed(2)}</p>
                   </div>
                 </div>
                 <div className="w-full sm:w-auto">
@@ -175,7 +175,7 @@ export default function OrderHistory() {
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold text-gray-900 mb-1">{item.name}</h4>
                       <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                      <p className="text-sm font-bold text-gray-900 mt-1">GH₵{item.price.toFixed(2)}</p>
+                      <p className="text-sm font-bold text-gray-900 mt-1">₦{item.price.toFixed(2)}</p>
                     </div>
                   </div>
                 ))}

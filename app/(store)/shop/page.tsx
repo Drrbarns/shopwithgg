@@ -7,9 +7,10 @@ import ProductCard, { type ColorVariant } from '@/components/ProductCard';
 import { getColorHex } from '@/components/ProductCard';
 import { supabase } from '@/lib/supabase';
 import { cachedQuery } from '@/lib/query-cache';
+import PageHero from '@/components/PageHero';
 
 function ShopContent() {
-  usePageTitle('Shop Kids Ankara Collections');
+  usePageTitle('Shop Products');
   const searchParams = useSearchParams();
 
   // State
@@ -185,45 +186,24 @@ function ShopContent() {
   const totalPages = Math.ceil(totalProducts / productsPerPage);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-brand-greenLight/40 via-white to-white">
-      <section className="relative overflow-hidden border-b border-brand-green/25">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(42,181,42,0.35),transparent_45%),radial-gradient(circle_at_85%_10%,rgba(248,119,26,0.2),transparent_40%),linear-gradient(130deg,#1f8c1f,#2AB52A,#1F8C1F)]" />
-        <div className="absolute inset-0 bg-black/20" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16 md:py-20 text-white">
-          <div className="max-w-3xl">
-            <span className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-[11px] font-semibold tracking-[0.2em] uppercase">
-              Frebys Fashion GH
-            </span>
-            <h1 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
-              Shop Kids Ankara Collections
-            </h1>
-            <p className="mt-4 text-sm sm:text-base text-white/90 max-w-2xl">
-              Explore casual and luxury kids ready-to-wear Ankara outfits curated for birthdays,
-              celebrations, church, school events, and everyday confidence.
-            </p>
-            <div className="mt-6 flex flex-wrap items-center gap-3 text-xs sm:text-sm text-white/90">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 border border-white/20">
-                <i className="ri-map-pin-line" /> Haatso, Accra, Ghana
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 border border-white/20">
-                <i className="ri-earth-line" /> Worldwide delivery
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
+    <main className="min-h-screen bg-gradient-to-b from-brand-cream/40 via-white to-white">
+      <PageHero
+        title="Browse Our Collections"
+        subtitle="Explore carefully curated products sourced from trusted global suppliers — quality you can count on, delivered to your doorstep."
+        image="/hero-2.png"
+      />
 
       {/* Mobile Filter Toggle */}
-      <div className="lg:hidden bg-white/95 backdrop-blur-md border-b border-brand-green/20 py-4 px-4 sticky top-[72px] z-20">
+      <div className="lg:hidden bg-white/95 backdrop-blur-md border-b border-brand-carton/20 py-4 px-4 sticky top-[72px] z-20">
         <div className="flex justify-between items-center">
           <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className="inline-flex items-center space-x-2 text-brand-greenDark font-semibold"
+            className="inline-flex items-center space-x-2 text-brand-brown font-semibold"
           >
             <i className="ri-filter-3-line text-xl"></i>
             <span>Filters & Sort</span>
           </button>
-          <span className="text-sm text-brand-greenDark">{totalProducts} Products</span>
+          <span className="text-sm text-brand-brown">{totalProducts} Products</span>
         </div>
       </div>
 
@@ -232,12 +212,12 @@ function ShopContent() {
           <div className="flex gap-8">
             <aside className={`${isFilterOpen ? 'fixed inset-0 z-50 bg-white overflow-y-auto' : 'hidden'} lg:block lg:w-72 lg:flex-shrink-0`}>
               <div className="lg:sticky lg:top-24">
-                <div className="bg-white lg:bg-brand-greenLight/55 lg:border lg:border-brand-green/20 lg:rounded-3xl p-6">
+                <div className="bg-white lg:bg-brand-cream/55 lg:border lg:border-brand-carton/20 lg:rounded-3xl p-6">
                   <div className="flex items-center justify-between mb-6 lg:hidden">
-                    <h2 className="text-xl font-bold text-brand-greenDark">Filters</h2>
+                    <h2 className="text-xl font-bold text-brand-brown">Filters</h2>
                     <button
                       onClick={() => setIsFilterOpen(false)}
-                      className="w-10 h-10 flex items-center justify-center text-brand-greenDark"
+                      className="w-10 h-10 flex items-center justify-center text-brand-brown"
                     >
                       <i className="ri-close-line text-2xl"></i>
                     </button>
@@ -246,7 +226,7 @@ function ShopContent() {
                   <div className="space-y-8">
                     {/* Categories */}
                     <div>
-                      <h3 className="font-semibold text-brand-greenDark mb-4">Categories</h3>
+                      <h3 className="font-semibold text-brand-brown mb-4">Categories</h3>
                       <div className="space-y-1">
                         <button
                           onClick={() => {
@@ -255,7 +235,7 @@ function ShopContent() {
                             setIsFilterOpen(false);
                           }}
                           className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${selectedCategory === 'all'
-                            ? 'bg-brand-greenLight text-brand-greenDark font-medium'
+                            ? 'bg-brand-cream text-brand-brown font-medium'
                             : 'text-gray-700 hover:bg-gray-100'
                             }`}
                         >
@@ -277,7 +257,7 @@ function ShopContent() {
                                   setPage(1);
                                 }}
                                 className={`w-full text-left px-4 py-2 rounded-lg transition-colors flex justify-between items-center ${isSelected
-                                  ? 'bg-brand-greenLight text-brand-greenDark font-medium'
+                                  ? 'bg-brand-cream text-brand-brown font-medium'
                                   : 'text-gray-700 hover:bg-gray-100'
                                   }`}
                               >
@@ -296,7 +276,7 @@ function ShopContent() {
                                         setIsFilterOpen(false);
                                       }}
                                       className={`w-full text-left px-4 py-1.5 rounded-lg text-sm transition-colors ${selectedCategory === child.slug
-                                        ? 'text-brand-greenDark font-medium bg-brand-greenLight'
+                                        ? 'text-brand-brown font-medium bg-brand-cream'
                                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                                         }`}
                                     >
@@ -312,8 +292,8 @@ function ShopContent() {
                     </div>
 
                     {/* Price Range */}
-                    <div className="border-t border-brand-green/20 pt-8">
-                      <h3 className="font-semibold text-brand-greenDark mb-4">Max Price: GH₵{priceRange[1]}</h3>
+                    <div className="border-t border-brand-carton/20 pt-8">
+                      <h3 className="font-semibold text-brand-brown mb-4">Max Price: ₦{priceRange[1]}</h3>
                       <div className="space-y-4">
                         <input
                           type="range"
@@ -325,18 +305,18 @@ function ShopContent() {
                             setPriceRange([0, parseInt(e.target.value)]);
                             setPage(1);
                           }}
-                          className="w-full h-2 bg-brand-greenLight rounded-lg appearance-none cursor-pointer accent-brand-greenDark"
+                          className="w-full h-2 bg-brand-cream rounded-lg appearance-none cursor-pointer accent-brand-brown"
                         />
-                        <div className="flex items-center justify-between text-sm text-brand-greenDark/80">
-                          <span>GH₵0</span>
-                          <span>GH₵5000+</span>
+                        <div className="flex items-center justify-between text-sm text-brand-brown/80">
+                          <span>₦0</span>
+                          <span>₦5000+</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Rating */}
-                    <div className="border-t border-brand-green/20 pt-8">
-                      <h3 className="font-semibold text-brand-greenDark mb-4">Rating</h3>
+                    <div className="border-t border-brand-carton/20 pt-8">
+                      <h3 className="font-semibold text-brand-brown mb-4">Rating</h3>
                       <div className="space-y-2">
                         {[4, 3, 2, 1].map(rating => (
                           <button
@@ -346,7 +326,7 @@ function ShopContent() {
                               setPage(1);
                             }}
                             className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${selectedRating === rating
-                              ? 'bg-brand-greenLight text-brand-greenDark'
+                              ? 'bg-brand-cream text-brand-brown'
                               : 'text-gray-700 hover:bg-gray-100'
                               }`}
                           >
@@ -354,7 +334,7 @@ function ShopContent() {
                               {[1, 2, 3, 4, 5].map(star => (
                                 <i
                                   key={star}
-                                  className={`${star <= rating ? 'ri-star-fill text-brand-orange' : 'ri-star-line text-gray-300'} text-sm`}
+                                  className={`${star <= rating ? 'ri-star-fill text-brand-gold' : 'ri-star-line text-gray-300'} text-sm`}
                                 ></i>
                               ))}
                               <span className="text-sm">& Up</span>
@@ -368,7 +348,7 @@ function ShopContent() {
                       onClick={() => {
                         setIsFilterOpen(false);
                       }}
-                      className="w-full bg-brand-green hover:bg-brand-greenDark text-white py-3 rounded-xl font-semibold transition-colors whitespace-nowrap"
+                      className="w-full bg-brand-carton hover:bg-brand-brown text-white py-3 rounded-xl font-semibold transition-colors whitespace-nowrap"
                     >
                       Show Results
                     </button>
@@ -378,12 +358,12 @@ function ShopContent() {
             </aside>
 
             <div className="flex-1">
-              <div className="mb-8 rounded-2xl border border-brand-green/20 bg-white p-4 sm:p-5 shadow-sm">
+              <div className="mb-8 rounded-2xl border border-brand-carton/20 bg-white p-4 sm:p-5 shadow-sm">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div>
-                    <p className="text-brand-greenDark text-xs font-semibold tracking-[0.2em] uppercase">Collection View</p>
+                    <p className="text-brand-brown text-xs font-semibold tracking-[0.2em] uppercase">Collection View</p>
                     <p className="mt-1 text-gray-700">
-                      Showing <span className="font-bold text-brand-greenDark">{products.length}</span> of <span className="font-bold text-brand-greenDark">{totalProducts}</span> products
+                      Showing <span className="font-bold text-brand-brown">{products.length}</span> of <span className="font-bold text-brand-brown">{totalProducts}</span> products
                     </p>
                   </div>
 
@@ -395,7 +375,7 @@ function ShopContent() {
                         setSortBy(e.target.value);
                         setPage(1);
                       }}
-                      className="px-4 py-2 pr-8 border border-brand-green/30 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-brand-green text-sm bg-white cursor-pointer"
+                      className="px-4 py-2 pr-8 border border-brand-carton/30 rounded-xl focus:ring-2 focus:ring-brand-carton focus:border-brand-carton text-sm bg-white cursor-pointer"
                     >
                       <option value="popular">Most Popular</option>
                       <option value="new">Newest</option>
@@ -410,10 +390,10 @@ function ShopContent() {
               {loading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {[...Array(6)].map((_, i) => (
-                    <div key={i} className="rounded-2xl border border-brand-green/20 bg-white p-3">
-                      <div className="bg-brand-greenLight rounded-xl aspect-[4/5] animate-pulse"></div>
-                      <div className="mt-3 h-4 w-3/4 rounded bg-brand-green/20 animate-pulse"></div>
-                      <div className="mt-2 h-4 w-1/2 rounded bg-brand-green/20 animate-pulse"></div>
+                    <div key={i} className="rounded-2xl border border-brand-carton/20 bg-white p-3">
+                      <div className="bg-brand-cream rounded-xl aspect-[4/5] animate-pulse"></div>
+                      <div className="mt-3 h-4 w-3/4 rounded bg-brand-carton/20 animate-pulse"></div>
+                      <div className="mt-2 h-4 w-1/2 rounded bg-brand-carton/20 animate-pulse"></div>
                     </div>
                   ))}
                 </div>
@@ -426,12 +406,12 @@ function ShopContent() {
                   </div>
 
                   {products.length === 0 && (
-                    <div className="text-center py-20 px-6 mt-4 rounded-3xl border border-brand-green/20 bg-brand-greenLight/40">
-                      <div className="w-20 h-20 flex items-center justify-center mx-auto mb-6 bg-white rounded-full border border-brand-green/20 shadow-sm">
-                        <i className="ri-inbox-line text-4xl text-brand-green"></i>
+                    <div className="text-center py-20 px-6 mt-4 rounded-3xl border border-brand-carton/20 bg-brand-cream/40">
+                      <div className="w-20 h-20 flex items-center justify-center mx-auto mb-6 bg-white rounded-full border border-brand-carton/20 shadow-sm">
+                        <i className="ri-inbox-line text-4xl text-brand-carton"></i>
                       </div>
-                      <h3 className="text-2xl font-bold text-brand-greenDark mb-2">No Products Found</h3>
-                      <p className="text-brand-greenDark/80 mb-8">Try adjusting your filters to discover more kids Ankara styles</p>
+                      <h3 className="text-2xl font-bold text-brand-brown mb-2">No Products Found</h3>
+                      <p className="text-brand-brown/80 mb-8">Try adjusting your filters to discover more fashion pieces</p>
                       <button
                         onClick={() => {
                           setSelectedCategory('all');
@@ -439,7 +419,7 @@ function ShopContent() {
                           setSelectedRating(0);
                           setPage(1);
                         }}
-                        className="inline-flex items-center bg-brand-green hover:bg-brand-greenDark text-white px-6 py-3 rounded-xl font-semibold transition-colors whitespace-nowrap"
+                        className="inline-flex items-center bg-brand-carton hover:bg-brand-brown text-white px-6 py-3 rounded-xl font-semibold transition-colors whitespace-nowrap"
                       >
                         Clear All Filters
                       </button>
@@ -451,25 +431,25 @@ function ShopContent() {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="mt-16 flex justify-center">
-                  <div className="inline-flex items-center space-x-2 rounded-2xl border border-brand-green/20 bg-white px-3 py-2 shadow-sm">
+                  <div className="inline-flex items-center space-x-2 rounded-2xl border border-brand-carton/20 bg-white px-3 py-2 shadow-sm">
                     <button
                       onClick={() => setPage(p => Math.max(1, p - 1))}
                       disabled={page === 1}
-                      className="w-10 h-10 flex items-center justify-center border border-brand-green/30 rounded-lg hover:bg-brand-greenLight transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-10 h-10 flex items-center justify-center border border-brand-carton/30 rounded-lg hover:bg-brand-cream transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <i className="ri-arrow-left-s-line text-xl text-brand-greenDark"></i>
+                      <i className="ri-arrow-left-s-line text-xl text-brand-brown"></i>
                     </button>
 
-                    <span className="px-4 font-medium text-brand-greenDark">
+                    <span className="px-4 font-medium text-brand-brown">
                       Page {page} of {totalPages}
                     </span>
 
                     <button
                       onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                       disabled={page === totalPages}
-                      className="w-10 h-10 flex items-center justify-center border border-brand-green/30 rounded-lg hover:bg-brand-greenLight transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-10 h-10 flex items-center justify-center border border-brand-carton/30 rounded-lg hover:bg-brand-cream transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <i className="ri-arrow-right-s-line text-xl text-brand-greenDark"></i>
+                      <i className="ri-arrow-right-s-line text-xl text-brand-brown"></i>
                     </button>
                   </div>
                 </div>

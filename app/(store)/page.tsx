@@ -19,8 +19,8 @@ export default function Home() {
   const [featuredCategories, setFeaturedCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const heroSlides = [
-    { src: '/hero-frebys-1.png', position: '50% 22%' },
-    { src: '/hero-frebys-2.png', position: '50% 30%' },
+    { src: '/hero-1.png', position: '50% 40%' },
+    { src: '/hero-2.png', position: '50% 35%' },
   ];
   const [currentHeroSlide, setCurrentHeroSlide] = useState(0);
 
@@ -68,10 +68,10 @@ export default function Home() {
   }, [heroSlides.length]);
 
   const heroHeadline =
-    getSetting('hero_headline') || 'Unique Kids Wear for All Occasions';
+    getSetting('hero_headline') || 'Quality Products, Sourced Directly for You';
   const heroSubheadline =
     getSetting('hero_subheadline') ||
-    'Frebys Fashion GH brings kids ready-to-wear Ankara outfits that blend comfort, culture, and confidence for every special moment.';
+    'We leverage a global network of trusted manufacturers and suppliers to bring you quality products at the best possible prices.';
   const heroPrimaryText = getSetting('hero_primary_btn_text') || 'Shop Now';
   const heroPrimaryLink = getSetting('hero_primary_btn_link') || '/shop';
   const heroSecondaryText =
@@ -83,7 +83,7 @@ export default function Home() {
   const renderBanners = () => {
     if (activeBanners.length === 0) return null;
     return (
-      <div className="bg-brand-greenDark text-white py-2 overflow-hidden relative">
+      <div className="bg-brand-brown text-white py-2 overflow-hidden relative">
         <div className="flex animate-marquee whitespace-nowrap">
           {activeBanners.concat(activeBanners).map((banner, index) => (
             <span
@@ -104,28 +104,28 @@ export default function Home() {
     {
       chip: 'Everyday comfort',
       icon: 'ri-shirt-line',
-      color: 'from-brand-green to-brand-greenDark',
+      color: 'from-brand-carton to-brand-brown',
     },
     {
       chip: 'Premium looks',
       icon: 'ri-vip-crown-line',
-      color: 'from-sky-400 to-cyan-600',
+      color: 'from-[#AB9462] to-[#2C1D00]',
     },
     {
       chip: 'Event ready',
       icon: 'ri-t-shirt-air-line',
-      color: 'from-brand-orange to-brand-orangeDark',
+      color: 'from-brand-brown to-brand-gold',
     },
     {
       chip: 'Just landed',
       icon: 'ri-sparkling-line',
-      color: 'from-slate-600 to-slate-900',
+      color: 'from-[#2C1D00]/70 to-[#2C1D00]',
     },
   ];
   const fallbackCategories = [
-    { name: 'Casual Kids Wear', slug: 'casual-kids-wear', metadata: {} },
-    { name: 'Luxury Kids Wear', slug: 'luxury-kids-wear', metadata: {} },
-    { name: 'Occasion Outfits', slug: 'occasion-outfits', metadata: {} },
+    { name: 'Casual Wear', slug: 'casual-wear', metadata: {} },
+    { name: 'Luxury Wear', slug: 'luxury-wear', metadata: {} },
+    { name: 'Home & Living', slug: 'home-living', metadata: {} },
     { name: 'New Arrivals', slug: 'new-arrivals', metadata: {} },
   ];
   const vibeCategories = (featuredCategories.length > 0
@@ -173,10 +173,10 @@ export default function Home() {
             </div>
           ))}
         </div>
-        <div className="absolute inset-0 bg-black/20" aria-hidden="true" />
+        <div className="absolute inset-0 bg-black/30" aria-hidden="true" />
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 text-center">
           <span className="inline-flex items-center rounded-full bg-white/15 border border-white/25 px-3 py-1 sm:px-4 sm:py-1.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-white/95 mb-4 sm:mb-5">
-            Frebys Fashion GH · Kids Ankara Collection
+            ShopWithGG · Smart Sourcing
           </span>
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[3.25rem] font-extrabold leading-tight text-white drop-shadow-sm max-w-3xl mx-auto">
             {heroHeadline}
@@ -187,7 +187,7 @@ export default function Home() {
           <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <Link
               href={heroPrimaryLink}
-              className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-brand-orange px-6 py-2.5 sm:px-9 sm:py-3 text-sm sm:text-base font-semibold text-white shadow-lg hover:bg-brand-orangeDark transition-colors"
+              className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-brand-brown px-6 py-2.5 sm:px-9 sm:py-3 text-sm sm:text-base font-semibold text-white shadow-lg hover:bg-brand-gold transition-colors"
             >
               {heroPrimaryText}
               <i className="ri-arrow-right-up-line ml-2 text-base" />
@@ -202,15 +202,15 @@ export default function Home() {
           <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-white/85">
             <div className="inline-flex items-center gap-2">
               <span className="inline-flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-white/15">
-                <i className="ri-shield-check-line text-brand-greenLight text-sm sm:text-base" />
+                <i className="ri-shield-check-line text-brand-cream text-sm sm:text-base" />
               </span>
-              <span className="font-medium">Quality Ankara fabrics</span>
+              <span className="font-medium">Quality assured products</span>
             </div>
             <div className="inline-flex items-center gap-2">
               <span className="inline-flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-white/15">
-                <i className="ri-truck-line text-brand-greenLight text-sm sm:text-base" />
+                <i className="ri-truck-line text-brand-cream text-sm sm:text-base" />
               </span>
-              <span className="font-medium">Worldwide delivery from Accra</span>
+              <span className="font-medium">Sourced from trusted global partners</span>
             </div>
           </div>
           <div className="mt-5 flex items-center justify-center gap-2">
@@ -226,20 +226,20 @@ export default function Home() {
         </div>
       </section>
 
-      <AnimatedSection className="bg-white py-8 sm:py-10 border-b border-brand-green/10">
+      <AnimatedSection className="bg-white py-8 sm:py-10 border-b border-brand-carton/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
             <div>
-              <p className="text-xs font-semibold tracking-[0.25em] text-brand-green uppercase">
-                Shop by vibe
+              <p className="text-xs font-semibold tracking-[0.25em] text-brand-carton uppercase">
+                Shop by category
               </p>
               <h2 className="mt-1 text-2xl font-bold text-gray-900">
-                Find the perfect kids outfit
+                Find what you need
               </h2>
             </div>
             <Link
               href="/shop"
-              className="inline-flex items-center text-sm font-medium text-brand-greenDark hover:text-brand-green"
+              className="inline-flex items-center text-sm font-medium text-brand-brown hover:text-brand-carton"
             >
               Browse full catalogue
               <i className="ri-arrow-right-line ml-1" />
@@ -251,21 +251,21 @@ export default function Home() {
               <Link
                 key={item.slug}
                 href={`/shop?category=${encodeURIComponent(item.slug)}`}
-                className="group relative overflow-hidden rounded-2xl border border-brand-green/10 bg-brand-greenLight/40 p-4 hover:border-brand-green transition-colors"
+                className="group relative overflow-hidden rounded-2xl border border-brand-carton/10 bg-brand-cream/40 p-4 hover:border-brand-carton transition-colors"
               >
                 <div
                   className={`pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gradient-to-br ${item.color} opacity-70 blur-2xl group-hover:opacity-100 transition-opacity`}
                 />
                 <div className="relative flex items-center justify-between gap-4">
                   <div>
-                    <span className="inline-flex items-center rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-medium text-brand-greenDark mb-2">
+                    <span className="inline-flex items-center rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-medium text-brand-brown mb-2">
                       {item.chip}
                     </span>
                     <p className="text-sm font-semibold text-gray-900">
                       {item.name}
                     </p>
                   </div>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm text-brand-greenDark group-hover:translate-y-[-2px] group-hover:shadow-md transition-all">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm text-brand-brown group-hover:translate-y-[-2px] group-hover:shadow-md transition-all">
                     <i className={`${item.icon} text-lg`} />
                   </div>
                 </div>
@@ -279,18 +279,18 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
             <div>
-              <p className="text-xs font-semibold tracking-[0.25em] text-brand-green uppercase">
+              <p className="text-xs font-semibold tracking-[0.25em] text-brand-carton uppercase">
                 Trending now
               </p>
               <h2 className="mt-1 text-2xl sm:text-3xl font-extrabold text-gray-900">
-                Styles families love most
+                Products customers love most
               </h2>
             </div>
             <Link
               href="/shop?sort=bestsellers"
-              className="inline-flex items-center text-sm font-medium text-gray-800 hover:text-brand-greenDark"
+              className="inline-flex items-center text-sm font-medium text-gray-800 hover:text-brand-brown"
             >
-              View bestselling outfits
+              View bestselling products
               <i className="ri-arrow-right-line ml-1" />
             </Link>
           </div>
@@ -370,20 +370,20 @@ export default function Home() {
         </div>
       </AnimatedSection>
 
-      <AnimatedSection className="bg-brand-greenLight/55 py-10 sm:py-14">
+      <AnimatedSection className="bg-brand-cream/55 py-10 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
             <div>
-              <p className="text-xs font-semibold tracking-[0.25em] text-brand-greenDark uppercase">
+              <p className="text-xs font-semibold tracking-[0.25em] text-brand-brown uppercase">
                 Just landed
               </p>
-              <h2 className="mt-1 text-2xl sm:text-3xl font-extrabold text-brand-greenDark">
-                Fresh designs & restocks
+              <h2 className="mt-1 text-2xl sm:text-3xl font-extrabold text-brand-brown">
+                Fresh arrivals & restocks
               </h2>
             </div>
-            <p className="text-sm text-brand-greenDark/85 max-w-md">
-              Discover new kids Ankara pieces for birthdays, celebrations,
-              church, school events, and everyday style.
+            <p className="text-sm text-brand-brown/85 max-w-md">
+              Discover newly sourced products for personal use, resale,
+              or business growth — all at affordable prices.
             </p>
           </div>
 
@@ -395,7 +395,7 @@ export default function Home() {
                     key={`${product.id}-${index}`}
                     className="min-w-[180px] sm:min-w-[220px] max-w-[260px] w-[var(--card-width)] flex-shrink-0 rounded-xl sm:rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow"
                   >
-                    <div className="relative aspect-[4/5] rounded-xl sm:rounded-2xl overflow-hidden bg-brand-green/10">
+                    <div className="relative aspect-[4/5] rounded-xl sm:rounded-2xl overflow-hidden bg-brand-carton/10">
                       <Image
                         src={
                           product.product_images?.[0]?.url ||
@@ -407,7 +407,7 @@ export default function Home() {
                       />
                     </div>
                     <div className="p-3">
-                      <p className="text-xs uppercase tracking-wide text-brand-green mb-1">
+                      <p className="text-xs uppercase tracking-wide text-brand-carton mb-1">
                         New drop
                       </p>
                       <p className="text-sm font-semibold text-gray-900 line-clamp-2">
@@ -415,11 +415,11 @@ export default function Home() {
                       </p>
                       <div className="mt-2 flex items-center justify-between">
                         <span className="text-sm font-bold text-gray-900">
-                          GH₵{Number(product.price || 0).toFixed(2)}
+                          ₦{Number(product.price || 0).toFixed(2)}
                         </span>
                         <Link
                           href={`/product/${product.slug}`}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-green text-white hover:bg-brand-greenDark text-sm"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-carton text-white hover:bg-brand-brown text-sm"
                         >
                           <i className="ri-arrow-right-line" />
                         </Link>
@@ -436,43 +436,43 @@ export default function Home() {
       <AnimatedSection className="bg-white py-10 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
-              <p className="text-xs font-semibold tracking-[0.25em] text-brand-green uppercase">
+              <p className="text-xs font-semibold tracking-[0.25em] text-brand-carton uppercase">
               Why customers stay with us
             </p>
             <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold text-gray-900">
-              Built with passion for kids fashion
+              Your trusted sourcing partner
             </h2>
             <p className="mt-3 text-sm sm:text-base text-gray-600">
-              Every Frebys piece is made to help children look confident, feel
-              comfortable, and stand out beautifully at every occasion.
+              We simplify the sourcing process — handling product selection, supplier coordination
+              and logistics so you can shop confidently without stress or inflated costs.
             </p>
           </div>
 
           <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3">
             {[
               {
-                icon: 'ri-vip-crown-line',
-                title: 'Unique occasion-ready designs',
-                body: 'We curate standout Ankara outfits for birthdays, ceremonies, family photos, and festive events.',
+                icon: 'ri-shield-check-line',
+                title: 'Quality assurance guaranteed',
+                body: 'Every product is carefully sourced and inspected before it reaches you — no surprises, no compromises.',
               },
               {
                 icon: 'ri-customer-service-2-line',
-                title: 'Real humans, real advice',
-                body: 'Our team helps with sizing, outfit matching, and recommendations so you shop with confidence.',
+                title: 'Expert guidance & support',
+                body: 'Our team provides product selection support, supplier coordination, and personalized recommendations.',
               },
               {
-                icon: 'ri-bus-2-line',
-                title: 'Worldwide delivery',
-                body: 'Order from Haatso, Accra, Ghana to any destination with reliable updates and smooth support.',
+                icon: 'ri-money-dollar-circle-line',
+                title: 'Affordable, transparent pricing',
+                body: 'Direct-from-supplier pricing without inflated costs — quality products for personal use, resale, or business.',
               },
             ].map((item) => (
               <div
                 key={item.title}
-                className="relative overflow-hidden rounded-2xl border border-brand-green/10 bg-brand-greenLight/40 p-6"
+                className="relative overflow-hidden rounded-2xl border border-brand-carton/10 bg-brand-cream/40 p-6"
               >
-                <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-brand-green/25 blur-2xl pointer-events-none" />
+                <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-brand-carton/25 blur-2xl pointer-events-none" />
                 <div className="relative">
-                  <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-green text-white shadow-md">
+                  <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-carton text-white shadow-md">
                     <i className={`${item.icon} text-xl`} />
                   </div>
                   <h3 className="text-base font-semibold text-gray-900 mb-2">
@@ -490,24 +490,24 @@ export default function Home() {
 
       <section className="pb-12 sm:pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#166d1f] text-white border border-[#145b1a] shadow-[0_16px_45px_rgba(17,77,24,0.28)] flex flex-col md:flex-row items-center md:items-stretch">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#2C1D00] text-white border border-[#2C1D00] shadow-[0_16px_45px_rgba(44,29,0,0.28)] flex flex-col md:flex-row items-center md:items-stretch">
             <div className="relative w-full md:w-3/5 px-5 sm:px-8 py-8 sm:py-10 flex flex-col justify-center space-y-3 text-center md:text-left">
-              <span className="inline-flex items-center text-xs font-semibold tracking-[0.25em] uppercase text-[#d9f1dd]">
-                Join the Frebys family
+              <span className="inline-flex items-center text-xs font-semibold tracking-[0.25em] uppercase text-[#F3F3F3]">
+                Start sourcing with ShopWithGG
               </span>
               <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold">
-                Dress your kids in style for every occasion.
+                Quality and functionality, without breaking the bank.
               </h3>
-              <p className="text-sm sm:text-base text-[#e6f5e8] max-w-md mx-auto md:mx-0">
-                Explore casual and luxury kids Ankara wear with comfort, quality
-                finishing, and worldwide delivery from Frebys Fashion GH.
+              <p className="text-sm sm:text-base text-[#F3F3F3]/80 max-w-md mx-auto md:mx-0">
+                Whether it's for personal use, resale, or business growth — we handle
+                sourcing, logistics, and delivery so you don't have to.
               </p>
               <div className="pt-2 flex flex-wrap gap-3 justify-center md:justify-start">
                 <Link
                   href="/shop"
-                  className="inline-flex items-center rounded-full bg-brand-orange text-white px-8 py-3 text-sm font-semibold shadow-lg hover:bg-brand-orangeDark transition-colors"
+                  className="inline-flex items-center rounded-full bg-brand-brown text-white px-8 py-3 text-sm font-semibold shadow-lg hover:bg-brand-gold transition-colors"
                 >
-                  Start shopping kids wear
+                  Start shopping
                   <i className="ri-arrow-right-up-line ml-2" />
                 </Link>
                 <Link
@@ -519,22 +519,22 @@ export default function Home() {
               </div>
             </div>
             <div className="relative w-full md:w-2/5 py-4 sm:py-6 pr-4 pl-4 md:pl-0 flex justify-center">
-              <div className="relative h-40 sm:h-52 md:h-64 lg:h-full min-h-[12rem] w-full max-w-sm md:max-w-none rounded-2xl border border-white/20 bg-[#1b8124] p-5 flex flex-col justify-center gap-3 shadow-[0_22px_45px_rgba(0,0,0,0.24)]">
+              <div className="relative h-40 sm:h-52 md:h-64 lg:h-full min-h-[12rem] w-full max-w-sm md:max-w-none rounded-2xl border border-white/20 bg-[#2C1D00] p-5 flex flex-col justify-center gap-3 shadow-[0_22px_45px_rgba(0,0,0,0.24)]">
                 <span className="inline-flex w-fit items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white">
-                  Frebys Fashion GH
+                  ShopWithGG
                 </span>
                 <p className="text-lg sm:text-xl font-bold text-white leading-snug">
-                  Casual and luxury kids Ankara wear
+                  Your trusted sourcing & procurement partner
                 </p>
-                <div className="space-y-1 text-sm text-[#eaf8ec]">
+                <div className="space-y-1 text-sm text-[#F3F3F3]/90">
                   <p className="inline-flex items-center gap-2">
-                    <i className="ri-map-pin-line" /> Haatso, Accra, Ghana
+                    <i className="ri-map-pin-line" /> Lagos, Nigeria
                   </p>
                   <p className="inline-flex items-center gap-2">
-                    <i className="ri-phone-line" /> 0244720197
+                    <i className="ri-phone-line" /> 08071363567
                   </p>
                   <p className="inline-flex items-center gap-2">
-                    <i className="ri-earth-line" /> Worldwide delivery
+                    <i className="ri-earth-line" /> Globally sourced, delivered worldwide
                   </p>
                 </div>
               </div>

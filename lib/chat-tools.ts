@@ -199,7 +199,7 @@ export async function checkCoupon(
   if (data.end_date && new Date(data.end_date) < now) return { valid: false, code: trimmed, reason: 'This coupon has expired.' };
   if (data.usage_limit && data.usage_count >= data.usage_limit) return { valid: false, code: trimmed, reason: 'This coupon has reached its usage limit.' };
   if (cartTotal !== undefined && data.minimum_purchase && cartTotal < Number(data.minimum_purchase)) {
-    return { valid: false, code: trimmed, reason: `Minimum purchase of GH₵${Number(data.minimum_purchase).toFixed(2)} required.` };
+    return { valid: false, code: trimmed, reason: `Minimum purchase of ₦${Number(data.minimum_purchase).toFixed(2)} required.` };
   }
 
   return {
@@ -222,11 +222,13 @@ export async function createSupportTicket(
   const { userId, email, subject, description, category } = params;
   if (!email || !subject || !description) return null;
 
+  const ticketNumber = `TKT-${Date.now().toString(36).toUpperCase()}`;
   const { data: ticket, error } = await supabase
     .from('support_tickets')
     .insert({
-      user_id: userId || null,
-      email,
+      ticket_number: ticketNumber,
+      customer_id: userId || null,
+      customer_email: email,
       subject,
       description,
       category: category || 'other',
@@ -241,10 +243,11 @@ export async function createSupportTicket(
     return null;
   }
 
-  await supabase.from('support_messages').insert({
+  await supabase.from('support_ticket_messages').insert({
     ticket_id: ticket.id,
-    user_id: userId || null,
-    message: description,
+    sender_type: 'customer',
+    sender_id: userId || null,
+    content: description,
     is_internal: false,
   });
 
@@ -332,13 +335,13 @@ export async function getRecommendations(
 // ─── 9. Get Store Info (static) ─────────────────────────────────────────────
 
 const STORE_INFO: Record<string, string> = {
-  shipping: `Frebys Fashion GH ships from Haatso, Accra, Ghana and offers worldwide delivery. Delivery timelines and shipping fees are calculated by destination at checkout.`,
-  returns: `We accept eligible returns within 30 days of delivery for unworn items in original condition. To start a return, use your account or ask me to create a support ticket. Refunds are processed after inspection.`,
+  shipping: `ShopWithGG sources products globally through vetted international suppliers and delivers worldwide. Delivery timelines and shipping fees are calculated by destination at checkout.`,
+  returns: `We accept eligible returns within 30 days of delivery for unused items in original condition. To start a return, use your account or ask me to create a support ticket. Refunds are processed after inspection.`,
   payment: `We support secure checkout options, including Mobile Money for eligible local orders. Available payment methods are shown at checkout.`,
-  contact: `You can reach us through:\n- This chat (24/7)\n- Email: hello@frebysfashiongh.com\n- Phone/WhatsApp: 024 472 0197\n- Visit: Haatso, Accra, Ghana\n- Support ticket: I can create one for you right now`,
-  about: `Frebys Fashion GH creates unique kids ready-to-wear Ankara clothes for all occasions. We offer casual and luxury kids wear with worldwide delivery from Haatso, Accra, Ghana.`,
-  delivery_times: `Delivery timelines vary by destination (Ghana and international). You will see estimated timing at checkout and in your order updates.`,
-  hours: `Our online store is open 24/7. Customer support is available Monday-Saturday, 8 AM - 8 PM GMT.`,
+  contact: `You can reach us through:\n- This chat (24/7)\n- Email: hello@shopwithgg.com\n- Phone/WhatsApp: 080 7136 3567\n- Instagram: @_shopwithgg_\n- Visit: Lagos, Nigeria\n- Support ticket: I can create one for you right now`,
+  about: `ShopWithGG is a premium global sourcing and procurement brand. We leverage a network of carefully vetted international suppliers to bring you quality products at direct-from-supplier pricing. We handle product selection support, supplier coordination, and seamless logistics through a preorder-based fulfillment system — so you can shop confidently. Worldwide delivery available.`,
+  delivery_times: `Delivery timelines vary by destination and product. We operate a preorder-based fulfillment system — estimated timing is shown at checkout and in your order updates.`,
+  hours: `Our online store is open 24/7. Customer support is available Monday-Saturday, 8 AM - 8 PM WAT.`,
 };
 
 export function getStoreInfo(topic: string): string {
@@ -557,7 +560,7 @@ export async function createChatOrder(
       address: sanitizedShipping.address,
       city: sanitizedShipping.city,
       region: sanitizedShipping.region,
-      country: 'Ghana',
+      country: 'Nigeria',
     };
 
     // Insert order
@@ -570,7 +573,7 @@ export async function createChatOrder(
         phone: sanitizedShipping.phone,
         status: 'pending',
         payment_status: 'pending',
-        currency: 'GHS',
+        currency: 'NGN',
         subtotal,
         tax_total: 0,
         shipping_total: shippingCost,
@@ -651,7 +654,7 @@ export async function createChatOrder(
             success: true,
             orderNumber,
             total,
-            message: `Order ${orderNumber} created (GH₵${total.toFixed(2)}), but payment gateway is not configured. Please complete payment through the website.`,
+            message: `Order ${orderNumber} created (₦${total.toFixed(2)}), but payment gateway is not configured. Please complete payment through the website.`,
           };
         }
 
@@ -659,12 +662,12 @@ export async function createChatOrder(
         const payload = {
           type: 1,
           amount: total.toString(),
-          email: process.env.MOOLRE_MERCHANT_EMAIL || 'hello@frebysfashiongh.com',
+          email: process.env.MOOLRE_MERCHANT_EMAIL || 'hello@shopwithgg.com',
           externalref: uniqueRef,
           callback: `${baseUrl}/api/payment/moolre/callback`,
           redirect: `${baseUrl}/order-success?order=${orderNumber}&payment_success=true`,
           reusable: '0',
-          currency: 'GHS',
+          currency: 'NGN',
           accountnumber: moolreAccountNumber,
           metadata: {
             customer_email: sanitizedShipping.email,
@@ -690,14 +693,14 @@ export async function createChatOrder(
             orderNumber,
             total,
             paymentUrl: result.data.authorization_url,
-            message: `Order ${orderNumber} created successfully! Total: GH₵${total.toFixed(2)} (including GH₵${shippingCost.toFixed(2)} delivery). Please complete your payment using the link below.`,
+            message: `Order ${orderNumber} created successfully! Total: ₦${total.toFixed(2)} (including ₦${shippingCost.toFixed(2)} delivery). Please complete your payment using the link below.`,
           };
         } else {
           return {
             success: true,
             orderNumber,
             total,
-            message: `Order ${orderNumber} created (GH₵${total.toFixed(2)}), but we couldn't generate a payment link. Please visit your order page to complete payment.`,
+            message: `Order ${orderNumber} created (₦${total.toFixed(2)}), but we couldn't generate a payment link. Please visit your order page to complete payment.`,
           };
         }
       } catch (payErr: any) {
@@ -706,7 +709,7 @@ export async function createChatOrder(
           success: true,
           orderNumber,
           total,
-          message: `Order ${orderNumber} created (GH₵${total.toFixed(2)}), but payment initiation failed. Please visit the website to complete payment.`,
+          message: `Order ${orderNumber} created (₦${total.toFixed(2)}), but payment initiation failed. Please visit the website to complete payment.`,
         };
       }
     }
@@ -716,7 +719,7 @@ export async function createChatOrder(
       success: true,
       orderNumber,
       total,
-      message: `Order ${orderNumber} placed successfully! Total: GH₵${total.toFixed(2)} (including GH₵${shippingCost.toFixed(2)} delivery). Payment: Cash on Delivery. Your order will be delivered to ${sanitizedShipping.address}, ${sanitizedShipping.city}.`,
+      message: `Order ${orderNumber} placed successfully! Total: ₦${total.toFixed(2)} (including ₦${shippingCost.toFixed(2)} delivery). Payment: Cash on Delivery. Your order will be delivered to ${sanitizedShipping.address}, ${sanitizedShipping.city}.`,
     };
   } catch (err: any) {
     console.error('[ChatTools] createChatOrder error:', err);

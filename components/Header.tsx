@@ -9,44 +9,6 @@ import { supabase } from '@/lib/supabase';
 import { useCMS } from '@/context/CMSContext';
 import AnnouncementBar from './AnnouncementBar';
 
-const NavLink = ({
-  href,
-  children,
-  isMobile,
-  onClick,
-  isActive,
-}: {
-  href: string;
-  children: React.ReactNode;
-  isMobile?: boolean;
-  onClick?: () => void;
-  isActive?: boolean;
-}) => {
-  if (isMobile) {
-    return (
-      <Link
-        href={href}
-        onClick={onClick}
-        className="block px-4 py-4 text-xl font-medium text-gray-800 hover:text-black hover:bg-gray-50/80 rounded-xl transition-all duration-300"
-      >
-        {children}
-      </Link>
-    );
-  }
-
-  return (
-    <Link
-      href={href}
-      className={`relative inline-flex items-center rounded-full px-4 py-2 text-[14px] font-semibold tracking-wide transition-all duration-300 ${isActive
-          ? 'bg-brand-green text-white shadow-sm'
-          : 'text-gray-700 hover:text-brand-greenDark hover:bg-brand-greenLight'
-        }`}
-    >
-      <span className="relative z-10">{children}</span>
-    </Link>
-  );
-};
-
 export default function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -59,30 +21,23 @@ export default function Header() {
   const { cartCount, isCartOpen, setIsCartOpen } = useCart();
   const { getSetting } = useCMS();
 
-  const rawSiteName = getSetting('site_name') || '';
-  const siteName = rawSiteName && !/deliz/i.test(rawSiteName) ? rawSiteName : 'Frebys Fashion GH';
+const siteName = getSetting('site_name') || 'ShopWithGG';
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 15);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // Wishlist logic
     const updateWishlistCount = () => {
       const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
       setWishlistCount(wishlist.length);
     };
-
     updateWishlistCount();
     window.addEventListener('wishlistUpdated', updateWishlistCount);
 
-    // Auth logic
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
     };
-
     checkUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -103,88 +58,99 @@ export default function Header() {
     }
   };
 
+  const navLinks = [
+    { label: 'Shop', href: '/shop' },
+    { label: 'Categories', href: '/categories' },
+    { label: 'About', href: '/about' },
+    { label: 'Contact', href: '/contact' },
+  ];
+
+  const active = (href: string) =>
+    href === '/' ? pathname === '/' : pathname.startsWith(href);
+
   return (
     <>
       <AnnouncementBar />
 
       <header
-        className={`sticky top-0 z-50 pwa-header transition-all duration-500 ease-in-out border-b ${isScrolled
-            ? 'bg-white/90 backdrop-blur-xl border-brand-green/30 shadow-[0_10px_30px_rgba(42,181,42,0.2)] py-2'
-            : 'bg-white border-transparent py-4'
-          }`}
+        className={`sticky top-0 z-50 pwa-header transition-all duration-700 ease-[cubic-bezier(.16,1,.3,1)] ${
+          isScrolled
+            ? 'bg-[#2C1D00] shadow-lg shadow-[#2C1D00]/10'
+            : 'bg-white'
+        }`}
       >
         <div className="safe-area-top" />
         <nav aria-label="Main navigation">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <div className="flex items-center justify-between">
+            <div className={`flex items-center justify-between transition-all duration-700 ease-[cubic-bezier(.16,1,.3,1)] ${isScrolled ? 'h-[52px]' : 'h-16 sm:h-[72px]'}`}>
 
-              {/* Left Side: Mobile Menu & Logo */}
-              <div className="flex items-center gap-4 flex-1 lg:flex-none">
+              {/* Left — hamburger + logo */}
+              <div className="flex items-center gap-2 min-w-0">
                 <button
-                  className="lg:hidden p-2 -ml-2 text-gray-700 hover:text-black rounded-full hover:bg-gray-100/80 transition-all duration-300"
+                  className={`lg:hidden -ml-1 w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
+                    isScrolled ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-[#2C1D00]/70 hover:text-[#2C1D00] hover:bg-[#2C1D00]/5'
+                  }`}
                   onClick={() => setIsMobileMenuOpen(true)}
                   aria-label="Open menu"
                 >
-                  <i className="ri-menu-4-line text-2xl"></i>
+                  <i className="ri-menu-3-line text-[21px]"></i>
                 </button>
-                <Link
-                  href="/"
-                  className="flex items-center group"
-                  aria-label="Go to homepage"
-                >
+
+                <Link href="/" className="flex items-center gap-2" aria-label="Go to homepage">
                   <img
-                    src="/frebys-logo.png"
+                    src="/shopwithgg-logo.png"
                     alt={siteName}
-                    className="h-11 sm:h-12 w-auto object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                    className={`w-auto object-contain transition-all duration-700 ${isScrolled ? 'h-7 brightness-0 invert' : 'h-9 sm:h-10'}`}
                   />
                 </Link>
               </div>
 
-              {/* Center: Desktop Navigation */}
-              <div className="hidden lg:flex items-center justify-center flex-1">
-                <div className="inline-flex items-center gap-1 rounded-full border border-brand-green/20 bg-white/90 p-1 shadow-sm">
-                  <NavLink href="/shop" isActive={pathname === '/shop'}>Shop</NavLink>
-                  <NavLink href="/categories" isActive={pathname === '/categories'}>Categories</NavLink>
-                  <NavLink href="/about" isActive={pathname === '/about'}>About</NavLink>
-                  <NavLink href="/contact" isActive={pathname === '/contact'}>Contact</NavLink>
-                </div>
+              {/* Center — desktop nav */}
+              <div className="hidden lg:flex items-center gap-0.5">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`relative px-4 py-1.5 text-[13px] font-medium tracking-[0.01em] rounded-full transition-all duration-300 ${
+                      active(link.href)
+                        ? isScrolled
+                          ? 'text-white bg-white/15'
+                          : 'text-[#2C1D00] bg-[#2C1D00]/[0.06]'
+                        : isScrolled
+                          ? 'text-white/60 hover:text-white hover:bg-white/10'
+                          : 'text-[#2C1D00]/50 hover:text-[#2C1D00] hover:bg-[#2C1D00]/[0.04]'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
               </div>
 
-              {/* Right Side: Actions */}
-              <div className="flex items-center space-x-2 md:space-x-3 flex-1 justify-end">
+              {/* Right — actions */}
+              <div className="flex items-center gap-0.5 sm:gap-1">
 
-                {/* Mobile Search Icon */}
+                {/* Search */}
                 <button
-                  className="w-10 h-10 flex items-center justify-center text-gray-700 hover:text-black hover:bg-gray-100/80 rounded-full transition-all duration-300 lg:hidden group"
                   onClick={() => setIsSearchOpen(true)}
-                  aria-label="Open search"
+                  className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
+                    isScrolled ? 'text-white/60 hover:text-white hover:bg-white/10' : 'text-[#2C1D00]/45 hover:text-[#2C1D00] hover:bg-[#2C1D00]/5'
+                  }`}
+                  aria-label="Search"
                 >
-                  <i className="ri-search-line text-xl transition-transform group-hover:scale-110"></i>
+                  <i className="ri-search-2-line text-[20px]"></i>
                 </button>
-
-                {/* Desktop Search Input */}
-                <div className="hidden lg:block relative group">
-                  <input
-                    type="search"
-                    placeholder="Search kids styles..."
-                    className="w-56 focus:w-80 pl-11 pr-4 py-2.5 bg-brand-greenLight/70 hover:bg-brand-greenLight focus:bg-white border border-brand-green/20 focus:border-brand-green rounded-full transition-all duration-500 ease-out text-sm outline-none placeholder-gray-500 font-medium"
-                    aria-label="Search products"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
-                  />
-                  <i className="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-brand-greenDark/70 group-focus-within:text-brand-greenDark transition-colors text-lg"></i>
-                </div>
 
                 {/* Wishlist */}
                 <Link
                   href="/wishlist"
-                  className="relative w-10 h-10 flex items-center justify-center text-gray-700 hover:text-brand-greenDark hover:bg-brand-greenLight rounded-full transition-all duration-300 group"
+                  className={`relative w-10 h-10 hidden sm:flex items-center justify-center rounded-full transition-colors ${
+                    isScrolled ? 'text-white/60 hover:text-white hover:bg-white/10' : 'text-[#2C1D00]/45 hover:text-[#2C1D00] hover:bg-[#2C1D00]/5'
+                  }`}
                   aria-label={`Wishlist, ${wishlistCount} items`}
                 >
-                  <i className="ri-heart-3-line text-xl transition-transform group-hover:scale-110"></i>
+                  <i className="ri-heart-3-line text-[20px]"></i>
                   {wishlistCount > 0 && (
-                    <span className="absolute top-0 right-0 w-[18px] h-[18px] bg-black text-white text-[10px] font-bold rounded-full flex items-center justify-center transform scale-100 group-hover:scale-110 transition-transform shadow-md border-2 border-white">
+                    <span className="absolute top-1 right-1 w-[14px] h-[14px] bg-[#AB9462] text-white text-[8px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
                       {wishlistCount}
                     </span>
                   )}
@@ -193,15 +159,17 @@ export default function Header() {
                 {/* Cart */}
                 <div className="relative">
                   <button
-                    className="relative w-10 h-10 flex items-center justify-center text-gray-700 hover:text-brand-greenDark hover:bg-brand-greenLight rounded-full transition-all duration-300 group"
+                    className={`relative w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
+                      isScrolled ? 'text-white/60 hover:text-white hover:bg-white/10' : 'text-[#2C1D00]/45 hover:text-[#2C1D00] hover:bg-[#2C1D00]/5'
+                    }`}
                     onClick={() => setIsCartOpen(!isCartOpen)}
                     aria-label={`Shopping cart, ${cartCount} items`}
                     aria-expanded={isCartOpen}
                     aria-controls="mini-cart"
                   >
-                    <i className="ri-shopping-bag-line text-xl transition-transform group-hover:-translate-y-0.5 group-hover:scale-110"></i>
+                    <i className="ri-shopping-bag-3-line text-[20px]"></i>
                     {cartCount > 0 && (
-                      <span className="absolute top-0 right-0 w-[18px] h-[18px] bg-black text-white text-[10px] font-bold rounded-full flex items-center justify-center transform scale-100 group-hover:scale-110 transition-transform shadow-md border-2 border-white">
+                      <span className={`absolute top-1 right-1 w-[14px] h-[14px] bg-[#AB9462] text-white text-[8px] font-bold rounded-full flex items-center justify-center ring-2 ${isScrolled ? 'ring-[#2C1D00]' : 'ring-white'}`}>
                         {cartCount}
                       </span>
                     )}
@@ -209,159 +177,161 @@ export default function Header() {
                   <MiniCart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
                 </div>
 
-                {/* Account */}
-                {user ? (
-                  <Link
-                    href="/account"
-                    className="hidden lg:flex w-10 h-10 items-center justify-center text-gray-700 hover:text-brand-greenDark hover:bg-brand-greenLight rounded-full transition-all duration-300 group"
-                    aria-label="My account"
-                    title="Account"
-                  >
-                    <i className="ri-user-smile-line text-xl transition-transform group-hover:scale-110"></i>
-                  </Link>
-                ) : (
-                  <Link
-                    href="/auth/login"
-                    className="hidden lg:flex w-10 h-10 items-center justify-center text-gray-700 hover:text-brand-greenDark hover:bg-brand-greenLight rounded-full transition-all duration-300 group"
-                    aria-label="Login"
-                    title="Login"
-                  >
-                    <i className="ri-user-line text-xl transition-transform group-hover:scale-110"></i>
-                  </Link>
-                )}
+                {/* Account — desktop */}
+                <Link
+                  href={user ? '/account' : '/auth/login'}
+                  className={`hidden lg:flex w-10 h-10 items-center justify-center rounded-full transition-colors ${
+                    isScrolled ? 'text-white/60 hover:text-white hover:bg-white/10' : 'text-[#2C1D00]/45 hover:text-[#2C1D00] hover:bg-[#2C1D00]/5'
+                  }`}
+                  aria-label={user ? 'My account' : 'Login'}
+                >
+                  <i className={`${user ? 'ri-user-smile-line' : 'ri-user-4-line'} text-[20px]`}></i>
+                </Link>
               </div>
             </div>
           </div>
         </nav>
       </header>
 
-      {/* Global Search Modal */}
+      {/* Search overlay */}
       {isSearchOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-start justify-center pt-24 transition-opacity duration-300">
-          <div
-            className="absolute inset-0"
-            onClick={() => setIsSearchOpen(false)}
-            aria-hidden="true"
-          />
-          <div className="bg-white/95 backdrop-blur-xl rounded-2xl w-full max-w-2xl mx-4 shadow-2xl relative transform animate-in fade-in slide-in-from-top-10 duration-300">
-            <div className="p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-medium tracking-tight text-gray-900">What are you looking for?</h3>
-                <button
-                  onClick={() => setIsSearchOpen(false)}
-                  className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-black hover:bg-gray-100 rounded-full transition-all duration-300"
-                >
-                  <i className="ri-close-line text-2xl"></i>
-                </button>
-              </div>
-              <form onSubmit={handleSearch}>
-                <div className="relative group">
+        <div className="fixed inset-0 z-[100]">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-md" onClick={() => setIsSearchOpen(false)} />
+          <div className="relative max-w-2xl mx-auto mt-[15vh] px-5 animate-in fade-in slide-in-from-top-6 duration-300">
+            <form onSubmit={handleSearch} className="relative">
+              <div className="bg-white rounded-[20px] shadow-2xl overflow-hidden">
+                <div className="flex items-center px-5 gap-3">
+                  <i className="ri-search-2-line text-[#2C1D00]/25 text-xl shrink-0"></i>
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search products, brands, categories..."
-                    className="w-full px-6 py-4 pr-16 bg-gray-50/50 border-2 border-gray-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-gray-100/50 focus:border-black text-lg transition-all duration-300 outline-none"
+                    placeholder="What are you looking for?"
+                    className="flex-1 py-5 text-[16px] text-[#2C1D00] bg-transparent outline-none placeholder-[#2C1D00]/25"
                     autoFocus
                   />
                   <button
-                    type="submit"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center text-white bg-black hover:bg-gray-800 rounded-xl transition-all duration-300 shadow-md group-focus-within:bg-black"
+                    type="button"
+                    onClick={() => setIsSearchOpen(false)}
+                    className="shrink-0 text-[11px] font-semibold text-[#2C1D00]/30 bg-[#2C1D00]/5 px-2.5 py-1 rounded-md hover:bg-[#2C1D00]/10 hover:text-[#2C1D00]/50 transition-colors"
                   >
-                    <i className="ri-search-line text-xl"></i>
+                    ESC
                   </button>
                 </div>
-              </form>
-            </div>
+                <div className="border-t border-[#2C1D00]/5 px-5 py-3 flex flex-wrap gap-2">
+                  {['New Arrivals', 'Best Sellers', 'Home & Kitchen'].map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => { setSearchQuery(tag); }}
+                      className="text-[11px] font-medium text-[#2C1D00]/40 bg-[#2C1D00]/[0.03] hover:bg-[#AB9462]/10 hover:text-[#AB9462] px-3 py-1.5 rounded-full transition-colors"
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       )}
 
-      {/* Mobile Menu Drawer */}
+      {/* Mobile menu */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-[110] lg:hidden">
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ease-linear"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setIsMobileMenuOpen(false)}
-            aria-hidden="true"
           />
-          <div className="absolute top-0 left-0 bottom-0 w-[85%] max-w-sm bg-white shadow-2xl flex flex-col animate-in slide-in-from-left duration-500 ease-out">
-            <div className="px-6 py-5 flex items-center justify-between bg-white relative z-10 border-b border-gray-100/50">
-              <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-                <img
-                  src="/frebys-logo.png"
-                  alt={siteName}
-                  className="h-10 w-auto object-contain"
-                />
+
+          {/* Full-height panel */}
+          <div className="absolute inset-y-0 left-0 w-[85%] max-w-[360px] bg-[#FAFAF8] flex flex-col animate-in slide-in-from-left duration-400 shadow-2xl">
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 h-16 shrink-0">
+              <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center">
+                <img src="/shopwithgg-logo.png" alt={siteName} className="h-8 w-auto object-contain" />
               </Link>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-black hover:bg-gray-100 rounded-full transition-all duration-300"
+                className="w-9 h-9 flex items-center justify-center text-[#2C1D00]/30 hover:text-[#2C1D00] rounded-full hover:bg-[#2C1D00]/5 transition-colors"
                 aria-label="Close menu"
               >
-                <i className="ri-close-line text-2xl"></i>
+                <i className="ri-close-line text-xl"></i>
               </button>
             </div>
 
-            <nav className="flex-1 overflow-y-auto pt-6 pb-20 px-4 space-y-1">
-              {[
-                { label: 'Home', href: '/' },
-                { label: 'Shop', href: '/shop' },
-                { label: 'Categories', href: '/categories' },
-                { label: 'About', href: '/about' },
-                { label: 'Contact', href: '/contact' },
-              ].map((link, index) => (
-                <div
-                  key={link.href}
-                  className="animate-in slide-in-from-left-4 fade-in duration-500 fill-mode-both"
-                  style={{ animationDelay: `${index * 75}ms` }}
-                >
-                  <NavLink
-                    href={link.href}
-                    isMobile
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {link.label}
-                  </NavLink>
-                </div>
-              ))}
+            {/* Scrollable body */}
+            <div className="flex-1 overflow-y-auto px-4 pb-6">
 
-              <div className="my-6 space-y-4 px-4 pt-6 border-t border-gray-100">
-                <button
-                  onClick={() => {
-                    window.dispatchEvent(new CustomEvent('show-pwa-install-guide'));
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-base font-medium text-white bg-black hover:bg-gray-800 rounded-xl transition-all shadow-md active:scale-95"
-                >
-                  <i className="ri-download-cloud-2-line text-lg"></i>
-                  Install App for Better Experience
-                </button>
-              </div>
-
-              <div className="px-2 space-y-1 pt-4">
-                {[
-                  { label: 'Track Order', href: '/order-tracking', icon: 'ri-truck-line' },
-                  { label: 'Wishlist', href: '/wishlist', icon: 'ri-heart-line' },
-                  { label: 'My Account', href: '/account', icon: 'ri-user-line' },
-                ].map((link, index) => (
+              {/* Main nav */}
+              <div className="space-y-1 mb-6">
+                {[{ label: 'Home', href: '/', icon: 'ri-home-5-line' }, ...navLinks.map(l => ({
+                  ...l,
+                  icon: l.href === '/shop' ? 'ri-store-2-line' : l.href === '/categories' ? 'ri-layout-grid-line' : l.href === '/about' ? 'ri-information-line' : 'ri-mail-send-line',
+                }))].map((link, i) => (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="flex items-center gap-3 px-4 py-3 text-[15px] font-medium text-gray-600 hover:text-black hover:bg-gray-50 rounded-xl transition-all duration-300"
                     onClick={() => setIsMobileMenuOpen(false)}
+                    className={`flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-[15px] font-medium transition-all animate-in slide-in-from-left-3 fade-in duration-300 fill-mode-both ${
+                      active(link.href)
+                        ? 'bg-[#2C1D00] text-white shadow-md shadow-[#2C1D00]/20'
+                        : 'text-[#2C1D00]/70 hover:bg-white hover:text-[#2C1D00] hover:shadow-sm'
+                    }`}
+                    style={{ animationDelay: `${i * 40}ms` }}
                   >
-                    <i className={`${link.icon} text-xl text-gray-400`}></i>
+                    <i className={`${link.icon} text-lg ${active(link.href) ? 'text-[#AB9462]' : 'text-[#2C1D00]/30'}`}></i>
                     {link.label}
                   </Link>
                 ))}
               </div>
-            </nav>
 
-            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white to-transparent pointer-events-none">
-              <p className="text-xs text-center font-medium text-gray-400">
-                &copy; {new Date().getFullYear()} {siteName}. All rights reserved.
-              </p>
+              {/* Divider */}
+              <div className="h-px bg-[#2C1D00]/[0.06] mx-2 mb-5" />
+
+              {/* Quick actions */}
+              <p className="px-4 mb-2.5 text-[10px] font-bold tracking-[0.15em] uppercase text-[#2C1D00]/25">Quick Links</p>
+              <div className="space-y-0.5 mb-6">
+                {[
+                  { label: 'Track Order', href: '/order-tracking', icon: 'ri-truck-line' },
+                  { label: 'Wishlist', href: '/wishlist', icon: 'ri-heart-3-line', badge: wishlistCount },
+                  { label: user ? 'My Account' : 'Sign In', href: user ? '/account' : '/auth/login', icon: user ? 'ri-user-smile-line' : 'ri-user-4-line' },
+                  { label: 'Help Center', href: '/faqs', icon: 'ri-question-line' },
+                ].map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-[14px] text-[#2C1D00]/50 hover:text-[#2C1D00] hover:bg-white transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <i className={`${link.icon} text-[17px] text-[#2C1D00]/25`}></i>
+                    <span className="flex-1">{link.label}</span>
+                    {'badge' in link && link.badge! > 0 && (
+                      <span className="text-[10px] font-bold text-[#AB9462] bg-[#AB9462]/10 w-5 h-5 rounded-full flex items-center justify-center">{link.badge}</span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+
+              {/* Install CTA */}
+              <button
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('show-pwa-install-guide'));
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-gradient-to-r from-[#AB9462]/10 to-[#AB9462]/5 text-[14px] font-semibold text-[#AB9462] hover:from-[#AB9462]/15 hover:to-[#AB9462]/10 transition-all"
+              >
+                <div className="w-8 h-8 rounded-xl bg-[#AB9462]/15 flex items-center justify-center">
+                  <i className="ri-smartphone-line text-base text-[#AB9462]"></i>
+                </div>
+                Install the App
+              </button>
+            </div>
+
+            {/* Footer */}
+            <div className="shrink-0 px-5 py-4 border-t border-[#2C1D00]/[0.04] bg-[#FAFAF8]">
+              <p className="text-[10px] text-[#2C1D00]/20 font-medium">&copy; {new Date().getFullYear()} {siteName}. All rights reserved.</p>
             </div>
           </div>
         </div>

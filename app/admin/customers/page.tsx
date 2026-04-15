@@ -301,7 +301,7 @@ export default function AdminCustomersPage() {
         </div>
         <div className="bg-white rounded-xl border-2 border-gray-200 p-4">
           <p className="text-sm text-gray-600 mb-1">Avg Lifetime Value</p>
-          <p className="text-2xl font-bold text-gray-900">GH₵ {stats.avgLTV.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+          <p className="text-2xl font-bold text-gray-900">₦ {stats.avgLTV.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
         </div>
       </div>
 
@@ -424,7 +424,7 @@ export default function AdminCustomersPage() {
                       <p className="text-gray-600 text-sm">{customer.phone}</p>
                     </td>
                     <td className="py-4 px-4 font-semibold text-gray-900">{customer.orders}</td>
-                    <td className="py-4 px-4 font-semibold text-gray-900 whitespace-nowrap">GH₵ {customer.totalSpent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td className="py-4 px-4 font-semibold text-gray-900 whitespace-nowrap">₦ {customer.totalSpent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     <td className="py-4 px-4 text-gray-700 text-sm whitespace-nowrap">{customer.lastOrder}</td>
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-2">

@@ -1,4 +1,4 @@
-// Frebys Fashion GH - Service Worker v3.0
+// ShopWithGG - Service Worker v3.0
 const CACHE_VERSION = 'sl-v3.0';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
@@ -14,7 +14,7 @@ const STATIC_ASSETS = [
   '/account',
   '/categories',
   '/offline',
-  '/frebys-logo.png',
+  '/shopwithgg-logo.png',
 ];
 
 // Cache size limits
@@ -212,7 +212,7 @@ self.addEventListener('push', (event) => {
 
   const data = event.data.json();
   const options = {
-    body: data.body || 'New update from Frebys Fashion GH',
+    body: data.body || 'New update from ShopWithGG',
     icon: '/icons/icon-192x192.png',
     badge: '/icons/icon-72x72.png',
     vibrate: [100, 50, 100],
@@ -228,7 +228,7 @@ self.addEventListener('push', (event) => {
 
   event.waitUntil(
     self.registration.showNotification(
-      data.title || 'Frebys Fashion GH',
+      data.title || 'ShopWithGG',
       options
     )
   );

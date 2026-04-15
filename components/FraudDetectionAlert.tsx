@@ -10,16 +10,16 @@ export default function FraudDetectionAlert({ riskLevel, reasons, orderId }: Fra
   const getRiskColor = () => {
     switch (riskLevel) {
       case 'low': return 'bg-gray-50 border-gray-200 text-gray-800';
-      case 'medium': return 'bg-orange-50 border-orange-200 text-orange-800';
-      case 'high': return 'bg-red-50 border-red-200 text-red-800';
+      case 'medium': return 'bg-[#FFFFCC]/50 border-[#FFCC00]/30 text-[#2C1D00]';
+      case 'high': return 'bg-[#FFCCCC]/50 border-[#FF6666]/30 text-[#9A1900]';
     }
   };
 
   const getRiskIcon = () => {
     switch (riskLevel) {
       case 'low': return 'ri-shield-check-line text-gray-700';
-      case 'medium': return 'ri-error-warning-line text-orange-600';
-      case 'high': return 'ri-alarm-warning-line text-red-600';
+      case 'medium': return 'ri-error-warning-line text-[#AB9462]';
+      case 'high': return 'ri-alarm-warning-line text-[#9A1900]';
     }
   };
 
@@ -58,14 +58,14 @@ export default function FraudDetectionAlert({ riskLevel, reasons, orderId }: Fra
           )}
 
           {riskLevel === 'high' && (
-            <div className="mt-3 pt-3 border-t border-red-300">
+            <div className="mt-3 pt-3 border-t border-[#FF6666]/50">
               <p className="text-sm font-medium mb-2">Recommended Actions:</p>
               <div className="flex gap-2">
-                <button className="px-3 py-1.5 bg-red-600 text-white rounded text-sm font-medium hover:bg-red-700 transition-colors whitespace-nowrap">
+                <button className="px-3 py-1.5 bg-[#9A1900] text-white rounded text-sm font-medium hover:bg-[#9A1900]/80 transition-colors whitespace-nowrap">
                   <i className="ri-pause-circle-line mr-1"></i>
                   Hold Order
                 </button>
-                <button className="px-3 py-1.5 bg-white text-red-800 rounded text-sm font-medium hover:bg-red-100 transition-colors whitespace-nowrap">
+                <button className="px-3 py-1.5 bg-white text-[#9A1900] rounded text-sm font-medium hover:bg-[#FFCCCC]/50 transition-colors whitespace-nowrap">
                   <i className="ri-customer-service-line mr-1"></i>
                   Contact Customer
                 </button>

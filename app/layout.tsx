@@ -1,50 +1,45 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Pacifico, Playfair_Display, Inter } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import "./globals.css";
 
-const pacifico = Pacifico({ weight: "400", subsets: ["latin"], variable: "--font-pacifico" });
-const playfair = Playfair_Display({
-  weight: ["400", "500", "600", "700"],
+const montserrat = Montserrat({
+  weight: ["300", "400", "500", "600", "700"],
   style: ["normal", "italic"],
   subsets: ["latin"],
-  variable: "--font-playfair",
-});
-const inter = Inter({
-  weight: ["300", "400", "500", "600", "700"],
-  subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-montserrat",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://frebysfashiongh.com";
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://shopwithgg.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  applicationName: "Frebys Fashion GH",
+  applicationName: "ShopWithGG",
   category: "shopping",
   referrer: "origin-when-cross-origin",
   title: {
-    default: "Frebys Fashion GH | Kids Ready-to-Wear Ankara Clothes",
-    template: "%s | Frebys Fashion GH",
+    default: "ShopWithGG | Smart Sourcing & Procurement Partner",
+    template: "%s | ShopWithGG",
   },
   description:
-    "Frebys Fashion GH creates unique kids ready-to-wear Ankara clothes for all occasions. Casual and luxury kids wear with worldwide delivery from Haatso, Accra, Ghana.",
+    "ShopWithGG is your trusted global sourcing and procurement partner. We leverage a network of vetted international suppliers to deliver premium products at direct-from-supplier pricing.",
   keywords: [
-    "Frebys Fashion GH",
-    "kids Ankara clothes",
-    "kids ready to wear Ghana",
-    "children fashion Ghana",
-    "casual kids wear",
-    "luxury kids wear",
-    "Ankara outfits for kids",
-    "Haatso Accra",
-    "worldwide kids fashion delivery",
+    "ShopWithGG",
+    "global sourcing",
+    "procurement partner",
+    "international suppliers",
+    "premium products",
+    "direct-from-supplier pricing",
+    "smart sourcing",
+    "preorder fulfillment",
+    "quality products",
+    "curated products",
   ],
-  authors: [{ name: "Frebys Fashion GH" }],
-  creator: "Frebys Fashion GH",
-  publisher: "Frebys Fashion GH",
+  authors: [{ name: "ShopWithGG" }],
+  creator: "ShopWithGG",
+  publisher: "ShopWithGG",
   robots: {
     index: true,
     follow: true,
@@ -75,7 +70,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Frebys Fashion GH",
+    title: "ShopWithGG",
   },
   formatDetection: {
     telephone: true,
@@ -85,26 +80,26 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    locale: "en_GH",
+    locale: "en_NG",
     url: siteUrl,
-    title: "Frebys Fashion GH | Kids Ready-to-Wear Ankara Clothes",
+    title: "ShopWithGG | Smart Sourcing & Procurement Partner",
     description:
-      "Unique kids wear for all occasions. Passion for kids fashion with casual and luxury Ankara styles. Worldwide delivery from Haatso, Accra, Ghana.",
-    siteName: "Frebys Fashion GH",
+      "Your trusted global sourcing and procurement partner. Carefully curated international products at direct-from-supplier pricing, delivered worldwide.",
+    siteName: "ShopWithGG",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Frebys Fashion GH logo and brand preview",
+        alt: "ShopWithGG logo and brand preview",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Frebys Fashion GH | Kids Ready-to-Wear Ankara Clothes",
+    title: "ShopWithGG | Smart Sourcing & Procurement Partner",
     description:
-      "Unique casual and luxury kids Ankara wear with worldwide delivery from Ghana.",
+      "Your trusted global sourcing and procurement partner. Premium products from vetted international suppliers at direct-from-supplier pricing.",
     images: ["/twitter-image.png"],
   },
   alternates: {
@@ -126,12 +121,12 @@ export default function RootLayout({
     <html lang="en">
       <head>
         {/* PWA Meta Tags */}
-        <meta name="theme-color" content="#166d1f" />
+        <meta name="theme-color" content="#2C1D00" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Frebys Fashion GH" />
+        <meta name="apple-mobile-web-app-title" content="ShopWithGG" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="msapplication-TileColor" content="#166d1f" />
+        <meta name="msapplication-TileColor" content="#2C1D00" />
         <meta name="msapplication-tap-highlight" content="no" />
 
         {/* Apple Touch Icons */}
@@ -158,33 +153,33 @@ export default function RootLayout({
                 {
                   "@type": "Organization",
                   "@id": `${siteUrl}#organization`,
-                  "name": "Frebys Fashion GH",
+                  "name": "ShopWithGG",
                   "url": siteUrl,
-                  "logo": `${siteUrl}/frebys-logo.png`,
+                  "logo": `${siteUrl}/shopwithgg-logo.png`,
                   "image": `${siteUrl}/og-image.png`,
-                  "description": "Unique kids ready-to-wear Ankara clothes for all occasions. Casual and luxury kids wear with worldwide delivery.",
-                  "sameAs": ["https://wa.me/233244720197"],
+                  "description": "Your trusted global sourcing and procurement partner. Premium products from vetted international suppliers at direct-from-supplier pricing.",
+                  "sameAs": ["https://wa.me/2348071363567", "https://instagram.com/_shopwithgg_"],
                   "contactPoint": {
                     "@type": "ContactPoint",
                     "contactType": "customer service",
-                    "telephone": "+233244720197",
+                    "telephone": "+2348071363567",
                     "availableLanguage": "English"
                   }
                 },
                 {
-                  "@type": "ClothingStore",
+                  "@type": "Store",
                   "@id": `${siteUrl}#store`,
-                  "name": "Frebys Fashion GH",
+                  "name": "ShopWithGG",
                   "url": siteUrl,
                   "image": `${siteUrl}/og-image.png`,
-                  "telephone": "+233244720197",
+                  "telephone": "+2348071363567",
                   "priceRange": "$$",
                   "address": {
                     "@type": "PostalAddress",
-                    "addressLocality": "Haatso, Accra",
-                    "addressCountry": "GH"
+                    "addressLocality": "Lagos",
+                    "addressCountry": "NG"
                   },
-                  "areaServed": "Worldwide"
+                  "areaServed": "Nigeria"
                 }
               ]
             })
@@ -220,7 +215,7 @@ export default function RootLayout({
         />
       )}
 
-      <body className={`antialiased overflow-x-hidden pwa-body ${pacifico.variable} ${playfair.variable} ${inter.variable} font-sans`} style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}>
+      <body className={`antialiased overflow-x-hidden pwa-body ${montserrat.variable} font-sans`} style={{ fontFamily: "var(--font-montserrat), system-ui, sans-serif" }}>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[10000] focus:px-6 focus:py-3 focus:bg-gray-900 focus:text-white focus:rounded-lg focus:font-semibold focus:shadow-lg"

@@ -252,15 +252,15 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     const [keywordsEdited, setKeywordsEdited] = useState(!!(initialData?.tags?.length));
 
     const generateSeoFields = (name: string, desc: string) => {
-        const title = name ? `${name} | Frebys Fashion GH` : '';
+        const title = name ? `${name} | ShopWithGG` : '';
         const metaDesc = desc
             ? (desc.length > 160 ? desc.substring(0, 157).trimEnd() + '...' : desc)
-            : name ? `Shop ${name} at Frebys Fashion GH. Unique kids Ankara fashion in Ghana with worldwide delivery.` : '';
+            : name ? `Shop ${name} at ShopWithGG. Curated fashion in Nigeria with worldwide delivery.` : '';
         const kw = name
             ? [...new Set([
                 name.toLowerCase(),
                 ...name.toLowerCase().split(/\s+/).filter(w => w.length > 2),
-                'frebys fashion', 'kids ankara ghana', 'kids fashion'
+                'shopwithgg', 'fashion nigeria', 'online fashion'
               ])].join(', ')
             : '';
         return { title, metaDesc, kw };
@@ -715,10 +715,10 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                             <div className="grid md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                                        Price (GH₵) *
+                                        Price (₦) *
                                     </label>
                                     <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-semibold">GH₵</span>
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-semibold">₦</span>
                                         <input
                                             type="number"
                                             value={price}
@@ -732,10 +732,10 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                                        Compare at Price (GH₵)
+                                        Compare at Price (₦)
                                     </label>
                                     <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-semibold">GH₵</span>
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-semibold">₦</span>
                                         <input
                                             type="number"
                                             value={comparePrice}
@@ -753,7 +753,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                 <p className="text-blue-900 font-semibold mb-1">Discount Calculation</p>
                                 {price && comparePrice && parseFloat(comparePrice) > parseFloat(price) ? (
                                     <p className="text-blue-800">
-                                        Savings: GH₵ {(parseFloat(comparePrice) - parseFloat(price)).toFixed(2)}
+                                        Savings: ₦ {(parseFloat(comparePrice) - parseFloat(price)).toFixed(2)}
                                         <span className="ml-2">
                                             ({(((parseFloat(comparePrice) - parseFloat(price)) / parseFloat(comparePrice)) * 100).toFixed(0)}% off)
                                         </span>
@@ -793,9 +793,9 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                 <p className="text-sm text-gray-600 mb-4">Set a bulk price for customers who order larger quantities.</p>
                                 <div className="grid md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-900 mb-2">Wholesale Price (GH₵)</label>
+                                        <label className="block text-sm font-semibold text-gray-900 mb-2">Wholesale Price (₦)</label>
                                         <div className="relative">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-semibold">GH₵</span>
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-semibold">₦</span>
                                             <input
                                                 type="number"
                                                 value={wholesalePrice}
@@ -1141,7 +1141,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                                         <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Size</th>
                                                     )}
                                                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Variant image</th>
-                                                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Price (GH₵)</th>
+                                                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Price (₦)</th>
                                                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Stock</th>
                                                 </tr>
                                             </thead>
@@ -1435,7 +1435,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                 <div className="p-4 bg-white border-2 border-gray-100 rounded-xl">
                                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Google Preview</p>
                                     <p className="text-blue-700 text-base font-medium leading-snug truncate">{seoTitle || productName}</p>
-                                    <p className="text-green-700 text-xs mt-0.5">frebysfashiongh.com/product/{urlSlug}</p>
+                                    <p className="text-green-700 text-xs mt-0.5">shopwithgg.com/product/{urlSlug}</p>
                                     <p className="text-gray-600 text-sm mt-1 line-clamp-2">{metaDescription}</p>
                                 </div>
                             )}
@@ -1452,7 +1452,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                     value={seoTitle}
                                     onChange={(e) => { setSeoTitle(e.target.value); setSeoTitleEdited(true); }}
                                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
-                                    placeholder="e.g. Ankara Party Dress | Frebys Fashion GH"
+                                    placeholder="e.g. Silk Dress | ShopWithGG"
                                 />
                             </div>
 
@@ -1468,7 +1468,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                     value={metaDescription}
                                     onChange={(e) => { setMetaDescription(e.target.value); setMetaDescEdited(true); }}
                                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 resize-none"
-                                    placeholder="e.g. Shop premium kids Ankara outfits at Frebys Fashion GH. Worldwide delivery available."
+                                    placeholder="e.g. Shop premium fashion at ShopWithGG. Worldwide delivery available."
                                 />
                             </div>
 
@@ -1500,7 +1500,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                     value={keywords}
                                     onChange={(e) => { setKeywords(e.target.value); setKeywordsEdited(true); }}
                                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
-                                    placeholder="e.g. lash bed, beauty tools, ghana"
+                                    placeholder="e.g. lash bed, beauty tools, nigeria"
                                 />
                                 <p className="text-xs text-gray-400 mt-1">Separate with commas. Auto-generated from product name.</p>
                             </div>

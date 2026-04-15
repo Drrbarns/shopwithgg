@@ -174,8 +174,8 @@ export default function SignupPage() {
 
         <div className="bg-white rounded-xl shadow-sm p-8">
           {authError && (
-            <div ref={errorRef} className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-start gap-3">
-              <i className="ri-error-warning-line text-red-500 text-lg flex-shrink-0 mt-0.5"></i>
+            <div ref={errorRef} className="mb-4 p-4 bg-[#FFCCCC]/50 border border-[#FF6666]/30 text-[#9A1900] rounded-lg text-sm flex items-start gap-3">
+              <i className="ri-error-warning-line text-[#FF6666] text-lg flex-shrink-0 mt-0.5"></i>
               <span>{authError}</span>
             </div>
           )}
@@ -190,12 +190,12 @@ export default function SignupPage() {
                   type="text"
                   value={formData.firstName}
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                  className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.firstName ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.firstName ? 'border-[#FF6666]' : 'border-gray-300'
                     }`}
                   placeholder="John"
                 />
                 {errors.firstName && (
-                  <p className="text-sm text-red-600 mt-1">{errors.firstName}</p>
+                  <p className="text-sm text-[#9A1900] mt-1">{errors.firstName}</p>
                 )}
               </div>
               <div>
@@ -206,12 +206,12 @@ export default function SignupPage() {
                   type="text"
                   value={formData.lastName}
                   onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.lastName ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.lastName ? 'border-[#FF6666]' : 'border-gray-300'
                     }`}
                   placeholder="Doe"
                 />
                 {errors.lastName && (
-                  <p className="text-sm text-red-600 mt-1">{errors.lastName}</p>
+                  <p className="text-sm text-[#9A1900] mt-1">{errors.lastName}</p>
                 )}
               </div>
             </div>
@@ -224,12 +224,12 @@ export default function SignupPage() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.email ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.email ? 'border-[#FF6666]' : 'border-gray-300'
                   }`}
                 placeholder="you@example.com"
               />
               {errors.email && (
-                <p className="text-sm text-red-600 mt-2">{errors.email}</p>
+                <p className="text-sm text-[#9A1900] mt-2">{errors.email}</p>
               )}
             </div>
 
@@ -241,12 +241,12 @@ export default function SignupPage() {
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.phone ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.phone ? 'border-[#FF6666]' : 'border-gray-300'
                   }`}
-                placeholder="+233 XX XXX XXXX"
+                placeholder="+234 XX XXXX XXXX"
               />
               {errors.phone && (
-                <p className="text-sm text-red-600 mt-2">{errors.phone}</p>
+                <p className="text-sm text-[#9A1900] mt-2">{errors.phone}</p>
               )}
             </div>
 
@@ -259,7 +259,7 @@ export default function SignupPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className={`w-full px-4 py-3 pr-12 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.password ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-3 pr-12 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.password ? 'border-[#FF6666]' : 'border-gray-300'
                     }`}
                   placeholder="At least 8 characters"
                 />
@@ -273,7 +273,7 @@ export default function SignupPage() {
               </div>
               <PasswordStrengthMeter password={formData.password} />
               {errors.password && (
-                <p className="text-sm text-red-600 mt-2">{errors.password}</p>
+                <p className="text-sm text-[#9A1900] mt-2">{errors.password}</p>
               )}
             </div>
 
@@ -286,7 +286,7 @@ export default function SignupPage() {
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className={`w-full px-4 py-3 pr-12 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-3 pr-12 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.confirmPassword ? 'border-[#FF6666]' : 'border-gray-300'
                     }`}
                   placeholder="Re-enter password"
                 />
@@ -299,7 +299,7 @@ export default function SignupPage() {
                 </button>
               </div>
               {errors.confirmPassword && (
-                <p className="text-sm text-red-600 mt-2">{errors.confirmPassword}</p>
+                <p className="text-sm text-[#9A1900] mt-2">{errors.confirmPassword}</p>
               )}
             </div>
 
@@ -323,7 +323,7 @@ export default function SignupPage() {
                 </span>
               </label>
               {errors.acceptTerms && (
-                <p className="text-sm text-red-600 mt-2">{errors.acceptTerms}</p>
+                <p className="text-sm text-[#9A1900] mt-2">{errors.acceptTerms}</p>
               )}
             </div>
 
@@ -355,14 +355,14 @@ export default function SignupPage() {
                 disabled
                 className="flex items-center justify-center space-x-2 border-2 border-gray-200 bg-gray-50 py-3 rounded-lg cursor-not-allowed opacity-60"
               >
-                <i className="ri-google-fill text-xl text-red-600 grayscale opacity-50"></i>
+                <i className="ri-google-fill text-xl text-[#9A1900] grayscale opacity-50"></i>
                 <span className="font-medium text-gray-400">Google</span>
               </button>
               <button
                 disabled
                 className="flex items-center justify-center space-x-2 border-2 border-gray-200 bg-gray-50 py-3 rounded-lg cursor-not-allowed opacity-60"
               >
-                <i className="ri-facebook-fill text-xl text-blue-600 grayscale opacity-50"></i>
+                <i className="ri-facebook-fill text-xl text-[#AB9462] grayscale opacity-50"></i>
                 <span className="font-medium text-gray-400">Facebook</span>
               </button>
             </div>

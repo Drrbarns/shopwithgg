@@ -177,7 +177,7 @@ function AccountContent() {
             </div>
             <button
               onClick={handleSignOut}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:text-red-600 hover:border-red-200 transition-all font-medium shadow-sm w-full md:w-auto justify-center md:justify-start"
+              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:text-[#9A1900] hover:border-[#FF6666]/30 transition-all font-medium shadow-sm w-full md:w-auto justify-center md:justify-start"
             >
               <i className="ri-logout-box-r-line"></i>
               Sign Out
@@ -244,7 +244,7 @@ function AccountContent() {
                     <p className="text-gray-500 mb-8">Update your personal details and contact info.</p>
 
                     {profileMessage.text && (
-                      <div className={`mb-6 p-4 rounded-xl flex items-start gap-3 ${profileMessage.type === 'success' ? 'bg-gray-50 text-gray-900 border border-gray-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>
+                      <div className={`mb-6 p-4 rounded-xl flex items-start gap-3 ${profileMessage.type === 'success' ? 'bg-gray-50 text-gray-900 border border-gray-100' : 'bg-[#FFCCCC]/50 text-[#9A1900] border border-[#FF6666]/20'}`}>
                         <i className={`text-xl mt-0.5 ${profileMessage.type === 'success' ? 'ri-checkbox-circle-line' : 'ri-error-warning-line'}`}></i>
                         <div>{profileMessage.text}</div>
                       </div>
@@ -294,7 +294,7 @@ function AccountContent() {
                             type="tel"
                             value={profileData.phone}
                             onChange={e => setProfileData({ ...profileData, phone: e.target.value })}
-                            placeholder="+233 XX XXX XXXX"
+                            placeholder="+234 XX XXXX XXXX"
                             className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-gray-50 focus:border-gray-600 transition-all bg-gray-50 focus:bg-white"
                           />
                         </div>
@@ -316,7 +316,7 @@ function AccountContent() {
                       <p className="text-gray-500 mb-6">Ensure your account uses a strong, unique password.</p>
 
                       {passwordMessage.text && (
-                        <div className={`mb-6 p-4 rounded-xl flex items-start gap-3 ${passwordMessage.type === 'success' ? 'bg-gray-50 text-gray-900 border border-gray-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>
+                        <div className={`mb-6 p-4 rounded-xl flex items-start gap-3 ${passwordMessage.type === 'success' ? 'bg-gray-50 text-gray-900 border border-gray-100' : 'bg-[#FFCCCC]/50 text-[#9A1900] border border-[#FF6666]/20'}`}>
                           <i className={`text-xl mt-0.5 ${passwordMessage.type === 'success' ? 'ri-checkbox-circle-line' : 'ri-error-warning-line'}`}></i>
                           <div>{passwordMessage.text}</div>
                         </div>
@@ -391,7 +391,7 @@ function AccountContent() {
                               </span>
                             )}
                             {option.status === 'unverified' && (
-                              <span className="text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 bg-amber-100 text-amber-700 rounded-full flex items-center gap-1">
+                              <span className="text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 bg-[#FFFFCC] text-[#996633] rounded-full flex items-center gap-1">
                                 <i className="ri-error-warning-fill"></i> <span className="hidden sm:inline">Verify</span>
                               </span>
                             )}

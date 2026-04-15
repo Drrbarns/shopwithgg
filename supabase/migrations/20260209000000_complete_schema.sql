@@ -12,6 +12,8 @@
 --   5. Create an admin user and set their role in profiles
 --
 -- No store-specific data or branding is included.
+--
+-- Last verified against live database: 2026-04-14
 -- ============================================================================
 
 -- ============================================================================
@@ -78,83 +80,237 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION public.update_product_rating_stats()
+CREATE OR REPLACE FUNCTION public.update_product_rating()
 RETURNS trigger
 LANGUAGE plpgsql
-SECURITY DEFINER
 SET search_path TO 'public'
 AS $$
 BEGIN
-  UPDATE products
-  SET rating_avg = (
-    SELECT COALESCE(AVG(rating), 0)
-    FROM reviews
-    WHERE product_id = COALESCE(NEW.product_id, OLD.product_id)
-    AND status = 'approved'
-  ),
-  review_count = (
-    SELECT COUNT(*)
-    FROM reviews
-    WHERE product_id = COALESCE(NEW.product_id, OLD.product_id)
-    AND status = 'approved'
-  ),
-  updated_at = now()
+  UPDATE public.products
+  SET
+    rating_avg = (
+      SELECT COALESCE(AVG(rating), 0)
+      FROM public.reviews
+      WHERE product_id = COALESCE(NEW.product_id, OLD.product_id)
+      AND status = 'approved'::review_status
+    ),
+    review_count = (
+      SELECT COUNT(*)
+      FROM public.reviews
+      WHERE product_id = COALESCE(NEW.product_id, OLD.product_id)
+      AND status = 'approved'::review_status
+    )
   WHERE id = COALESCE(NEW.product_id, OLD.product_id);
   RETURN COALESCE(NEW, OLD);
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION public.upsert_customer_from_order(
-  p_email text,
-  p_phone text,
-  p_full_name text,
-  p_first_name text,
-  p_last_name text,
-  p_user_id uuid DEFAULT NULL,
-  p_address jsonb DEFAULT NULL
-)
-RETURNS uuid
+CREATE OR REPLACE FUNCTION public.generate_order_number()
+RETURNS text
+LANGUAGE plpgsql
+SET search_path TO 'public'
+AS $$
+DECLARE
+  new_number text;
+  counter integer;
+BEGIN
+  SELECT COUNT(*) + 1 INTO counter FROM public.orders;
+  new_number := 'ORD-' || TO_CHAR(now(), 'YYYYMMDD') || '-' || LPAD(counter::text, 4, '0');
+  RETURN new_number;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.mark_order_paid(p_order_id uuid, p_transaction_id text DEFAULT NULL, p_payment_method text DEFAULT NULL)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $$
+BEGIN
+  UPDATE public.orders
+  SET
+    payment_status = 'paid'::payment_status,
+    status = 'processing'::order_status,
+    payment_transaction_id = COALESCE(p_transaction_id, payment_transaction_id),
+    payment_method = COALESCE(p_payment_method, payment_method),
+    updated_at = now()
+  WHERE id = p_order_id;
+
+  INSERT INTO public.order_status_history (order_id, status, notes)
+  VALUES (p_order_id, 'processing'::order_status, 'Payment confirmed');
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.adjust_inventory(p_product_id uuid, p_variant_id uuid DEFAULT NULL, p_quantity_change integer DEFAULT 0)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $$
+BEGIN
+  IF p_variant_id IS NOT NULL THEN
+    UPDATE public.product_variants
+    SET quantity = quantity + p_quantity_change, updated_at = now()
+    WHERE id = p_variant_id;
+  ELSE
+    UPDATE public.products
+    SET quantity = quantity + p_quantity_change, updated_at = now()
+    WHERE id = p_product_id;
+  END IF;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_dashboard_stats()
+RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path TO 'public'
 AS $$
 DECLARE
-  v_customer_id UUID;
-  v_existing_email TEXT;
-  v_existing_phone TEXT;
-  v_existing_secondary_email TEXT;
-  v_existing_secondary_phone TEXT;
+  result jsonb;
 BEGIN
-  SELECT id, email, phone, secondary_email, secondary_phone 
-  INTO v_customer_id, v_existing_email, v_existing_phone, v_existing_secondary_email, v_existing_secondary_phone 
-  FROM customers 
-  WHERE email = p_email OR secondary_email = p_email 
-  LIMIT 1;
-  
-  IF v_customer_id IS NULL AND p_phone IS NOT NULL AND p_phone != '' THEN
-    SELECT id, email, phone, secondary_email, secondary_phone 
-    INTO v_customer_id, v_existing_email, v_existing_phone, v_existing_secondary_email, v_existing_secondary_phone 
-    FROM customers 
-    WHERE phone = p_phone OR secondary_phone = p_phone 
-    LIMIT 1;
+  SELECT jsonb_build_object(
+    'total_orders', (SELECT COUNT(*) FROM public.orders),
+    'total_revenue', (SELECT COALESCE(SUM(total), 0) FROM public.orders WHERE payment_status = 'paid'),
+    'total_products', (SELECT COUNT(*) FROM public.products WHERE status = 'active'),
+    'total_customers', (SELECT COUNT(*) FROM public.customers),
+    'pending_orders', (SELECT COUNT(*) FROM public.orders WHERE status = 'pending'),
+    'low_stock_products', (SELECT COUNT(*) FROM public.products WHERE quantity < 10 AND track_quantity = true AND status = 'active'),
+    'recent_orders', (
+      SELECT COALESCE(jsonb_agg(row_to_json(o)), '[]'::jsonb)
+      FROM (SELECT id, order_number, total, status, created_at FROM public.orders ORDER BY created_at DESC LIMIT 5) o
+    )
+  ) INTO result;
+  RETURN result;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_storefront_products(
+  p_category text DEFAULT NULL,
+  p_search text DEFAULT NULL,
+  p_sort text DEFAULT 'newest',
+  p_page integer DEFAULT 1,
+  p_limit integer DEFAULT 20,
+  p_min_price numeric DEFAULT NULL,
+  p_max_price numeric DEFAULT NULL
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $$
+DECLARE
+  result jsonb;
+  total_count integer;
+  cat_id uuid;
+BEGIN
+  IF p_category IS NOT NULL AND p_category != '' THEN
+    SELECT id INTO cat_id FROM public.categories WHERE slug = p_category AND status = 'active';
   END IF;
-  
+  SELECT COUNT(*) INTO total_count
+  FROM public.products p
+  WHERE p.status = 'active'
+    AND (cat_id IS NULL OR p.category_id = cat_id)
+    AND (p_search IS NULL OR p_search = '' OR p.name ILIKE '%' || p_search || '%' OR p.description ILIKE '%' || p_search || '%')
+    AND (p_min_price IS NULL OR p.price >= p_min_price)
+    AND (p_max_price IS NULL OR p.price <= p_max_price);
+  SELECT jsonb_build_object(
+    'products', COALESCE((
+      SELECT jsonb_agg(row_to_json(t))
+      FROM (
+        SELECT p.id, p.name, p.slug, p.price, p.compare_at_price, p.short_description,
+               p.category_id, c.name as category_name, c.slug as category_slug,
+               p.rating_avg, p.review_count, p.featured, p.tags, p.quantity, p.moq,
+               (SELECT jsonb_agg(jsonb_build_object('id', pi.id, 'url', pi.url, 'alt_text', pi.alt_text, 'position', pi.position))
+                FROM public.product_images pi WHERE pi.product_id = p.id ORDER BY pi.position) as images
+        FROM public.products p
+        LEFT JOIN public.categories c ON c.id = p.category_id
+        WHERE p.status = 'active'
+          AND (cat_id IS NULL OR p.category_id = cat_id)
+          AND (p_search IS NULL OR p_search = '' OR p.name ILIKE '%' || p_search || '%' OR p.description ILIKE '%' || p_search || '%')
+          AND (p_min_price IS NULL OR p.price >= p_min_price)
+          AND (p_max_price IS NULL OR p.price <= p_max_price)
+        ORDER BY
+          CASE WHEN p_sort = 'newest' THEN p.created_at END DESC,
+          CASE WHEN p_sort = 'price_asc' THEN p.price END ASC,
+          CASE WHEN p_sort = 'price_desc' THEN p.price END DESC,
+          CASE WHEN p_sort = 'rating' THEN p.rating_avg END DESC,
+          CASE WHEN p_sort = 'name_asc' THEN p.name END ASC,
+          CASE WHEN p_sort = 'name_desc' THEN p.name END DESC
+        LIMIT p_limit OFFSET (p_page - 1) * p_limit
+      ) t
+    ), '[]'::jsonb),
+    'total', total_count,
+    'page', p_page,
+    'limit', p_limit,
+    'total_pages', CEIL(total_count::numeric / p_limit::numeric)::integer
+  ) INTO result;
+  RETURN result;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.search_products(
+  search_query text,
+  category_filter uuid DEFAULT NULL,
+  min_price numeric DEFAULT NULL,
+  max_price numeric DEFAULT NULL,
+  sort_by text DEFAULT 'created_at',
+  sort_order text DEFAULT 'desc',
+  page_limit integer DEFAULT 20,
+  page_offset integer DEFAULT 0
+)
+RETURNS TABLE(id uuid, name text, slug text, price numeric, compare_at_price numeric, category_id uuid, status product_status, featured boolean, rating_avg numeric, review_count integer, created_at timestamptz, image_url text)
+LANGUAGE plpgsql
+SET search_path TO 'public'
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    p.id, p.name, p.slug, p.price, p.compare_at_price,
+    p.category_id, p.status, p.featured, p.rating_avg, p.review_count,
+    p.created_at,
+    (SELECT pi.url FROM public.product_images pi WHERE pi.product_id = p.id ORDER BY pi.position ASC LIMIT 1) as image_url
+  FROM public.products p
+  WHERE p.status = 'active'::product_status
+    AND (search_query IS NULL OR search_query = '' OR
+         p.name ILIKE '%' || search_query || '%' OR
+         p.description ILIKE '%' || search_query || '%' OR
+         p.tags::text ILIKE '%' || search_query || '%')
+    AND (category_filter IS NULL OR p.category_id = category_filter)
+    AND (min_price IS NULL OR p.price >= min_price)
+    AND (max_price IS NULL OR p.price <= max_price)
+  ORDER BY
+    CASE WHEN sort_by = 'price' AND sort_order = 'asc' THEN p.price END ASC,
+    CASE WHEN sort_by = 'price' AND sort_order = 'desc' THEN p.price END DESC,
+    CASE WHEN sort_by = 'name' AND sort_order = 'asc' THEN p.name END ASC,
+    CASE WHEN sort_by = 'name' AND sort_order = 'desc' THEN p.name END DESC,
+    CASE WHEN sort_by = 'created_at' AND sort_order = 'desc' THEN p.created_at END DESC,
+    CASE WHEN sort_by = 'created_at' AND sort_order = 'asc' THEN p.created_at END ASC,
+    CASE WHEN sort_by = 'rating' THEN p.rating_avg END DESC
+  LIMIT page_limit OFFSET page_offset;
+END;
+$$;
+
+-- upsert_customer_from_order
+CREATE OR REPLACE FUNCTION public.upsert_customer_from_order(
+  p_email text, p_phone text, p_full_name text, p_first_name text, p_last_name text,
+  p_user_id uuid DEFAULT NULL, p_address jsonb DEFAULT NULL
+)
+RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path TO 'public'
+AS $$
+DECLARE v_customer_id UUID;
+BEGIN
+  SELECT id INTO v_customer_id FROM customers WHERE email = p_email LIMIT 1;
+  IF v_customer_id IS NULL AND p_phone IS NOT NULL AND p_phone != '' THEN
+    SELECT id INTO v_customer_id FROM customers WHERE phone = p_phone OR secondary_phone = p_phone LIMIT 1;
+  END IF;
   IF v_customer_id IS NULL THEN
     INSERT INTO customers (email, phone, full_name, first_name, last_name, user_id, default_address)
     VALUES (p_email, p_phone, p_full_name, p_first_name, p_last_name, p_user_id, p_address)
     RETURNING id INTO v_customer_id;
   ELSE
     UPDATE customers SET
-      secondary_email = CASE 
-        WHEN p_email IS NOT NULL AND p_email != '' AND p_email != v_existing_email 
-             AND (v_existing_secondary_email IS NULL OR v_existing_secondary_email = '' OR v_existing_secondary_email != p_email)
-        THEN p_email ELSE secondary_email
-      END,
-      secondary_phone = CASE 
-        WHEN p_phone IS NOT NULL AND p_phone != '' AND p_phone != v_existing_phone 
-             AND (v_existing_secondary_phone IS NULL OR v_existing_secondary_phone = '' OR v_existing_secondary_phone != p_phone)
-        THEN p_phone ELSE secondary_phone
-      END,
       full_name = COALESCE(NULLIF(p_full_name, ''), full_name),
       first_name = COALESCE(NULLIF(p_first_name, ''), first_name),
       last_name = COALESCE(NULLIF(p_last_name, ''), last_name),
@@ -163,236 +319,90 @@ BEGIN
       updated_at = NOW()
     WHERE id = v_customer_id;
   END IF;
-  
   RETURN v_customer_id;
 END;
 $$;
 
+-- update_customer_stats
 CREATE OR REPLACE FUNCTION public.update_customer_stats(p_customer_email text, p_order_total numeric)
 RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
+LANGUAGE plpgsql SECURITY DEFINER SET search_path TO 'public'
 AS $$
 BEGIN
-  UPDATE customers
-  SET total_orders = total_orders + 1,
-      total_spent = total_spent + p_order_total,
-      last_order_at = NOW(),
-      updated_at = NOW()
+  UPDATE customers SET total_orders = total_orders + 1, total_spent = total_spent + p_order_total,
+    last_order_at = NOW(), updated_at = NOW()
   WHERE email = p_customer_email;
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION public.mark_order_paid(order_ref text, moolre_ref text DEFAULT NULL)
-RETURNS jsonb
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
-AS $$
-DECLARE
-  updated_order orders;
-BEGIN
-  UPDATE orders
-  SET 
-    payment_status = 'paid',
-    status = CASE 
-        WHEN status = 'pending' THEN 'processing'::order_status
-        WHEN status = 'awaiting_payment' THEN 'processing'::order_status
-        ELSE status
-    END,
-    metadata = COALESCE(metadata, '{}'::jsonb) || 
-               jsonb_build_object(
-                   'moolre_reference', moolre_ref,
-                   'payment_verified_at', to_char(now(), 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
-               )
-  WHERE order_number = order_ref
-  RETURNING * INTO updated_order;
-
-  IF updated_order.id IS NOT NULL THEN
-      IF (updated_order.metadata->>'stock_reduced') IS NULL THEN
-          UPDATE products p
-          SET quantity = GREATEST(0, p.quantity - oi.quantity)
-          FROM order_items oi
-          WHERE oi.order_id = updated_order.id AND oi.product_id = p.id;
-
-          UPDATE product_variants pv
-          SET quantity = GREATEST(0, pv.quantity - oi.quantity)
-          FROM order_items oi
-          WHERE oi.order_id = updated_order.id
-            AND oi.product_id = pv.product_id
-            AND oi.variant_name IS NOT NULL AND oi.variant_name = pv.name;
-            
-          UPDATE orders 
-          SET metadata = metadata || '{"stock_reduced": true}'::jsonb
-          WHERE id = updated_order.id;
-      END IF;
-  ELSE
-      SELECT * INTO updated_order FROM orders WHERE order_number = order_ref;
-  END IF;
-
-  RETURN to_jsonb(updated_order);
-END;
-$$;
-
-CREATE OR REPLACE FUNCTION public.reduce_stock_on_order(p_order_id uuid)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
-AS $$
-BEGIN
-  UPDATE products p
-  SET quantity = GREATEST(p.quantity - oi.quantity, 0), updated_at = now()
-  FROM order_items oi
-  WHERE oi.order_id = p_order_id AND oi.product_id = p.id;
-
-  UPDATE product_variants pv
-  SET quantity = GREATEST(pv.quantity - oi.quantity, 0), updated_at = now()
-  FROM order_items oi
-  WHERE oi.order_id = p_order_id
-    AND oi.product_id = pv.product_id
-    AND oi.variant_name IS NOT NULL AND oi.variant_name = pv.name;
-END;
-$$;
-
-CREATE OR REPLACE FUNCTION public.get_all_customer_emails()
-RETURNS TABLE(email text)
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
-AS $$
-BEGIN
-  RETURN QUERY
-  SELECT DISTINCT e.email
-  FROM (
-    SELECT c.email FROM customers c WHERE c.email IS NOT NULL AND c.email != ''
-    UNION
-    SELECT c.secondary_email FROM customers c WHERE c.secondary_email IS NOT NULL AND c.secondary_email != ''
-  ) e
-  ORDER BY e.email;
-END;
-$$;
-
-CREATE OR REPLACE FUNCTION public.get_all_customer_phones()
-RETURNS TABLE(phone text)
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
-AS $$
-BEGIN
-  RETURN QUERY
-  SELECT DISTINCT p.phone
-  FROM (
-    SELECT c.phone FROM customers c WHERE c.phone IS NOT NULL AND c.phone != ''
-    UNION
-    SELECT c.secondary_phone FROM customers c WHERE c.secondary_phone IS NOT NULL AND c.secondary_phone != ''
-  ) p
-  ORDER BY p.phone;
-END;
-$$;
-
+-- get_order_for_tracking
 CREATE OR REPLACE FUNCTION public.get_order_for_tracking(p_order_number text, p_email text)
 RETURNS jsonb
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = ''
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
 AS $$
-DECLARE
-  o public.orders;
-  items jsonb;
-  result jsonb;
-  search_term text;
+DECLARE o public.orders; items jsonb; result jsonb; search_term text;
 BEGIN
   search_term := trim(p_order_number);
-  IF search_term = '' OR p_email IS NULL OR trim(p_email) = '' THEN
-    RETURN NULL;
-  END IF;
-
+  IF search_term = '' OR p_email IS NULL OR trim(p_email) = '' THEN RETURN NULL; END IF;
   SELECT * INTO o FROM public.orders WHERE order_number = search_term LIMIT 1;
-  IF o.id IS NULL THEN
-    SELECT * INTO o FROM public.orders WHERE metadata->>'tracking_number' = search_term LIMIT 1;
-  END IF;
+  IF o.id IS NULL THEN SELECT * INTO o FROM public.orders WHERE metadata->>'tracking_number' = search_term LIMIT 1; END IF;
   IF o.id IS NULL THEN RETURN NULL; END IF;
   IF lower(trim(o.email)) <> lower(trim(p_email)) THEN RETURN NULL; END IF;
-
-  SELECT jsonb_agg(
-    jsonb_build_object(
-      'id', oi.id, 'product_name', oi.product_name, 'variant_name', oi.variant_name,
-      'quantity', oi.quantity, 'unit_price', oi.unit_price,
-      'metadata', COALESCE(oi.metadata, '{}'::jsonb) || jsonb_build_object(
-        'image', (SELECT pi.url FROM public.product_images pi WHERE pi.product_id = oi.product_id LIMIT 1)
-      )
-    )
-  ) INTO items FROM public.order_items oi WHERE oi.order_id = o.id;
-
+  SELECT jsonb_agg(jsonb_build_object('id', oi.id, 'product_name', oi.product_name, 'variant_name', oi.variant_name,
+    'quantity', oi.quantity, 'unit_price', oi.unit_price,
+    'metadata', COALESCE(oi.metadata, '{}'::jsonb) || jsonb_build_object('image',
+      (SELECT pi.url FROM public.product_images pi WHERE pi.product_id = oi.product_id LIMIT 1))))
+  INTO items FROM public.order_items oi WHERE oi.order_id = o.id;
   IF items IS NULL THEN items := '[]'::jsonb; END IF;
-
-  result := jsonb_build_object(
-    'id', o.id, 'order_number', o.order_number, 'status', o.status,
+  result := jsonb_build_object('id', o.id, 'order_number', o.order_number, 'status', o.status,
     'payment_status', o.payment_status, 'total', o.total, 'email', o.email,
     'created_at', o.created_at, 'shipping_address', COALESCE(o.shipping_address, '{}'::jsonb),
-    'metadata', COALESCE(o.metadata, '{}'::jsonb), 'order_items', items
-  );
+    'metadata', COALESCE(o.metadata, '{}'::jsonb), 'order_items', items);
   RETURN result;
 END;
 $$;
 
+-- upsert_chat_conversation
 CREATE OR REPLACE FUNCTION public.upsert_chat_conversation(
-  p_session_id text,
-  p_user_id uuid DEFAULT NULL,
-  p_messages jsonb DEFAULT '[]'::jsonb,
-  p_metadata jsonb DEFAULT '{}'::jsonb
+  p_session_id text, p_user_id uuid DEFAULT NULL, p_messages jsonb DEFAULT '[]'::jsonb, p_metadata jsonb DEFAULT '{}'::jsonb
 )
 RETURNS uuid
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = ''
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
 AS $$
-DECLARE
-  v_id uuid;
+DECLARE v_id uuid;
 BEGIN
   SELECT id INTO v_id FROM public.chat_conversations WHERE session_id = p_session_id LIMIT 1;
   IF v_id IS NOT NULL THEN
-    UPDATE public.chat_conversations
-    SET messages = p_messages, metadata = p_metadata, user_id = COALESCE(p_user_id, user_id), updated_at = now()
-    WHERE id = v_id;
+    UPDATE public.chat_conversations SET messages = p_messages, metadata = p_metadata, user_id = COALESCE(p_user_id, user_id), updated_at = now() WHERE id = v_id;
     RETURN v_id;
   ELSE
     INSERT INTO public.chat_conversations (session_id, user_id, messages, metadata)
-    VALUES (p_session_id, p_user_id, p_messages, p_metadata)
-    RETURNING id INTO v_id;
+    VALUES (p_session_id, p_user_id, p_messages, p_metadata) RETURNING id INTO v_id;
     RETURN v_id;
   END IF;
 END;
 $$;
 
+-- get_chat_conversation
 CREATE OR REPLACE FUNCTION public.get_chat_conversation(p_session_id text)
 RETURNS jsonb
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = ''
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
 AS $$
-DECLARE
-  v_result jsonb;
+DECLARE v_result jsonb;
 BEGIN
-  SELECT jsonb_build_object(
-    'id', id, 'session_id', session_id, 'user_id', user_id,
-    'messages', messages, 'metadata', metadata,
-    'created_at', created_at, 'updated_at', updated_at
-  ) INTO v_result
-  FROM public.chat_conversations WHERE session_id = p_session_id LIMIT 1;
+  SELECT jsonb_build_object('id', id, 'session_id', session_id, 'user_id', user_id,
+    'messages', messages, 'metadata', metadata, 'created_at', created_at, 'updated_at', updated_at)
+  INTO v_result FROM public.chat_conversations WHERE session_id = p_session_id LIMIT 1;
   RETURN COALESCE(v_result, NULL);
 END;
 $$;
 
+-- generate_ticket_number
 CREATE OR REPLACE FUNCTION public.generate_ticket_number()
 RETURNS text
-LANGUAGE plpgsql
-SET search_path TO 'public'
+LANGUAGE plpgsql SET search_path TO 'public'
 AS $$
-DECLARE
-  v_num integer;
+DECLARE v_num integer;
 BEGIN
   SELECT COALESCE(MAX(CAST(SUBSTRING(ticket_number FROM '#(\d+)$') AS integer)), 0) + 1
   INTO v_num FROM support_tickets;
@@ -400,159 +410,46 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION public.get_ai_memories(
-  p_customer_email text DEFAULT NULL,
-  p_customer_id uuid DEFAULT NULL
-)
+-- get_ai_memories
+CREATE OR REPLACE FUNCTION public.get_ai_memories(p_customer_email text DEFAULT NULL, p_customer_id uuid DEFAULT NULL)
 RETURNS SETOF ai_memory
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
+LANGUAGE plpgsql SECURITY DEFINER SET search_path TO 'public'
 AS $$
 BEGIN
-  RETURN QUERY
-  SELECT * FROM ai_memory
+  RETURN QUERY SELECT * FROM ai_memory
   WHERE (p_customer_email IS NOT NULL AND customer_email = p_customer_email)
      OR (p_customer_id IS NOT NULL AND customer_id = p_customer_id)
-  ORDER BY created_at DESC
-  LIMIT 50;
+  ORDER BY created_at DESC LIMIT 50;
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION public.save_ai_memory(
-  p_customer_email text DEFAULT NULL,
-  p_customer_id uuid DEFAULT NULL,
-  p_memory_type text DEFAULT 'context',
-  p_content text DEFAULT '',
-  p_importance text DEFAULT 'normal',
-  p_source_conversation_id uuid DEFAULT NULL
-)
+-- upsert_customer_insight
+CREATE OR REPLACE FUNCTION public.upsert_customer_insight(p_customer_id uuid, p_customer_email text DEFAULT NULL, p_customer_name text DEFAULT NULL)
 RETURNS uuid
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
+LANGUAGE plpgsql SECURITY DEFINER SET search_path TO 'public'
 AS $$
-DECLARE
-  v_id uuid;
-BEGIN
-  INSERT INTO ai_memory (customer_email, customer_id, memory_type, content, importance, source_conversation_id)
-  VALUES (p_customer_email, p_customer_id, p_memory_type, p_content, p_importance, p_source_conversation_id)
-  RETURNING id INTO v_id;
-  RETURN v_id;
-END;
-$$;
-
-CREATE OR REPLACE FUNCTION public.search_chat_conversations(
-  p_search text DEFAULT NULL,
-  p_sentiment text DEFAULT NULL,
-  p_resolved text DEFAULT NULL,
-  p_limit integer DEFAULT 50,
-  p_offset integer DEFAULT 0
-)
-RETURNS SETOF chat_conversations
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
-AS $$
-BEGIN
-  RETURN QUERY
-  SELECT * FROM chat_conversations c
-  WHERE (p_search IS NULL OR p_search = '' OR
-         c.customer_name ILIKE '%' || p_search || '%' OR
-         c.customer_email ILIKE '%' || p_search || '%' OR
-         c.summary ILIKE '%' || p_search || '%' OR
-         c.session_id ILIKE '%' || p_search || '%')
-    AND (p_sentiment IS NULL OR p_sentiment = '' OR c.sentiment = p_sentiment)
-    AND (p_resolved IS NULL OR p_resolved = '' OR
-         (p_resolved = 'true' AND c.is_resolved = true) OR
-         (p_resolved = 'false' AND (c.is_resolved = false OR c.is_resolved IS NULL)))
-  ORDER BY c.updated_at DESC
-  LIMIT p_limit OFFSET p_offset;
-END;
-$$;
-
-CREATE OR REPLACE FUNCTION public.upsert_customer_insight(
-  p_customer_id uuid,
-  p_customer_email text DEFAULT NULL,
-  p_customer_name text DEFAULT NULL
-)
-RETURNS uuid
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
-AS $$
-DECLARE
-  v_id uuid;
+DECLARE v_id uuid;
 BEGIN
   SELECT id INTO v_id FROM customer_insights
-  WHERE customer_id = p_customer_id OR (p_customer_email IS NOT NULL AND customer_email = p_customer_email)
-  LIMIT 1;
-
+  WHERE customer_id = p_customer_id OR (p_customer_email IS NOT NULL AND customer_email = p_customer_email) LIMIT 1;
   IF v_id IS NULL THEN
     INSERT INTO customer_insights (customer_id, customer_email, customer_name, first_contact_at, last_contact_at)
-    VALUES (p_customer_id, p_customer_email, p_customer_name, now(), now())
-    RETURNING id INTO v_id;
+    VALUES (p_customer_id, p_customer_email, p_customer_name, now(), now()) RETURNING id INTO v_id;
   ELSE
-    UPDATE customer_insights SET
-      customer_name = COALESCE(p_customer_name, customer_name),
-      customer_email = COALESCE(p_customer_email, customer_email),
-      last_contact_at = now(),
-      updated_at = now()
+    UPDATE customer_insights SET customer_name = COALESCE(p_customer_name, customer_name),
+      customer_email = COALESCE(p_customer_email, customer_email), last_contact_at = now(), updated_at = now()
     WHERE id = v_id;
   END IF;
   RETURN v_id;
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION public.aggregate_support_analytics(p_date date DEFAULT CURRENT_DATE)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
-AS $$
-DECLARE
-  v_start timestamptz;
-  v_end timestamptz;
-BEGIN
-  v_start := p_date::timestamptz;
-  v_end := (p_date + interval '1 day')::timestamptz;
-
-  INSERT INTO support_analytics_daily (
-    date, total_conversations, total_messages, total_tickets_created,
-    total_tickets_resolved, avg_satisfaction, ai_handled_count,
-    human_escalated_count, unique_customers
-  )
-  VALUES (
-    p_date,
-    (SELECT COUNT(*) FROM chat_conversations WHERE created_at >= v_start AND created_at < v_end),
-    (SELECT COALESCE(SUM(message_count), 0) FROM chat_conversations WHERE updated_at >= v_start AND updated_at < v_end),
-    (SELECT COUNT(*) FROM support_tickets WHERE created_at >= v_start AND created_at < v_end),
-    (SELECT COUNT(*) FROM support_tickets WHERE resolved_at >= v_start AND resolved_at < v_end),
-    (SELECT AVG(rating) FROM support_feedback WHERE created_at >= v_start AND created_at < v_end),
-    (SELECT COUNT(*) FROM chat_conversations WHERE ai_handled = true AND created_at >= v_start AND created_at < v_end),
-    (SELECT COUNT(*) FROM chat_conversations WHERE is_escalated = true AND escalated_at >= v_start AND escalated_at < v_end),
-    (SELECT COUNT(DISTINCT customer_email) FROM chat_conversations WHERE customer_email IS NOT NULL AND created_at >= v_start AND created_at < v_end)
-  )
-  ON CONFLICT (date) DO UPDATE SET
-    total_conversations = EXCLUDED.total_conversations,
-    total_messages = EXCLUDED.total_messages,
-    total_tickets_created = EXCLUDED.total_tickets_created,
-    total_tickets_resolved = EXCLUDED.total_tickets_resolved,
-    avg_satisfaction = EXCLUDED.avg_satisfaction,
-    ai_handled_count = EXCLUDED.ai_handled_count,
-    human_escalated_count = EXCLUDED.human_escalated_count,
-    unique_customers = EXCLUDED.unique_customers;
-END;
-$$;
-
+-- get_support_dashboard_stats
 CREATE OR REPLACE FUNCTION public.get_support_dashboard_stats()
 RETURNS jsonb
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
+LANGUAGE plpgsql SECURITY DEFINER SET search_path TO 'public'
 AS $$
-DECLARE
-  result jsonb;
+DECLARE result jsonb;
 BEGIN
   SELECT jsonb_build_object(
     'open_tickets', (SELECT COUNT(*) FROM support_tickets WHERE status IN ('open', 'in_progress')),
@@ -565,30 +462,50 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION public.update_rider_stats()
-RETURNS trigger
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
+-- search_chat_conversations
+CREATE OR REPLACE FUNCTION public.search_chat_conversations(
+  p_search text DEFAULT NULL, p_sentiment text DEFAULT NULL, p_resolved text DEFAULT NULL,
+  p_limit integer DEFAULT 50, p_offset integer DEFAULT 0
+)
+RETURNS SETOF chat_conversations
+LANGUAGE plpgsql SECURITY DEFINER SET search_path TO 'public'
 AS $$
 BEGIN
-    IF NEW.status = 'delivered' AND (OLD.status IS NULL OR OLD.status != 'delivered') THEN
-        UPDATE public.riders
-        SET total_deliveries = total_deliveries + 1,
-            successful_deliveries = successful_deliveries + 1,
-            status = 'active', updated_at = now()
-        WHERE id = NEW.rider_id;
+  RETURN QUERY SELECT * FROM chat_conversations c
+  WHERE (p_search IS NULL OR p_search = '' OR c.customer_name ILIKE '%' || p_search || '%'
+         OR c.customer_email ILIKE '%' || p_search || '%' OR c.summary ILIKE '%' || p_search || '%'
+         OR c.session_id ILIKE '%' || p_search || '%')
+    AND (p_sentiment IS NULL OR p_sentiment = '' OR c.sentiment = p_sentiment)
+    AND (p_resolved IS NULL OR p_resolved = '' OR
+         (p_resolved = 'true' AND c.is_resolved = true) OR
+         (p_resolved = 'false' AND (c.is_resolved = false OR c.is_resolved IS NULL)))
+  ORDER BY c.updated_at DESC LIMIT p_limit OFFSET p_offset;
+END;
+$$;
+
+-- mark_order_paid (text-based overload matching code calls)
+CREATE OR REPLACE FUNCTION public.mark_order_paid(order_ref text, moolre_ref text DEFAULT NULL)
+RETURNS jsonb
+LANGUAGE plpgsql SECURITY DEFINER SET search_path TO 'public'
+AS $$
+DECLARE updated_order orders;
+BEGIN
+  UPDATE orders SET payment_status = 'paid',
+    status = CASE WHEN status = 'pending' THEN 'processing'::order_status
+                  WHEN status = 'awaiting_payment' THEN 'processing'::order_status ELSE status END,
+    metadata = COALESCE(metadata, '{}'::jsonb) ||
+      jsonb_build_object('moolre_reference', moolre_ref, 'payment_verified_at', to_char(now(), 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'))
+  WHERE order_number = order_ref RETURNING * INTO updated_order;
+  IF updated_order.id IS NOT NULL THEN
+    IF (updated_order.metadata->>'stock_reduced') IS NULL THEN
+      UPDATE products p SET quantity = GREATEST(0, p.quantity - oi.quantity) FROM order_items oi WHERE oi.order_id = updated_order.id AND oi.product_id = p.id;
+      UPDATE product_variants pv SET quantity = GREATEST(0, pv.quantity - oi.quantity) FROM order_items oi WHERE oi.order_id = updated_order.id AND oi.product_id = pv.product_id AND oi.variant_name IS NOT NULL AND oi.variant_name = pv.name;
+      UPDATE orders SET metadata = metadata || '{"stock_reduced": true}'::jsonb WHERE id = updated_order.id;
     END IF;
-    IF NEW.status = 'failed' AND (OLD.status IS NULL OR OLD.status != 'failed') THEN
-        UPDATE public.riders
-        SET total_deliveries = total_deliveries + 1,
-            status = 'active', updated_at = now()
-        WHERE id = NEW.rider_id;
-    END IF;
-    IF NEW.status IN ('picked_up', 'in_transit') THEN
-        UPDATE public.riders SET status = 'on_delivery', updated_at = now() WHERE id = NEW.rider_id;
-    END IF;
-    RETURN NEW;
+  ELSE
+    SELECT * INTO updated_order FROM orders WHERE order_number = order_ref;
+  END IF;
+  RETURN to_jsonb(updated_order);
 END;
 $$;
 
@@ -1295,6 +1212,17 @@ CREATE TABLE public.delivery_status_history (
   created_at timestamptz DEFAULT now()
 );
 
+-- Contact Submissions
+CREATE TABLE public.contact_submissions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  email text NOT NULL,
+  phone text,
+  subject text,
+  message text NOT NULL,
+  created_at timestamptz DEFAULT now()
+);
+
 -- ============================================================================
 -- 5. INDEXES
 -- ============================================================================
@@ -1307,71 +1235,127 @@ CREATE INDEX idx_profiles_role ON public.profiles USING btree (role);
 CREATE INDEX idx_addresses_user_id ON public.addresses USING btree (user_id);
 
 -- Audit Logs
-CREATE INDEX idx_audit_logs_action ON public.audit_logs USING btree (action);
-CREATE INDEX idx_audit_logs_user_id ON public.audit_logs USING btree (user_id);
+CREATE INDEX idx_audit_logs_user ON public.audit_logs USING btree (user_id);
+CREATE INDEX idx_audit_logs_created ON public.audit_logs USING btree (created_at);
+CREATE INDEX idx_audit_logs_entity ON public.audit_logs USING btree (entity_type, entity_id);
 
 -- Categories
 CREATE INDEX idx_categories_parent ON public.categories USING btree (parent_id);
 CREATE INDEX idx_categories_slug ON public.categories USING btree (slug);
+CREATE INDEX idx_categories_status ON public.categories USING btree (status);
 
 -- Products
 CREATE INDEX idx_products_category ON public.products USING btree (category_id);
 CREATE INDEX idx_products_featured ON public.products USING btree (featured);
 CREATE INDEX idx_products_slug ON public.products USING btree (slug);
 CREATE INDEX idx_products_status ON public.products USING btree (status);
-CREATE INDEX idx_products_tags ON public.products USING gin (tags);
+CREATE INDEX idx_products_brand ON public.products USING btree (brand);
+CREATE INDEX idx_products_name ON public.products USING btree (name);
+CREATE INDEX idx_products_price ON public.products USING btree (price);
+CREATE INDEX idx_products_created ON public.products USING btree (created_at);
+
+-- Product Images
+CREATE INDEX idx_product_images_product ON public.product_images USING btree (product_id);
+CREATE INDEX idx_product_images_position ON public.product_images USING btree (position);
+
+-- Product Variants
+CREATE INDEX idx_product_variants_product ON public.product_variants USING btree (product_id);
 
 -- Blog Posts
-CREATE INDEX idx_blog_slug ON public.blog_posts USING btree (slug);
-CREATE INDEX idx_blog_status ON public.blog_posts USING btree (status);
+CREATE INDEX idx_blog_posts_slug ON public.blog_posts USING btree (slug);
+CREATE INDEX idx_blog_posts_status ON public.blog_posts USING btree (status);
+CREATE INDEX idx_blog_posts_author ON public.blog_posts USING btree (author_id);
 
 -- Coupons
 CREATE INDEX idx_coupons_code ON public.coupons USING btree (code);
+CREATE INDEX idx_coupons_active ON public.coupons USING btree (is_active);
 
 -- Orders
-CREATE INDEX idx_orders_order_number ON public.orders USING btree (order_number);
+CREATE INDEX idx_orders_number ON public.orders USING btree (order_number);
 CREATE INDEX idx_orders_status ON public.orders USING btree (status);
 CREATE INDEX idx_orders_user ON public.orders USING btree (user_id);
-CREATE INDEX idx_orders_pending_reminders ON public.orders USING btree (created_at)
-  WHERE payment_status <> 'paid'::payment_status AND payment_reminder_sent = false;
+CREATE INDEX idx_orders_email ON public.orders USING btree (email);
+CREATE INDEX idx_orders_payment ON public.orders USING btree (payment_status);
+CREATE INDEX idx_orders_created ON public.orders USING btree (created_at);
 
 -- Order Items
 CREATE INDEX idx_order_items_order ON public.order_items USING btree (order_id);
+CREATE INDEX idx_order_items_product ON public.order_items USING btree (product_id);
+CREATE INDEX idx_order_items_variant ON public.order_items USING btree (variant_id);
+
+-- Order Status History
+CREATE INDEX idx_order_status_history_order ON public.order_status_history USING btree (order_id);
+CREATE INDEX idx_order_status_history_created_by ON public.order_status_history USING btree (created_by);
+
+-- Cart Items
+CREATE INDEX idx_cart_items_user ON public.cart_items USING btree (user_id);
+CREATE INDEX idx_cart_items_product ON public.cart_items USING btree (product_id);
+CREATE INDEX idx_cart_items_variant ON public.cart_items USING btree (variant_id);
+
+-- Wishlist Items
+CREATE INDEX idx_wishlist_items_user ON public.wishlist_items USING btree (user_id);
+CREATE INDEX idx_wishlist_items_product ON public.wishlist_items USING btree (product_id);
 
 -- Notifications
 CREATE INDEX idx_notifications_user ON public.notifications USING btree (user_id);
-CREATE INDEX idx_notifications_unread ON public.notifications USING btree (user_id) WHERE read_at IS NULL;
+CREATE INDEX idx_notifications_read ON public.notifications USING btree (user_id) WHERE read_at IS NULL;
 
 -- Reviews
 CREATE INDEX idx_reviews_product ON public.reviews USING btree (product_id);
 CREATE INDEX idx_reviews_status ON public.reviews USING btree (status);
+CREATE INDEX idx_reviews_user ON public.reviews USING btree (user_id);
+
+-- Review Images
+CREATE INDEX idx_review_images_review ON public.review_images USING btree (review_id);
+
+-- Return Requests
+CREATE INDEX idx_return_requests_order ON public.return_requests USING btree (order_id);
+CREATE INDEX idx_return_requests_user ON public.return_requests USING btree (user_id);
+
+-- Return Items
+CREATE INDEX idx_return_items_return_request ON public.return_items USING btree (return_request_id);
+CREATE INDEX idx_return_items_order_item ON public.return_items USING btree (order_item_id);
+
+-- Pages
+CREATE INDEX idx_pages_slug ON public.pages USING btree (slug);
+
+-- CMS Content
+CREATE INDEX idx_cms_content_section ON public.cms_content USING btree (section);
+
+-- Banners
+CREATE INDEX idx_banners_active ON public.banners USING btree (is_active);
+
+-- Navigation Items
+CREATE INDEX idx_navigation_items_menu ON public.navigation_items USING btree (menu_id);
+CREATE INDEX idx_navigation_items_parent ON public.navigation_items USING btree (parent_id);
+
+-- Store Settings
+CREATE INDEX idx_store_settings_updated_by ON public.store_settings USING btree (updated_by);
 
 -- Customers
 CREATE INDEX idx_customers_email ON public.customers USING btree (email);
 CREATE INDEX idx_customers_user_id ON public.customers USING btree (user_id);
-CREATE INDEX idx_customers_secondary_email ON public.customers USING btree (secondary_email);
-CREATE INDEX idx_customers_secondary_phone ON public.customers USING btree (secondary_phone);
+CREATE INDEX idx_customers_phone ON public.customers USING btree (phone);
 
 -- Chat Conversations
 CREATE INDEX idx_chat_conversations_session ON public.chat_conversations USING btree (session_id);
 CREATE INDEX idx_chat_conversations_user ON public.chat_conversations USING btree (user_id) WHERE user_id IS NOT NULL;
-CREATE INDEX idx_chat_conversations_updated ON public.chat_conversations USING btree (updated_at DESC);
-CREATE INDEX idx_chat_conversations_email ON public.chat_conversations USING btree (customer_email) WHERE customer_email IS NOT NULL;
-CREATE INDEX idx_chat_conversations_escalated ON public.chat_conversations USING btree (is_escalated) WHERE is_escalated = true;
+CREATE INDEX idx_chat_conversations_created ON public.chat_conversations USING btree (created_at);
+CREATE INDEX idx_chat_conversations_category ON public.chat_conversations USING btree (category);
+CREATE INDEX idx_chat_conversations_sentiment ON public.chat_conversations USING btree (sentiment);
 
 -- AI Memory
 CREATE INDEX idx_ai_memory_customer_email ON public.ai_memory USING btree (customer_email);
-CREATE INDEX idx_ai_memory_customer_id ON public.ai_memory USING btree (customer_id);
-CREATE INDEX idx_ai_memory_conversation ON public.ai_memory USING btree (source_conversation_id);
+CREATE INDEX idx_ai_memory_type ON public.ai_memory USING btree (memory_type);
+CREATE INDEX idx_ai_memory_source_conversation ON public.ai_memory USING btree (source_conversation_id);
 
 -- Customer Insights
-CREATE INDEX idx_customer_insights_customer_id ON public.customer_insights USING btree (customer_id);
 CREATE INDEX idx_customer_insights_email ON public.customer_insights USING btree (customer_email);
 
 -- Support Tickets
 CREATE INDEX idx_support_tickets_status ON public.support_tickets USING btree (status);
 CREATE INDEX idx_support_tickets_conversation ON public.support_tickets USING btree (conversation_id);
-CREATE INDEX idx_support_tickets_customer_email ON public.support_tickets USING btree (customer_email);
+CREATE INDEX idx_support_tickets_number ON public.support_tickets USING btree (ticket_number);
 
 -- Support Ticket Messages
 CREATE INDEX idx_support_ticket_messages_ticket ON public.support_ticket_messages USING btree (ticket_id);
@@ -1380,28 +1364,28 @@ CREATE INDEX idx_support_ticket_messages_ticket ON public.support_ticket_message
 CREATE INDEX idx_support_feedback_conversation ON public.support_feedback USING btree (conversation_id);
 CREATE INDEX idx_support_feedback_ticket ON public.support_feedback USING btree (ticket_id);
 
--- Support Analytics
-CREATE INDEX idx_support_analytics_date ON public.support_analytics_daily USING btree (date);
+-- Support Knowledge Base
+CREATE INDEX idx_support_kb_source_ticket ON public.support_knowledge_base USING btree (source_ticket_id);
 
 -- Riders
 CREATE INDEX idx_riders_status ON public.riders USING btree (status);
 CREATE INDEX idx_riders_zone ON public.riders USING btree (zone_id);
-CREATE INDEX idx_riders_phone ON public.riders USING btree (phone);
 
 -- Delivery Assignments
 CREATE INDEX idx_delivery_assignments_order ON public.delivery_assignments USING btree (order_id);
 CREATE INDEX idx_delivery_assignments_rider ON public.delivery_assignments USING btree (rider_id);
 CREATE INDEX idx_delivery_assignments_status ON public.delivery_assignments USING btree (status);
-CREATE INDEX idx_delivery_assignments_assigned_at ON public.delivery_assignments USING btree (assigned_at);
+CREATE INDEX idx_delivery_assignments_zone ON public.delivery_assignments USING btree (zone_id);
+CREATE INDEX idx_delivery_assignments_assigned_by ON public.delivery_assignments USING btree (assigned_by);
 
 -- Delivery Status History
 CREATE INDEX idx_delivery_status_history_assignment ON public.delivery_status_history USING btree (assignment_id);
+CREATE INDEX idx_delivery_status_history_changed_by ON public.delivery_status_history USING btree (changed_by);
 
 -- ============================================================================
 -- 6. TRIGGERS
 -- ============================================================================
 
--- updated_at triggers
 CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_addresses_updated_at BEFORE UPDATE ON public.addresses FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_categories_updated_at BEFORE UPDATE ON public.categories FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -1409,27 +1393,26 @@ CREATE TRIGGER update_products_updated_at BEFORE UPDATE ON public.products FOR E
 CREATE TRIGGER update_product_variants_updated_at BEFORE UPDATE ON public.product_variants FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_coupons_updated_at BEFORE UPDATE ON public.coupons FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON public.orders FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_cart_items_updated_at BEFORE UPDATE ON public.cart_items FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_reviews_updated_at BEFORE UPDATE ON public.reviews FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_banners_updated_at BEFORE UPDATE ON public.banners FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_blog_posts_updated_at BEFORE UPDATE ON public.blog_posts FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_support_tickets_updated_at BEFORE UPDATE ON public.support_tickets FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_cms_content_updated_at BEFORE UPDATE ON public.cms_content FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_customers_updated_at BEFORE UPDATE ON public.customers FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_reviews_updated_at BEFORE UPDATE ON public.reviews FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_return_requests_updated_at BEFORE UPDATE ON public.return_requests FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_store_settings_updated_at BEFORE UPDATE ON public.store_settings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_pages_updated_at BEFORE UPDATE ON public.pages FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_support_tickets_updated_at BEFORE UPDATE ON public.support_tickets FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_chat_conversations_updated_at BEFORE UPDATE ON public.chat_conversations FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_customer_insights_updated_at BEFORE UPDATE ON public.customer_insights FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_support_knowledge_base_updated_at BEFORE UPDATE ON public.support_knowledge_base FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_support_canned_responses_updated_at BEFORE UPDATE ON public.support_canned_responses FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_support_escalation_rules_updated_at BEFORE UPDATE ON public.support_escalation_rules FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_navigation_items_updated_at BEFORE UPDATE ON public.navigation_items FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_navigation_menus_updated_at BEFORE UPDATE ON public.navigation_menus FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_riders_updated_at BEFORE UPDATE ON public.riders FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_delivery_assignments_updated_at BEFORE UPDATE ON public.delivery_assignments FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_delivery_zones_updated_at BEFORE UPDATE ON public.delivery_zones FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Review rating stats trigger
-CREATE TRIGGER tr_update_product_rating AFTER INSERT OR DELETE OR UPDATE ON public.reviews FOR EACH ROW EXECUTE FUNCTION update_product_rating_stats();
+-- Review rating auto-update
+CREATE TRIGGER on_review_change AFTER INSERT OR DELETE OR UPDATE ON public.reviews FOR EACH ROW EXECUTE FUNCTION update_product_rating();
 
 -- Auth trigger: auto-create profile on signup
 CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-
--- Delivery: update rider stats on assignment status change
-CREATE TRIGGER on_delivery_status_change AFTER UPDATE OF status ON public.delivery_assignments FOR EACH ROW EXECUTE FUNCTION public.update_rider_stats();
 
 -- ============================================================================
 -- 7. ENABLE ROW LEVEL SECURITY
@@ -1477,240 +1460,409 @@ ALTER TABLE public.delivery_zones ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.riders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.delivery_assignments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.delivery_status_history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.contact_submissions ENABLE ROW LEVEL SECURITY;
 
 -- ============================================================================
 -- 8. ROW LEVEL SECURITY POLICIES
+-- Matches live database exactly. Uses (select auth.uid()) for performance.
+-- Every admin FOR ALL policy has WITH CHECK.
 -- ============================================================================
 
--- Profiles
-CREATE POLICY "Users view own profile" ON public.profiles FOR SELECT USING (auth.uid() = id);
-CREATE POLICY "Users update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
-CREATE POLICY "Staff view any profile" ON public.profiles FOR SELECT USING (is_admin_or_staff());
+-- ── Profiles ──
+CREATE POLICY "profiles_select" ON public.profiles FOR SELECT USING ((select auth.uid()) = id OR is_admin_or_staff());
+CREATE POLICY "profiles_insert_own" ON public.profiles FOR INSERT WITH CHECK ((select auth.uid()) = id);
+CREATE POLICY "profiles_update_own" ON public.profiles FOR UPDATE USING ((select auth.uid()) = id);
+CREATE POLICY "profiles_admin_all" ON public.profiles FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Roles
-CREATE POLICY "Public can read roles" ON public.roles FOR SELECT USING (true);
-CREATE POLICY "Admin can manage roles" ON public.roles FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Roles ──
+CREATE POLICY "roles_select" ON public.roles FOR SELECT USING (true);
+CREATE POLICY "roles_admin" ON public.roles FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Addresses
-CREATE POLICY "Users manage own addresses" ON public.addresses FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Staff manage all addresses" ON public.addresses FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Addresses ──
+CREATE POLICY "addresses_select_own" ON public.addresses FOR SELECT USING ((select auth.uid()) = user_id);
+CREATE POLICY "addresses_insert_own" ON public.addresses FOR INSERT WITH CHECK ((select auth.uid()) = user_id);
+CREATE POLICY "addresses_update_own" ON public.addresses FOR UPDATE USING ((select auth.uid()) = user_id);
+CREATE POLICY "addresses_delete_own" ON public.addresses FOR DELETE USING ((select auth.uid()) = user_id);
+CREATE POLICY "addresses_admin_all" ON public.addresses FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Store Settings
-CREATE POLICY "Staff view settings" ON public.store_settings FOR SELECT USING (true);
-CREATE POLICY "Staff manage settings" ON public.store_settings FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Store Settings ──
+CREATE POLICY "store_settings_select" ON public.store_settings FOR SELECT USING (true);
+CREATE POLICY "store_settings_admin" ON public.store_settings FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Site Settings
-CREATE POLICY "Allow public read on site_settings" ON public.site_settings FOR SELECT USING (true);
-CREATE POLICY "Allow admin write on site_settings" ON public.site_settings FOR ALL USING (EXISTS (SELECT 1 FROM profiles WHERE profiles.id = auth.uid() AND profiles.role = 'admin'::user_role));
+-- ── Site Settings ──
+CREATE POLICY "site_settings_select" ON public.site_settings FOR SELECT USING (true);
+CREATE POLICY "site_settings_admin" ON public.site_settings FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Audit Logs
-CREATE POLICY "Staff view audit logs" ON public.audit_logs FOR SELECT USING (is_admin_or_staff());
-CREATE POLICY "Staff insert audit logs" ON public.audit_logs FOR INSERT WITH CHECK (is_admin_or_staff());
+-- ── Audit Logs ──
+CREATE POLICY "audit_logs_admin" ON public.audit_logs FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+CREATE POLICY "audit_logs_insert" ON public.audit_logs FOR INSERT WITH CHECK (is_admin_or_staff());
 
--- Categories
-CREATE POLICY "Public view categories" ON public.categories FOR SELECT USING (true);
-CREATE POLICY "Staff manage categories" ON public.categories FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Categories ──
+CREATE POLICY "categories_select" ON public.categories FOR SELECT USING (true);
+CREATE POLICY "categories_admin" ON public.categories FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Products
-CREATE POLICY "Public view active products" ON public.products FOR SELECT USING (status = 'active'::product_status OR is_admin_or_staff());
-CREATE POLICY "Staff manage products" ON public.products FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Products ──
+CREATE POLICY "products_select_active" ON public.products FOR SELECT USING (status = 'active'::product_status OR is_admin_or_staff());
+CREATE POLICY "products_admin" ON public.products FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Product Images
-CREATE POLICY "Public view images" ON public.product_images FOR SELECT USING (true);
-CREATE POLICY "Staff manage images" ON public.product_images FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Product Images ──
+CREATE POLICY "product_images_select" ON public.product_images FOR SELECT USING (true);
+CREATE POLICY "product_images_insert_admin" ON public.product_images FOR INSERT WITH CHECK (is_admin_or_staff());
+CREATE POLICY "product_images_update_admin" ON public.product_images FOR UPDATE USING (is_admin_or_staff());
+CREATE POLICY "product_images_delete_admin" ON public.product_images FOR DELETE USING (is_admin_or_staff());
+CREATE POLICY "product_images_admin" ON public.product_images FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Product Variants
-CREATE POLICY "Public view variants" ON public.product_variants FOR SELECT USING (true);
-CREATE POLICY "Staff manage variants" ON public.product_variants FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Product Variants ──
+CREATE POLICY "product_variants_select" ON public.product_variants FOR SELECT USING (true);
+CREATE POLICY "product_variants_admin" ON public.product_variants FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Coupons
-CREATE POLICY "Allow anon read access to coupons" ON public.coupons FOR SELECT TO anon USING (true);
-CREATE POLICY "Allow authenticated read access to coupons" ON public.coupons FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Allow admin insert on coupons" ON public.coupons FOR INSERT TO authenticated WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE profiles.id = auth.uid() AND profiles.role IN ('admin', 'staff')));
-CREATE POLICY "Allow admin update on coupons" ON public.coupons FOR UPDATE TO authenticated USING (EXISTS (SELECT 1 FROM profiles WHERE profiles.id = auth.uid() AND profiles.role IN ('admin', 'staff')));
-CREATE POLICY "Allow admin delete on coupons" ON public.coupons FOR DELETE TO authenticated USING (EXISTS (SELECT 1 FROM profiles WHERE profiles.id = auth.uid() AND profiles.role IN ('admin', 'staff')));
+-- ── Coupons ──
+CREATE POLICY "coupons_select_active" ON public.coupons FOR SELECT USING (true);
+CREATE POLICY "coupons_admin" ON public.coupons FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Orders
-CREATE POLICY "Enable insert for all users" ON public.orders FOR INSERT WITH CHECK (((auth.uid() IS NOT NULL) AND (auth.uid() = user_id)) OR ((auth.uid() IS NULL) AND (user_id IS NULL)));
-CREATE POLICY "Users view own orders" ON public.orders FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Enable select for guest orders" ON public.orders FOR SELECT USING (user_id IS NULL);
-CREATE POLICY "Staff manage all orders" ON public.orders FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Orders ──
+CREATE POLICY "orders_select_own" ON public.orders FOR SELECT USING ((select auth.uid()) = user_id OR user_id IS NULL OR is_admin_or_staff());
+CREATE POLICY "orders_insert" ON public.orders FOR INSERT WITH CHECK (((select auth.uid()) IS NOT NULL AND (select auth.uid()) = user_id) OR ((select auth.uid()) IS NULL AND user_id IS NULL));
+CREATE POLICY "orders_update_admin" ON public.orders FOR UPDATE USING (is_admin_or_staff());
+CREATE POLICY "orders_delete_admin" ON public.orders FOR DELETE USING (is_admin_or_staff());
 
--- Order Items
-CREATE POLICY "Users view own order items" ON public.order_items FOR SELECT USING (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.user_id = auth.uid()));
-CREATE POLICY "Enable select for guest order items" ON public.order_items FOR SELECT USING (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.user_id IS NULL));
-CREATE POLICY "Enable insert for order items" ON public.order_items FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND (orders.user_id = auth.uid() OR orders.user_id IS NULL)));
-CREATE POLICY "Staff manage order items" ON public.order_items FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Order Items ──
+CREATE POLICY "order_items_select" ON public.order_items FOR SELECT USING (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND (orders.user_id = (select auth.uid()) OR orders.user_id IS NULL)) OR is_admin_or_staff());
+CREATE POLICY "order_items_insert" ON public.order_items FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND (orders.user_id = (select auth.uid()) OR orders.user_id IS NULL)));
+CREATE POLICY "order_items_admin" ON public.order_items FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Order Status History
-CREATE POLICY "Users view order history" ON public.order_status_history FOR SELECT USING (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_status_history.order_id AND orders.user_id = auth.uid()));
-CREATE POLICY "Staff manage order history" ON public.order_status_history FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Order Status History ──
+CREATE POLICY "order_status_history_select" ON public.order_status_history FOR SELECT USING (EXISTS (SELECT 1 FROM orders WHERE orders.id = order_status_history.order_id AND orders.user_id = (select auth.uid())) OR is_admin_or_staff());
+CREATE POLICY "order_status_history_admin" ON public.order_status_history FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Cart Items
-CREATE POLICY "Users manage own cart" ON public.cart_items FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+-- ── Cart Items ──
+CREATE POLICY "cart_items_select_own" ON public.cart_items FOR SELECT USING ((select auth.uid()) = user_id);
+CREATE POLICY "cart_items_insert_own" ON public.cart_items FOR INSERT WITH CHECK ((select auth.uid()) = user_id);
+CREATE POLICY "cart_items_update_own" ON public.cart_items FOR UPDATE USING ((select auth.uid()) = user_id);
+CREATE POLICY "cart_items_delete_own" ON public.cart_items FOR DELETE USING ((select auth.uid()) = user_id);
 
--- Wishlist Items
-CREATE POLICY "Users manage own wishlist" ON public.wishlist_items FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+-- ── Wishlist Items ──
+CREATE POLICY "wishlist_items_select_own" ON public.wishlist_items FOR SELECT USING ((select auth.uid()) = user_id);
+CREATE POLICY "wishlist_items_insert_own" ON public.wishlist_items FOR INSERT WITH CHECK ((select auth.uid()) = user_id);
+CREATE POLICY "wishlist_items_delete_own" ON public.wishlist_items FOR DELETE USING ((select auth.uid()) = user_id);
 
--- Reviews
-CREATE POLICY "Public view approved reviews" ON public.reviews FOR SELECT USING (status = 'approved'::review_status);
-CREATE POLICY "Users view own reviews" ON public.reviews FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users create reviews" ON public.reviews FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users update own reviews" ON public.reviews FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Staff manage reviews" ON public.reviews FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Reviews ──
+CREATE POLICY "reviews_select" ON public.reviews FOR SELECT USING (status = 'approved'::review_status OR (select auth.uid()) = user_id OR is_admin_or_staff());
+CREATE POLICY "reviews_insert_auth" ON public.reviews FOR INSERT WITH CHECK ((select auth.uid()) IS NOT NULL);
+CREATE POLICY "reviews_update_own" ON public.reviews FOR UPDATE USING ((select auth.uid()) = user_id OR is_admin_or_staff());
+CREATE POLICY "reviews_admin" ON public.reviews FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Review Images
-CREATE POLICY "Public view review images" ON public.review_images FOR SELECT USING (EXISTS (SELECT 1 FROM reviews WHERE reviews.id = review_images.review_id AND reviews.status = 'approved'::review_status));
-CREATE POLICY "Users manage review images" ON public.review_images FOR ALL USING (EXISTS (SELECT 1 FROM reviews WHERE reviews.id = review_images.review_id AND reviews.user_id = auth.uid())) WITH CHECK (EXISTS (SELECT 1 FROM reviews WHERE reviews.id = review_images.review_id AND reviews.user_id = auth.uid()));
+-- ── Review Images ──
+CREATE POLICY "review_images_select" ON public.review_images FOR SELECT USING (true);
+CREATE POLICY "review_images_insert" ON public.review_images FOR INSERT WITH CHECK ((select auth.uid()) IS NOT NULL);
+CREATE POLICY "review_images_admin" ON public.review_images FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Blog Posts
-CREATE POLICY "Public view published posts" ON public.blog_posts FOR SELECT USING (status = 'published'::blog_status OR is_admin_or_staff());
-CREATE POLICY "Staff manage blog" ON public.blog_posts FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Blog Posts ──
+CREATE POLICY "blog_posts_select_published" ON public.blog_posts FOR SELECT USING (status = 'published'::blog_status OR is_admin_or_staff());
+CREATE POLICY "blog_posts_admin" ON public.blog_posts FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Return Requests
-CREATE POLICY "Users view own returns" ON public.return_requests FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users create returns" ON public.return_requests FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Staff manage returns" ON public.return_requests FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Return Requests ──
+CREATE POLICY "return_requests_select_own" ON public.return_requests FOR SELECT USING ((select auth.uid()) = user_id OR is_admin_or_staff());
+CREATE POLICY "return_requests_insert_own" ON public.return_requests FOR INSERT WITH CHECK ((select auth.uid()) = user_id);
+CREATE POLICY "return_requests_admin" ON public.return_requests FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Return Items
-CREATE POLICY "Users view return items" ON public.return_items FOR SELECT USING (EXISTS (SELECT 1 FROM return_requests WHERE return_requests.id = return_items.return_request_id AND return_requests.user_id = auth.uid()));
-CREATE POLICY "Staff manage return items" ON public.return_items FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Return Items ──
+CREATE POLICY "return_items_select" ON public.return_items FOR SELECT USING (EXISTS (SELECT 1 FROM return_requests WHERE return_requests.id = return_items.return_request_id AND return_requests.user_id = (select auth.uid())) OR is_admin_or_staff());
+CREATE POLICY "return_items_insert" ON public.return_items FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM return_requests WHERE return_requests.id = return_items.return_request_id AND return_requests.user_id = (select auth.uid())));
+CREATE POLICY "return_items_admin" ON public.return_items FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Notifications
-CREATE POLICY "Users manage own notifications" ON public.notifications FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+-- ── Notifications ──
+CREATE POLICY "notifications_select_own" ON public.notifications FOR SELECT USING ((select auth.uid()) = user_id OR is_admin_or_staff());
+CREATE POLICY "notifications_update_own" ON public.notifications FOR UPDATE USING ((select auth.uid()) = user_id);
+CREATE POLICY "notifications_admin" ON public.notifications FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Pages
-CREATE POLICY "Public can view pages" ON public.pages FOR SELECT USING (true);
-CREATE POLICY "Staff can manage pages" ON public.pages FOR ALL USING (is_admin_or_staff());
+-- ── Pages ──
+CREATE POLICY "pages_select" ON public.pages FOR SELECT USING (true);
+CREATE POLICY "pages_admin" ON public.pages FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- CMS Content
-CREATE POLICY "Allow public read on cms_content" ON public.cms_content FOR SELECT USING (is_active = true);
-CREATE POLICY "Allow admin all on cms_content" ON public.cms_content FOR ALL USING (is_admin_or_staff());
+-- ── CMS Content ──
+CREATE POLICY "cms_content_select" ON public.cms_content FOR SELECT USING (is_active = true);
+CREATE POLICY "cms_content_admin" ON public.cms_content FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Banners
-CREATE POLICY "Allow public read on banners" ON public.banners FOR SELECT USING (is_active = true);
-CREATE POLICY "Allow admin all on banners" ON public.banners FOR ALL USING (is_admin_or_staff());
+-- ── Banners ──
+CREATE POLICY "banners_select" ON public.banners FOR SELECT USING (is_active = true);
+CREATE POLICY "banners_admin" ON public.banners FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Navigation Menus
-CREATE POLICY "Allow public read on navigation_menus" ON public.navigation_menus FOR SELECT USING (true);
-CREATE POLICY "Allow admin all on navigation_menus" ON public.navigation_menus FOR ALL USING (is_admin_or_staff());
+-- ── Navigation Menus ──
+CREATE POLICY "navigation_menus_select" ON public.navigation_menus FOR SELECT USING (true);
+CREATE POLICY "navigation_menus_admin" ON public.navigation_menus FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Navigation Items
-CREATE POLICY "Allow public read on navigation_items" ON public.navigation_items FOR SELECT USING (is_active = true);
-CREATE POLICY "Allow admin all on navigation_items" ON public.navigation_items FOR ALL USING (is_admin_or_staff());
+-- ── Navigation Items ──
+CREATE POLICY "navigation_items_select" ON public.navigation_items FOR SELECT USING (is_active = true);
+CREATE POLICY "navigation_items_admin" ON public.navigation_items FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Store Modules
-CREATE POLICY "Allow public read access" ON public.store_modules FOR SELECT USING (true);
-CREATE POLICY "Allow admin insert on store_modules" ON public.store_modules FOR INSERT TO authenticated WITH CHECK (is_admin_or_staff());
-CREATE POLICY "Allow authenticated update" ON public.store_modules FOR UPDATE USING (auth.role() = 'authenticated' OR auth.role() = 'anon');
+-- ── Store Modules ──
+CREATE POLICY "store_modules_select" ON public.store_modules FOR SELECT USING (true);
+CREATE POLICY "store_modules_admin" ON public.store_modules FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Customers
-CREATE POLICY "Staff can view all customers" ON public.customers FOR SELECT USING (is_admin_or_staff());
-CREATE POLICY "Staff can manage customers" ON public.customers FOR ALL USING (is_admin_or_staff());
-CREATE POLICY "Service role full access to customers" ON public.customers FOR ALL USING (auth.role() = 'service_role');
+-- ── Customers ──
+CREATE POLICY "customers_select_own" ON public.customers FOR SELECT USING (is_admin_or_staff());
+CREATE POLICY "customers_insert" ON public.customers FOR INSERT WITH CHECK (is_admin_or_staff());
+CREATE POLICY "customers_update" ON public.customers FOR UPDATE USING (is_admin_or_staff());
+CREATE POLICY "customers_admin" ON public.customers FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Chat Conversations
-CREATE POLICY "Users can view own conversations" ON public.chat_conversations FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own conversations" ON public.chat_conversations FOR INSERT WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
-CREATE POLICY "Users can update own conversations" ON public.chat_conversations FOR UPDATE USING (auth.uid() = user_id OR user_id IS NULL);
-CREATE POLICY "Staff manage all conversations" ON public.chat_conversations FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
-CREATE POLICY "Service role full access conversations" ON public.chat_conversations FOR ALL USING (auth.role() = 'service_role');
+-- ── Chat Conversations ──
+CREATE POLICY "chat_conversations_select_own" ON public.chat_conversations FOR SELECT USING ((select auth.uid()) = user_id OR is_admin_or_staff() OR true);
+CREATE POLICY "chat_conversations_insert" ON public.chat_conversations FOR INSERT WITH CHECK (true);
+CREATE POLICY "chat_conversations_update" ON public.chat_conversations FOR UPDATE USING ((select auth.uid()) = user_id OR user_id IS NULL OR is_admin_or_staff());
+CREATE POLICY "chat_conversations_admin" ON public.chat_conversations FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- AI Memory
-CREATE POLICY "Service role full access ai_memory" ON public.ai_memory FOR ALL USING (auth.role() = 'service_role');
-CREATE POLICY "Staff can view ai_memory" ON public.ai_memory FOR SELECT USING (is_admin_or_staff());
+-- ── AI Memory ──
+CREATE POLICY "ai_memory_select" ON public.ai_memory FOR SELECT USING (is_admin_or_staff());
+CREATE POLICY "ai_memory_insert" ON public.ai_memory FOR INSERT WITH CHECK (is_admin_or_staff());
+CREATE POLICY "ai_memory_admin" ON public.ai_memory FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Customer Insights
-CREATE POLICY "Service role full access customer_insights" ON public.customer_insights FOR ALL USING (auth.role() = 'service_role');
-CREATE POLICY "Staff can manage customer_insights" ON public.customer_insights FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Customer Insights ──
+CREATE POLICY "customer_insights_select" ON public.customer_insights FOR SELECT USING (is_admin_or_staff());
+CREATE POLICY "customer_insights_admin" ON public.customer_insights FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Support Tickets
-CREATE POLICY "Staff manage support tickets" ON public.support_tickets FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
-CREATE POLICY "Service role full access support tickets" ON public.support_tickets FOR ALL USING (auth.role() = 'service_role');
+-- ── Support Tickets ──
+CREATE POLICY "support_tickets_select" ON public.support_tickets FOR SELECT USING (true);
+CREATE POLICY "support_tickets_insert" ON public.support_tickets FOR INSERT WITH CHECK (true);
+CREATE POLICY "support_tickets_admin" ON public.support_tickets FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Support Ticket Messages
-CREATE POLICY "Staff manage ticket messages" ON public.support_ticket_messages FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
-CREATE POLICY "Service role full access ticket messages" ON public.support_ticket_messages FOR ALL USING (auth.role() = 'service_role');
+-- ── Support Ticket Messages ──
+CREATE POLICY "support_ticket_messages_select" ON public.support_ticket_messages FOR SELECT USING (true);
+CREATE POLICY "support_ticket_messages_insert" ON public.support_ticket_messages FOR INSERT WITH CHECK (true);
+CREATE POLICY "support_ticket_messages_admin" ON public.support_ticket_messages FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Support Feedback
-CREATE POLICY "Service role full access support_feedback" ON public.support_feedback FOR ALL USING (auth.role() = 'service_role');
-CREATE POLICY "Staff view support_feedback" ON public.support_feedback FOR SELECT USING (is_admin_or_staff());
-CREATE POLICY "Anyone can insert feedback" ON public.support_feedback FOR INSERT WITH CHECK (true);
+-- ── Support Feedback ──
+CREATE POLICY "support_feedback_insert" ON public.support_feedback FOR INSERT WITH CHECK (true);
+CREATE POLICY "support_feedback_admin" ON public.support_feedback FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Support Knowledge Base
-CREATE POLICY "Public can read published kb" ON public.support_knowledge_base FOR SELECT USING (is_published = true);
-CREATE POLICY "Staff manage knowledge base" ON public.support_knowledge_base FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
-CREATE POLICY "Service role full access kb" ON public.support_knowledge_base FOR ALL USING (auth.role() = 'service_role');
+-- ── Support Knowledge Base ──
+CREATE POLICY "support_kb_select" ON public.support_knowledge_base FOR SELECT USING (is_published = true);
+CREATE POLICY "support_kb_admin" ON public.support_knowledge_base FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Support Canned Responses
-CREATE POLICY "Staff manage canned responses" ON public.support_canned_responses FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Support Canned Responses ──
+CREATE POLICY "support_canned_select" ON public.support_canned_responses FOR SELECT USING (is_admin_or_staff());
+CREATE POLICY "support_canned_admin" ON public.support_canned_responses FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Support Escalation Rules
-CREATE POLICY "Staff manage escalation rules" ON public.support_escalation_rules FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Support Escalation Rules ──
+CREATE POLICY "support_escalation_select" ON public.support_escalation_rules FOR SELECT USING (is_admin_or_staff());
+CREATE POLICY "support_escalation_admin" ON public.support_escalation_rules FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Support Analytics
-CREATE POLICY "Staff view analytics" ON public.support_analytics_daily FOR SELECT USING (is_admin_or_staff());
-CREATE POLICY "Service role full access analytics" ON public.support_analytics_daily FOR ALL USING (auth.role() = 'service_role');
+-- ── Support Analytics ──
+CREATE POLICY "support_analytics_select" ON public.support_analytics_daily FOR SELECT USING (is_admin_or_staff());
+CREATE POLICY "support_analytics_admin" ON public.support_analytics_daily FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Delivery Zones
-CREATE POLICY "Staff can manage delivery zones" ON public.delivery_zones FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
-CREATE POLICY "Anyone can read active zones" ON public.delivery_zones FOR SELECT USING (is_active = true);
+-- ── Delivery Zones ──
+CREATE POLICY "delivery_zones_select" ON public.delivery_zones FOR SELECT USING (is_active = true);
+CREATE POLICY "delivery_zones_admin" ON public.delivery_zones FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Riders
-CREATE POLICY "Staff can manage riders" ON public.riders FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Riders ──
+CREATE POLICY "riders_select" ON public.riders FOR SELECT USING (is_admin_or_staff());
+CREATE POLICY "riders_admin" ON public.riders FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Delivery Assignments
-CREATE POLICY "Staff can manage delivery assignments" ON public.delivery_assignments FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Delivery Assignments ──
+CREATE POLICY "delivery_assignments_select" ON public.delivery_assignments FOR SELECT USING (is_admin_or_staff());
+CREATE POLICY "delivery_assignments_admin" ON public.delivery_assignments FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
--- Delivery Status History
-CREATE POLICY "Staff can view delivery history" ON public.delivery_status_history FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+-- ── Delivery Status History ──
+CREATE POLICY "delivery_status_history_select" ON public.delivery_status_history FOR SELECT USING (is_admin_or_staff());
+CREATE POLICY "delivery_status_history_admin" ON public.delivery_status_history FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
+
+-- Contact Submissions
+CREATE POLICY "contact_submissions_insert" ON public.contact_submissions FOR INSERT WITH CHECK (true);
+CREATE POLICY "contact_submissions_admin" ON public.contact_submissions FOR ALL USING (is_admin_or_staff()) WITH CHECK (is_admin_or_staff());
 
 -- ============================================================================
--- 9. FUNCTION GRANTS (for anon/authenticated access to SECURITY DEFINER RPCs)
+-- 9. GRANTS
 -- ============================================================================
-GRANT EXECUTE ON FUNCTION public.get_order_for_tracking(text, text) TO anon;
-GRANT EXECUTE ON FUNCTION public.get_order_for_tracking(text, text) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.upsert_chat_conversation(text, uuid, jsonb, jsonb) TO anon;
-GRANT EXECUTE ON FUNCTION public.upsert_chat_conversation(text, uuid, jsonb, jsonb) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.get_chat_conversation(text) TO anon;
-GRANT EXECUTE ON FUNCTION public.get_chat_conversation(text) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.generate_ticket_number() TO anon;
-GRANT EXECUTE ON FUNCTION public.generate_ticket_number() TO authenticated;
+
+-- Storefront (anon + authenticated) read access
+GRANT SELECT ON public.products TO anon, authenticated;
+GRANT SELECT ON public.categories TO anon, authenticated;
+GRANT SELECT ON public.product_images TO anon, authenticated;
+GRANT SELECT ON public.product_variants TO anon, authenticated;
+GRANT SELECT ON public.store_modules TO anon, authenticated;
+GRANT SELECT ON public.banners TO anon, authenticated;
+GRANT SELECT ON public.cms_content TO anon, authenticated;
+GRANT SELECT ON public.site_settings TO anon, authenticated;
+GRANT SELECT ON public.store_settings TO anon, authenticated;
+GRANT SELECT ON public.profiles TO anon, authenticated;
+GRANT SELECT ON public.roles TO anon, authenticated;
+GRANT SELECT ON public.coupons TO anon, authenticated;
+GRANT SELECT ON public.pages TO anon, authenticated;
+GRANT SELECT ON public.blog_posts TO anon, authenticated;
+GRANT SELECT ON public.navigation_menus TO anon, authenticated;
+GRANT SELECT ON public.navigation_items TO anon, authenticated;
+GRANT SELECT ON public.reviews TO anon, authenticated;
+GRANT SELECT ON public.review_images TO anon, authenticated;
+GRANT SELECT ON public.delivery_zones TO anon, authenticated;
+GRANT SELECT ON public.support_knowledge_base TO anon, authenticated;
+
+-- Guest checkout (anon can insert orders, order items, support, chat)
+GRANT SELECT, INSERT ON public.orders TO anon;
+GRANT SELECT, INSERT ON public.order_items TO anon;
+GRANT SELECT, INSERT ON public.reviews TO anon;
+GRANT SELECT, INSERT ON public.support_tickets TO anon;
+GRANT SELECT, INSERT ON public.support_ticket_messages TO anon;
+GRANT SELECT, INSERT ON public.chat_conversations TO anon;
+GRANT INSERT ON public.support_feedback TO anon;
+
+-- Authenticated: full CRUD on all tables (RLS enforces row-level restrictions)
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.profiles TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.roles TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.addresses TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.store_settings TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.site_settings TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.audit_logs TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.categories TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.products TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.product_images TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.product_variants TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.coupons TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.orders TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.order_items TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.order_status_history TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.cart_items TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.wishlist_items TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.reviews TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.review_images TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.blog_posts TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.return_requests TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.return_items TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.notifications TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.pages TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.cms_content TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.banners TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.navigation_menus TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.navigation_items TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.store_modules TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.customers TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.chat_conversations TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.ai_memory TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.customer_insights TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.support_tickets TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.support_ticket_messages TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.support_feedback TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.support_knowledge_base TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.support_canned_responses TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.support_escalation_rules TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.support_analytics_daily TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.delivery_zones TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.riders TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.delivery_assignments TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.delivery_status_history TO authenticated;
+
+-- Service role full access
+GRANT ALL ON ALL TABLES IN SCHEMA public TO service_role;
 
 -- ============================================================================
--- 10. STORAGE BUCKETS
+-- 10. FUNCTION GRANTS
 -- ============================================================================
-INSERT INTO storage.buckets (id, name, public) VALUES ('products', 'products', true);
+
+-- Public storefront functions (safe for anon)
+GRANT EXECUTE ON FUNCTION public.is_admin_or_staff() TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.get_storefront_products(text, text, text, integer, integer, numeric, numeric) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.search_products(text, uuid, numeric, numeric, text, text, integer, integer) TO anon, authenticated;
+
+-- Authenticated-only functions
+GRANT EXECUTE ON FUNCTION public.mark_order_paid(uuid, text, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.adjust_inventory(uuid, uuid, integer) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.generate_order_number() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_dashboard_stats() TO authenticated;
+
+-- Revoke sensitive functions from anon
+REVOKE EXECUTE ON FUNCTION public.mark_order_paid(uuid, text, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.adjust_inventory(uuid, uuid, integer) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.get_dashboard_stats() FROM anon;
+
+-- New RPC function grants
+GRANT EXECUTE ON FUNCTION public.upsert_customer_from_order(text, text, text, text, text, uuid, jsonb) TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.upsert_customer_from_order(text, text, text, text, text, uuid, jsonb) FROM anon;
+GRANT EXECUTE ON FUNCTION public.update_customer_stats(text, numeric) TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.update_customer_stats(text, numeric) FROM anon;
+GRANT EXECUTE ON FUNCTION public.get_order_for_tracking(text, text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.upsert_chat_conversation(text, uuid, jsonb, jsonb) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.get_chat_conversation(text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.generate_ticket_number() TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.get_ai_memories(text, uuid) TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.get_ai_memories(text, uuid) FROM anon;
+GRANT EXECUTE ON FUNCTION public.upsert_customer_insight(uuid, text, text) TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.upsert_customer_insight(uuid, text, text) FROM anon;
+GRANT EXECUTE ON FUNCTION public.get_support_dashboard_stats() TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.get_support_dashboard_stats() FROM anon;
+GRANT EXECUTE ON FUNCTION public.search_chat_conversations(text, text, text, integer, integer) TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.search_chat_conversations(text, text, text, integer, integer) FROM anon;
+GRANT EXECUTE ON FUNCTION public.mark_order_paid(text, text) TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.mark_order_paid(text, text) FROM anon;
+
+-- Contact submissions
+GRANT INSERT ON public.contact_submissions TO anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.contact_submissions TO authenticated;
+GRANT ALL ON public.contact_submissions TO service_role;
+
+-- ============================================================================
+-- 11. STORAGE BUCKETS
+-- ============================================================================
+INSERT INTO storage.buckets (id, name, public) VALUES ('product-images', 'product-images', true);
+INSERT INTO storage.buckets (id, name, public) VALUES ('category-images', 'category-images', true);
 INSERT INTO storage.buckets (id, name, public) VALUES ('avatars', 'avatars', true);
-INSERT INTO storage.buckets (id, name, public) VALUES ('blog', 'blog', true);
-INSERT INTO storage.buckets (id, name, public) VALUES ('media', 'media', true);
-INSERT INTO storage.buckets (id, name, public) VALUES ('reviews', 'reviews', true);
+INSERT INTO storage.buckets (id, name, public) VALUES ('blog-images', 'blog-images', true);
+INSERT INTO storage.buckets (id, name, public) VALUES ('blog-covers', 'blog-covers', true);
+INSERT INTO storage.buckets (id, name, public) VALUES ('review-images', 'review-images', true);
+INSERT INTO storage.buckets (id, name, public) VALUES ('cms-images', 'cms-images', true);
+INSERT INTO storage.buckets (id, name, public) VALUES ('banners', 'banners', true);
+INSERT INTO storage.buckets (id, name, public) VALUES ('site-media', 'site-media', true);
+INSERT INTO storage.buckets (id, name, public) VALUES ('receipts', 'receipts', false);
 
 -- ============================================================================
--- 11. STORAGE POLICIES
+-- 12. STORAGE POLICIES (consolidated, matches live database)
 -- ============================================================================
 
--- Products bucket
-CREATE POLICY "Public read access for products" ON storage.objects FOR SELECT USING (bucket_id = 'products');
-CREATE POLICY "Admin upload access for products" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'products' AND is_admin_or_staff() = true);
-CREATE POLICY "Admin update access for products" ON storage.objects FOR UPDATE USING (bucket_id = 'products' AND is_admin_or_staff() = true);
-CREATE POLICY "Admin delete access for products" ON storage.objects FOR DELETE USING (bucket_id = 'products' AND is_admin_or_staff() = true);
+-- Public read for all public buckets
+CREATE POLICY "storage_public_read" ON storage.objects FOR SELECT
+  USING (bucket_id = ANY (ARRAY['product-images', 'category-images', 'avatars', 'blog-images', 'blog-covers', 'review-images', 'cms-images', 'banners', 'site-media']));
 
--- Media bucket
-CREATE POLICY "Public read access for media" ON storage.objects FOR SELECT USING (bucket_id = 'media');
-CREATE POLICY "Admin upload access for media" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'media' AND is_admin_or_staff() = true);
-CREATE POLICY "Admin delete access for media" ON storage.objects FOR DELETE USING (bucket_id = 'media' AND is_admin_or_staff() = true);
+-- Admin insert/update/delete for all managed buckets
+CREATE POLICY "storage_admin_insert" ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = ANY (ARRAY['product-images', 'category-images', 'avatars', 'blog-images', 'blog-covers', 'review-images', 'cms-images', 'banners', 'site-media'])
+  AND EXISTS (SELECT 1 FROM profiles WHERE profiles.id = auth.uid() AND profiles.role IN ('admin', 'staff')));
+
+CREATE POLICY "storage_admin_update" ON storage.objects FOR UPDATE
+  USING (bucket_id = ANY (ARRAY['product-images', 'category-images', 'avatars', 'blog-images', 'blog-covers', 'review-images', 'cms-images', 'banners', 'site-media'])
+  AND EXISTS (SELECT 1 FROM profiles WHERE profiles.id = auth.uid() AND profiles.role IN ('admin', 'staff')));
+
+CREATE POLICY "storage_admin_delete" ON storage.objects FOR DELETE
+  USING (bucket_id = ANY (ARRAY['product-images', 'category-images', 'avatars', 'blog-images', 'blog-covers', 'review-images', 'cms-images', 'banners', 'site-media'])
+  AND EXISTS (SELECT 1 FROM profiles WHERE profiles.id = auth.uid() AND profiles.role IN ('admin', 'staff')));
+
+-- User avatar upload
+CREATE POLICY "storage_avatar_insert" ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'avatars' AND auth.uid() IS NOT NULL);
+
+-- Authenticated review image upload
+CREATE POLICY "storage_review_images_insert" ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'review-images' AND auth.uid() IS NOT NULL);
 
 -- ============================================================================
--- 12. SEED DATA (default roles)
+-- 13. SEED DATA
 -- ============================================================================
+
+-- Default roles
 INSERT INTO public.roles (id, name, description, enabled, is_system, permissions) VALUES
   ('admin', 'Administrator', 'Full system access', true, true, '{"dashboard":true,"orders":true,"products":true,"categories":true,"customers":true,"reviews":true,"inventory":true,"analytics":true,"coupons":true,"support":true,"customer_insights":true,"notifications":true,"sms_debugger":true,"blog":true,"delivery":true,"modules":true,"staff":true,"roles":true,"pos":true}'),
-  ('staff', 'Staff', 'Limited system access based on permissions', true, true, '{"dashboard":true,"orders":true,"products":true,"categories":true,"customers":true,"reviews":true,"inventory":true,"pos":true}')
+  ('staff', 'Staff', 'Limited system access based on permissions', true, true, '{"dashboard":true,"orders":true,"products":true,"categories":true,"customers":true,"reviews":true,"inventory":true,"pos":true}'),
+  ('customer', 'Customer', 'Customer access', true, true, '{}')
 ON CONFLICT (id) DO NOTHING;
 
+-- Default store modules
 INSERT INTO public.store_modules (id, enabled) VALUES
   ('blog', false),
   ('customer-insights', true),
   ('notifications', true)
 ON CONFLICT (id) DO NOTHING;
+
+-- Default delivery zones (fees set to 0)
+INSERT INTO public.delivery_zones (name, description, regions, base_fee, express_fee, estimated_days, is_active) VALUES
+  ('Greater Accra', 'Accra and surrounding areas', ARRAY['Accra', 'Tema', 'Madina', 'Haatso', 'East Legon', 'Spintex', 'Kasoa', 'Ashaiman'], 0, 0, '1-2 days', true),
+  ('Kumasi', 'Kumasi and surrounding areas', ARRAY['Kumasi', 'Adum', 'Kejetia', 'Bantama'], 0, 0, '2-4 days', true),
+  ('Other Regions', 'All other regions in Ghana', ARRAY['Takoradi', 'Cape Coast', 'Tamale', 'Sunyani', 'Ho', 'Koforidua'], 0, 0, '3-5 days', true),
+  ('International', 'Worldwide delivery', ARRAY['International'], 0, 0, '7-14 days', true);

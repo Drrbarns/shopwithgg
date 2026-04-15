@@ -73,12 +73,12 @@ export async function POST(req: Request) {
         const payload = {
             type: 1,
             amount: amount.toString(),
-            email: process.env.MOOLRE_MERCHANT_EMAIL || 'admin@frebysfashiongh.com',
+            email: process.env.MOOLRE_MERCHANT_EMAIL || 'admin@shopwithgg.com',
             externalref: uniqueRef,
             callback: `${baseUrl}/api/payment/moolre/callback`,
             redirect: `${baseUrl}/order-success?order=${orderRef}&payment_success=true`,
             reusable: "0",
-            currency: "GHS",
+            currency: "NGN",
             accountnumber: process.env.MOOLRE_ACCOUNT_NUMBER,
             metadata: {
                 customer_email: customerEmail || order.email,

@@ -3,15 +3,15 @@ import { supabase } from '@/lib/supabase';
 import { escapeHtml } from '@/lib/sanitize';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 'missing_api_key');
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@frebysfashiongh.com';
-const EMAIL_FROM = process.env.EMAIL_FROM || 'Frebys Fashion GH <noreply@frebysfashiongh.com>';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@shopwithgg.com';
+const EMAIL_FROM = process.env.EMAIL_FROM || 'ShopWithGG <noreply@shopwithgg.com>';
 const BRAND = {
-    name: 'Frebys Fashion GH',
+    name: 'ShopWithGG',
     color: '#171717',
     colorLight: '#f9fafb',
     colorDark: '#262626',
-    url: (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://frebysfashiongh.com').replace(/\/+$/, ''),
-    phone: process.env.CONTACT_PHONE || '0244720197',
+    url: (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://shopwithgg.com').replace(/\/+$/, ''),
+    phone: process.env.CONTACT_PHONE || '08071363567',
 };
 
 // Reusable branded email layout
@@ -30,7 +30,7 @@ ${preheader ? `<span style="display:none;max-height:0;overflow:hidden;">${prehea
 <!-- Header -->
 <tr><td style="background:linear-gradient(135deg,${BRAND.color},${BRAND.colorDark});padding:32px 40px;text-align:center;">
 <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:0.5px;">${BRAND.name}</h1>
-<p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;">Kids Ready-to-Wear Ankara Clothes</p>
+<p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;">Smart Sourcing, Seamless Shopping</p>
 </td></tr>
 
 <!-- Body -->
@@ -106,28 +106,18 @@ export async function sendEmail({ to, subject, html }: { to: string; subject: st
     }
 }
 
-// Helper to format phone number for SMS (Ghana specific for now)
-// Helper to format phone number for SMS (Ghana specific for now)
+// Helper to format phone number for SMS (Nigeria +234)
 function formatPhoneNumber(phone: string): string {
-    // Remove all non-digit characters (including + for now)
     let cleaned = phone.replace(/\D/g, '');
 
-    // If starts with 0 (e.g. 024...), replace 0 with 233
-    if (cleaned.startsWith('0')) {
-        cleaned = '233' + cleaned.substring(1);
+    if (cleaned.startsWith('234')) {
+        // Already includes Nigeria country code
+    } else if (cleaned.startsWith('0')) {
+        cleaned = '234' + cleaned.substring(1);
+    } else if (cleaned.length === 10) {
+        cleaned = '234' + cleaned;
     }
 
-    // If length is 9 (e.g. 24...), prepend 233
-    if (cleaned.length === 9) {
-        cleaned = '233' + cleaned;
-    }
-
-    // Ensure it starts with correct country code before prepending +
-    if (!cleaned.startsWith('233') && cleaned.length === 12) {
-        // Assuming it's some other format, but if it starts with 233, it's fine.
-    }
-
-    // Return with + prefix as per E.164
     return '+' + cleaned;
 }
 
@@ -154,7 +144,7 @@ export async function sendSMS({ to, message }: { to: string; message: string }) 
             },
             body: JSON.stringify({
                 type: 1,
-                senderid: process.env.SMS_SENDER_ID || 'FrebysGH',
+                senderid: process.env.SMS_SENDER_ID || 'ShopWithGG',
                 messages: [
                     {
                         recipient: recipient,
@@ -186,7 +176,7 @@ export async function sendSMS({ to, message }: { to: string; message: string }) 
 export async function sendOrderConfirmation(order: any) {
     const { id, email, phone: orderPhone, shipping_address, total, created_at, order_number, metadata } = order;
 
-    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://frebysfashiongh.com').replace(/\/+$/, '');
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://shopwithgg.com').replace(/\/+$/, '');
 
     // Build customer name from available sources
     const getName = () => {
@@ -251,7 +241,7 @@ export async function sendOrderConfirmation(order: any) {
   ${emailInfoRow('Order Number', `#${order_number || id}`)}
   ${emailInfoRow('Order Date', new Date(created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }))}
   ${trackingNumber ? emailInfoRow('Tracking', trackingNumber) : ''}
-  ${emailInfoRow('Total', `GH₵${Number(total).toFixed(2)}`)}
+  ${emailInfoRow('Total', `₦${Number(total).toFixed(2)}`)}
 </table>
 
 ${emailShippingNotes(shippingNotes)}
@@ -277,7 +267,7 @@ ${emailButton('Track Your Order', trackingUrl)}
   ${emailInfoRow('Order', `#${order_number || id}`)}
   ${emailInfoRow('Customer', `${name}`)}
   ${emailInfoRow('Email', email)}
-  ${emailInfoRow('Total', `GH₵${Number(total).toFixed(2)}`)}
+  ${emailInfoRow('Total', `₦${Number(total).toFixed(2)}`)}
   ${trackingNumber ? emailInfoRow('Tracking', trackingNumber) : ''}
 </table>
 
@@ -296,7 +286,7 @@ ${emailButton('View Order in Admin', `${baseUrl}/admin/orders/${id}`)}
     if (phone) {
         const smsMessage = trackingNumber
             ? `Hi ${name}, your order #${order_number || id} is confirmed! Tracking: ${trackingNumber}. Track here: ${trackingUrl}${shippingNotesSms}`
-            : `Hi ${name}, your order #${order_number || id} at Frebys Fashion GH is confirmed! Track here: ${trackingUrl}${shippingNotesSms}`;
+            : `Hi ${name}, your order #${order_number || id} at ShopWithGG is confirmed! Track here: ${trackingUrl}${shippingNotesSms}`;
         
         await sendSMS({
             to: phone,
@@ -308,7 +298,7 @@ ${emailButton('View Order in Admin', `${baseUrl}/admin/orders/${id}`)}
 export async function sendOrderStatusUpdate(order: any, newStatus: string) {
     const { id, email, phone: orderPhone, shipping_address, order_number, metadata } = order;
 
-    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://frebysfashiongh.com').replace(/\/+$/, '');
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://shopwithgg.com').replace(/\/+$/, '');
 
     // Build customer name from available sources
     const getName = () => {
@@ -412,25 +402,25 @@ export async function sendWelcomeMessage(user: { email: string, firstName: strin
   <p style="margin:0;color:#6b7280;font-size:15px;">We're so glad you're here.</p>
 </div>
 
-<p style="color:#374151;font-size:14px;line-height:1.7;margin:16px 0;">Thank you for joining the ${BRAND.name} family. We create unique casual and luxury kids Ankara outfits for all occasions and deliver worldwide from Ghana.</p>
+<p style="color:#374151;font-size:14px;line-height:1.7;margin:16px 0;">Thank you for joining the ${BRAND.name} family. We're a premium global sourcing and procurement brand — leveraging a network of carefully vetted international suppliers to bring you quality products at direct-from-supplier pricing, delivered to your doorstep.</p>
 
 <div style="background-color:#f9fafb;border-radius:12px;padding:20px;margin:20px 0;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
     <tr>
       <td style="text-align:center;padding:8px;width:33%;">
         <p style="font-size:20px;margin:0 0 4px;">&#128666;</p>
-        <p style="color:#374151;font-size:12px;font-weight:600;margin:0;">Unique Designs</p>
-        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">Kids Ankara ready-to-wear</p>
+        <p style="color:#374151;font-size:12px;font-weight:600;margin:0;">Quality Sourcing</p>
+        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">Globally sourced</p>
       </td>
       <td style="text-align:center;padding:8px;width:33%;">
         <p style="font-size:20px;margin:0 0 4px;">&#9989;</p>
-        <p style="color:#374151;font-size:12px;font-weight:600;margin:0;">Comfort Fit</p>
-        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">Made for active kids</p>
+        <p style="color:#374151;font-size:12px;font-weight:600;margin:0;">Affordable Prices</p>
+        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">No inflated costs</p>
       </td>
       <td style="text-align:center;padding:8px;width:33%;">
         <p style="font-size:20px;margin:0 0 4px;">&#128176;</p>
-        <p style="color:#374151;font-size:12px;font-weight:600;margin:0;">Worldwide Delivery</p>
-        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">Shipped from Ghana</p>
+        <p style="color:#374151;font-size:12px;font-weight:600;margin:0;">Reliable Delivery</p>
+        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">Shipped to your door</p>
       </td>
     </tr>
   </table>
@@ -444,7 +434,7 @@ ${emailButton('Start Shopping', `${BRAND.url}/shop`)}
     if (phone) {
         await sendSMS({
             to: phone,
-            message: `Welcome ${firstName}! Thanks for joining Frebys Fashion GH.`
+            message: `Welcome ${firstName}! Thanks for joining ShopWithGG.`
         });
     }
 }
@@ -452,7 +442,7 @@ ${emailButton('Start Shopping', `${BRAND.url}/shop`)}
 export async function sendPaymentLink(order: any) {
     const { id, email, phone: orderPhone, shipping_address, total, order_number, metadata } = order;
 
-    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://frebysfashiongh.com').replace(/\/+$/, '');
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://shopwithgg.com').replace(/\/+$/, '');
     const paymentUrl = `${baseUrl}/pay/${id}`;
 
     // Build customer name from available sources
@@ -488,12 +478,12 @@ export async function sendPaymentLink(order: any) {
 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9fafb;border-radius:12px;overflow:hidden;margin:20px 0;">
   ${emailInfoRow('Order Number', `#${order_number}`)}
-  ${emailInfoRow('Amount Due', `<span style="color:${BRAND.color};font-size:18px;font-weight:700;">GH₵${Number(total).toFixed(2)}</span>`)}
+  ${emailInfoRow('Amount Due', `<span style="color:${BRAND.color};font-size:18px;font-weight:700;">₦${Number(total).toFixed(2)}</span>`)}
 </table>
 
 <p style="color:#374151;font-size:14px;line-height:1.6;margin:16px 0;">Click the button below to securely complete your payment. This link will remain active until your order is completed or cancelled.</p>
 
-${emailButton('Pay Now — GH₵' + Number(total).toFixed(2), paymentUrl, '#d97706')}
+${emailButton('Pay Now — ₦' + Number(total).toFixed(2), paymentUrl, '#d97706')}
 
 <p style="color:#9ca3af;font-size:12px;text-align:center;margin:0;">Or copy this link: <a href="${paymentUrl}" style="color:${BRAND.color};">${paymentUrl}</a></p>
 `, `Complete payment for order #${order_number}`)
@@ -501,7 +491,7 @@ ${emailButton('Pay Now — GH₵' + Number(total).toFixed(2), paymentUrl, '#d977
 
     // SMS with payment link
     if (phone) {
-        const smsMessage = `Hi ${name}, complete your order #${order_number} (GH₵${Number(total).toFixed(2)}) here: ${paymentUrl}`;
+        const smsMessage = `Hi ${name}, complete your order #${order_number} (₦${Number(total).toFixed(2)}) here: ${paymentUrl}`;
         
         await sendSMS({
             to: phone,

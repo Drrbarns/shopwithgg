@@ -1,6 +1,6 @@
 export default function MaintenancePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-amber-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-[#FFFFCC]/40 flex items-center justify-center px-4">
       <div className="max-w-2xl mx-auto text-center">
         <div className="mb-8">
           <div className="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -10,7 +10,7 @@ export default function MaintenancePage() {
             We'll Be Right Back
           </h1>
           <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-            We are performing scheduled updates to improve your Frebys Fashion GH shopping experience. We will be back online shortly.
+            We are performing scheduled updates to improve your ShopWithGG shopping experience. We will be back online shortly.
           </p>
         </div>
 
@@ -27,8 +27,8 @@ export default function MaintenancePage() {
 
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white border border-gray-200 rounded-xl p-6">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i className="ri-rocket-line text-2xl text-blue-700"></i>
+            <div className="w-12 h-12 bg-[#AB9462]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i className="ri-rocket-line text-2xl text-[#AB9462]"></i>
             </div>
             <h3 className="font-bold text-gray-900 mb-2">Performance</h3>
             <p className="text-gray-600 text-sm">Faster loading times and smoother browsing</p>
@@ -43,11 +43,11 @@ export default function MaintenancePage() {
           </div>
 
           <div className="bg-white border border-gray-200 rounded-xl p-6">
-            <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i className="ri-sparkle-line text-2xl text-amber-700"></i>
+            <div className="w-12 h-12 bg-[#FFFFCC] rounded-full flex items-center justify-center mx-auto mb-4">
+              <i className="ri-sparkle-line text-2xl text-[#996633]"></i>
             </div>
             <h3 className="font-bold text-gray-900 mb-2">Features</h3>
-            <p className="text-gray-600 text-sm">New tools to make ordering kids wear easier</p>
+            <p className="text-gray-600 text-sm">New tools to make ordering easier</p>
           </div>
         </div>
 
@@ -58,14 +58,14 @@ export default function MaintenancePage() {
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <a
-              href="mailto:hello@frebysfashiongh.com"
+              href="mailto:hello@shopwithgg.com"
               className="inline-flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-full font-medium hover:bg-gray-50 transition-colors border border-gray-200 whitespace-nowrap"
             >
               <i className="ri-mail-line"></i>
               Email Us
             </a>
             <a
-              href="https://wa.me/233244720197"
+              href="https://wa.me/2348071363567"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-gray-900 text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors whitespace-nowrap"
@@ -74,7 +74,7 @@ export default function MaintenancePage() {
               WhatsApp
             </a>
             <a
-              href="tel:+233244720197"
+              href="tel:+2348071363567"
               className="inline-flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-full font-medium hover:bg-gray-50 transition-colors border border-gray-200 whitespace-nowrap"
             >
               <i className="ri-phone-line"></i>

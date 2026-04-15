@@ -206,7 +206,7 @@ export default function AnalyticsPage() {
               <span className="text-gray-900 font-semibold text-sm">Live</span>
             </div>
             <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
-            <p className="text-3xl font-bold text-gray-900">GH₵{metrics.revenue.toLocaleString()}</p>
+            <p className="text-3xl font-bold text-gray-900">₦{metrics.revenue.toLocaleString()}</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm p-6">
@@ -226,7 +226,7 @@ export default function AnalyticsPage() {
               </div>
             </div>
             <p className="text-sm text-gray-600 mb-1">Avg. Order Value</p>
-            <p className="text-3xl font-bold text-gray-900">GH₵{metrics.aov.toFixed(2)}</p>
+            <p className="text-3xl font-bold text-gray-900">₦{metrics.aov.toFixed(2)}</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm p-6">
@@ -261,7 +261,7 @@ export default function AnalyticsPage() {
                 <YAxis stroke="#6b7280" />
                 <Tooltip />
                 <Legend />
-                <Area type="monotone" dataKey="sales" stroke="#171717" fillOpacity={1} fill="url(#colorSales)" name="Sales (GH₵)" />
+                <Area type="monotone" dataKey="sales" stroke="#171717" fillOpacity={1} fill="url(#colorSales)" name="Sales (₦)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -313,7 +313,7 @@ export default function AnalyticsPage() {
                     <tr key={index}>
                       <td className="py-3 text-sm font-medium text-gray-900">{product.name}</td>
                       <td className="py-3 text-right text-sm text-gray-600">{product.units}</td>
-                      <td className="py-3 text-right text-sm font-semibold text-gray-700">GH₵{product.revenue.toLocaleString()}</td>
+                      <td className="py-3 text-right text-sm font-semibold text-gray-700">₦{product.revenue.toLocaleString()}</td>
                     </tr>
                   ))}
                   {topProducts.length === 0 && <tr><td colSpan={3} className="text-center py-4 text-gray-500">No sales data yet.</td></tr>}

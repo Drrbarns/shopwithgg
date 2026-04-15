@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import DeliveryNav from '../DeliveryNav';
 
-const GHANA_REGIONS = [
-    'Greater Accra', 'Ashanti', 'Western', 'Central', 'Eastern', 'Volta',
-    'Northern', 'Upper East', 'Upper West', 'Brong Ahafo', 'Oti',
-    'Bono East', 'Ahafo', 'Savannah', 'North East', 'Western North',
+const NIGERIA_STATES = [
+    'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno',
+    'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT (Abuja)', 'Gombe',
+    'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos',
+    'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto',
+    'Taraba', 'Yobe', 'Zamfara',
 ];
 
 interface Zone {
@@ -181,11 +183,11 @@ export default function ZonesPage() {
                             <div className="grid grid-cols-2 gap-3 mb-4">
                                 <div className="bg-gray-50 rounded-xl p-3">
                                     <p className="text-[10px] font-medium text-gray-500 uppercase">Standard Fee</p>
-                                    <p className="text-lg font-bold text-gray-900">GH₵ {zone.base_fee?.toFixed(2)}</p>
+                                    <p className="text-lg font-bold text-gray-900">₦ {zone.base_fee?.toFixed(2)}</p>
                                 </div>
                                 <div className="bg-gray-50 rounded-xl p-3">
                                     <p className="text-[10px] font-medium text-gray-700 uppercase">Express Fee</p>
-                                    <p className="text-lg font-bold text-gray-900">GH₵ {zone.express_fee?.toFixed(2)}</p>
+                                    <p className="text-lg font-bold text-gray-900">₦ {zone.express_fee?.toFixed(2)}</p>
                                 </div>
                             </div>
 
@@ -239,26 +241,26 @@ export default function ZonesPage() {
                                 <label className="block text-sm font-semibold text-gray-900 mb-1.5">Zone Name *</label>
                                 <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
-                                    placeholder="Greater Accra Metro" />
+                                    placeholder="Lagos Metro" />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-semibold text-gray-900 mb-1.5">Description</label>
                                 <input type="text" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
-                                    placeholder="Covers central Accra and suburbs" />
+                                    placeholder="Covers central Lagos and suburbs" />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-900 mb-1.5">Standard Fee (GH₵)</label>
+                                    <label className="block text-sm font-semibold text-gray-900 mb-1.5">Standard Fee (₦)</label>
                                     <input type="number" step="0.01" value={form.base_fee}
                                         onChange={e => setForm(f => ({ ...f, base_fee: e.target.value }))}
                                         className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-600"
                                         placeholder="20.00" />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-900 mb-1.5">Express Fee (GH₵)</label>
+                                    <label className="block text-sm font-semibold text-gray-900 mb-1.5">Express Fee (₦)</label>
                                     <input type="number" step="0.01" value={form.express_fee}
                                         onChange={e => setForm(f => ({ ...f, express_fee: e.target.value }))}
                                         className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-600"
@@ -283,7 +285,7 @@ export default function ZonesPage() {
                             <div>
                                 <label className="block text-sm font-semibold text-gray-900 mb-2">Covered Regions ({form.regions.length} selected)</label>
                                 <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-3 border-2 border-gray-200 rounded-xl">
-                                    {GHANA_REGIONS.map(region => (
+                                    {NIGERIA_STATES.map(region => (
                                         <label key={region}
                                             className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors text-sm ${
                                                 form.regions.includes(region) ? 'bg-gray-50 text-gray-900' : 'hover:bg-gray-50 text-gray-700'

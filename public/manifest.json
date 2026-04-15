@@ -1,16 +1,16 @@
 {
-  "name": "Frebys Fashion GH",
-  "short_name": "Frebys GH",
-  "description": "Unique kids ready-to-wear Ankara clothes for all occasions. Casual and luxury kids wear with worldwide delivery from Haatso, Accra, Ghana.",
+  "name": "ShopWithGG",
+  "short_name": "ShopWithGG",
+  "description": "Your trusted global sourcing and procurement partner. Premium products from vetted international suppliers at direct-from-supplier pricing.",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#166d1f",
-  "theme_color": "#166d1f",
+  "background_color": "#2C1D00",
+  "theme_color": "#2C1D00",
   "dir": "ltr",
   "lang": "en",
-  "categories": ["shopping", "fashion", "kids"],
+  "categories": ["shopping", "fashion", "lifestyle"],
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -73,7 +73,7 @@
       "purpose": "maskable"
     },
     {
-      "src": "/frebys-logo.png",
+      "src": "/shopwithgg-logo.png",
       "sizes": "any",
       "type": "image/png",
       "purpose": "any"
@@ -81,9 +81,9 @@
   ],
   "shortcuts": [
     {
-      "name": "Shop Kids Wear",
+      "name": "Shop Products",
       "short_name": "Shop",
-      "description": "Browse kids Ankara wear",
+      "description": "Browse our product collections",
       "url": "/shop?source=pwa-shortcut",
       "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     },

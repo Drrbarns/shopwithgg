@@ -85,7 +85,7 @@ type ChatMessage = {
 
 const STORAGE_KEY = 'sl-chat-messages';
 const SESSION_KEY = 'sl-chat-session';
-const WIDGET_TITLE = "Frebys Fashion GH";
+const WIDGET_TITLE = "ShopWithGG";
 
 function getSessionId(): string {
   if (typeof window === 'undefined') return '';
@@ -136,19 +136,19 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  pending: 'bg-amber-100 text-amber-700',
-  processing: 'bg-blue-100 text-blue-700',
-  shipped: 'bg-purple-100 text-purple-700',
-  dispatched_to_rider: 'bg-indigo-100 text-indigo-700',
+  pending: 'bg-[#FFFFCC] text-[#996633]',
+  processing: 'bg-[#AB9462]/10 text-[#AB9462]',
+  shipped: 'bg-[#AB9462]/10 text-[#AB9462]',
+  dispatched_to_rider: 'bg-[#AB9462]/10 text-[#AB9462]',
   delivered: 'bg-gray-100 text-gray-900',
-  cancelled: 'bg-red-100 text-red-700',
-  open: 'bg-blue-100 text-blue-700',
-  in_progress: 'bg-yellow-100 text-yellow-700',
+  cancelled: 'bg-[#FFCCCC] text-[#9A1900]',
+  open: 'bg-[#AB9462]/10 text-[#AB9462]',
+  in_progress: 'bg-[#FFFFCC] text-[#996633]',
   resolved: 'bg-gray-100 text-gray-900',
   approved: 'bg-gray-100 text-gray-900',
-  rejected: 'bg-red-100 text-red-700',
+  rejected: 'bg-[#FFCCCC] text-[#9A1900]',
   paid: 'bg-gray-100 text-gray-900',
-  failed: 'bg-red-100 text-red-700',
+  failed: 'bg-[#FFCCCC] text-[#9A1900]',
 };
 
 function StatusBadge({ status }: { status: string }) {
@@ -551,7 +551,7 @@ export default function ChatWidget() {
         >
           <i className="ri-chat-smile-3-line text-2xl" aria-hidden />
           {unread > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-bounce">
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#FF6666] text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-bounce">
               {unread}
             </span>
           )}
@@ -653,7 +653,7 @@ export default function ChatWidget() {
               <div className="flex gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button key={star} type="button" onClick={() => setFeedbackRating(star)}
-                    className={`text-3xl sm:text-2xl transition-transform hover:scale-110 active:scale-95 ${star <= feedbackRating ? 'text-amber-400' : 'text-gray-300'}`}>
+                    className={`text-3xl sm:text-2xl transition-transform hover:scale-110 active:scale-95 ${star <= feedbackRating ? 'text-[#FFCC00]' : 'text-gray-300'}`}>
                     <i className={star <= feedbackRating ? 'ri-star-fill' : 'ri-star-line'} />
                   </button>
                 ))}
@@ -683,13 +683,13 @@ export default function ChatWidget() {
                   <i className="ri-close-line text-lg" aria-hidden />
                 </button>
                 <div className="flex-1 flex items-center justify-center gap-2.5">
-                  <span className="w-3 h-3 bg-red-500 rounded-full animate-recording-pulse flex-shrink-0" />
-                  <span className="text-sm font-medium text-red-600 tabular-nums">
+                  <span className="w-3 h-3 bg-[#FF6666] rounded-full animate-recording-pulse flex-shrink-0" />
+                  <span className="text-sm font-medium text-[#9A1900] tabular-nums">
                     {Math.floor(recordingDuration / 60)}:{(recordingDuration % 60).toString().padStart(2, '0')}
                   </span>
                   <span className="text-xs text-gray-400">Recording...</span>
                 </div>
-                <button type="button" onClick={stopRecording} className="shrink-0 w-11 h-11 sm:w-10 sm:h-10 rounded-xl bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-all active:scale-95 shadow-lg shadow-red-500/25" aria-label="Stop and send">
+                <button type="button" onClick={stopRecording} className="shrink-0 w-11 h-11 sm:w-10 sm:h-10 rounded-xl bg-[#FF6666] hover:bg-[#9A1900] text-white flex items-center justify-center transition-all active:scale-95 shadow-lg shadow-[#FF6666]/25" aria-label="Stop and send">
                   <i className="ri-stop-fill text-lg" aria-hidden />
                 </button>
               </div>
@@ -905,8 +905,8 @@ function ProductCard({ product, onAddToCart }: { product: ChatProduct; onAddToCa
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">{product.name}</p>
-          <p className="text-sm font-bold text-gray-600">GH₵{product.price.toFixed(2)}</p>
-          <span className={`text-[10px] font-medium ${product.inStock ? 'text-gray-600' : 'text-red-500'}`}>
+          <p className="text-sm font-bold text-gray-600">₦{product.price.toFixed(2)}</p>
+          <span className={`text-[10px] font-medium ${product.inStock ? 'text-gray-600' : 'text-[#FF6666]'}`}>
             {product.inStock ? 'In Stock' : 'Out of Stock'}
           </span>
         </div>
@@ -973,14 +973,14 @@ function OrderCard({ order }: { order: ChatOrder }) {
         {order.items.slice(0, 3).map((item, i) => (
           <div key={i} className="flex justify-between text-xs">
             <span className="text-gray-600 truncate flex-1">{item.name} x{item.quantity}</span>
-            <span className="text-gray-900 font-medium ml-2">GH₵{item.price.toFixed(2)}</span>
+            <span className="text-gray-900 font-medium ml-2">₦{item.price.toFixed(2)}</span>
           </div>
         ))}
         {order.items.length > 3 && <p className="text-[10px] text-gray-400">+{order.items.length - 3} more items</p>}
       </div>
       <div className="px-4 py-2 border-t border-gray-50 flex justify-between items-center">
         <span className="text-xs text-gray-500">{new Date(order.created_at).toLocaleDateString('en-GB')}</span>
-        <span className="text-sm font-bold text-gray-900">GH₵{order.total.toFixed(2)}</span>
+        <span className="text-sm font-bold text-gray-900">₦{order.total.toFixed(2)}</span>
       </div>
       {order.tracking_number && (
         <div className="px-4 pb-2">
@@ -997,15 +997,15 @@ function OrderCard({ order }: { order: ChatOrder }) {
 
 function TicketCard({ ticket }: { ticket: ChatTicket }) {
   return (
-    <div className="bg-white rounded-xl border border-blue-100 shadow-sm overflow-hidden">
-      <div className="px-4 py-3 bg-blue-50/50">
+    <div className="bg-white rounded-xl border border-[#AB9462]/20 shadow-sm overflow-hidden">
+      <div className="px-4 py-3 bg-[#AB9462]/5">
         <div className="flex items-center gap-2 mb-1">
-          <i className="ri-customer-service-2-line text-blue-600" />
-          <span className="text-xs font-bold text-blue-700">Support Ticket Created</span>
+          <i className="ri-customer-service-2-line text-[#AB9462]" />
+          <span className="text-xs font-bold text-[#AB9462]">Support Ticket Created</span>
         </div>
         <div className="flex items-center justify-between">
           <p className="text-sm font-medium text-gray-900">{ticket.subject}</p>
-          <span className="text-xs font-mono text-blue-600">#{ticket.ticket_number}</span>
+          <span className="text-xs font-mono text-[#AB9462]">#{ticket.ticket_number}</span>
         </div>
         <p className="text-xs text-gray-500 mt-1">
           Our team will review your ticket and get back to you. You can also check the status in your account.
@@ -1019,11 +1019,11 @@ function TicketCard({ ticket }: { ticket: ChatTicket }) {
 
 function ReturnCard({ ret }: { ret: ChatReturn }) {
   return (
-    <div className="bg-white rounded-xl border border-orange-100 shadow-sm overflow-hidden">
-      <div className="px-4 py-3 bg-orange-50/50">
+    <div className="bg-white rounded-xl border border-[#FFCC00]/30 shadow-sm overflow-hidden">
+      <div className="px-4 py-3 bg-[#FFFFCC]/50">
         <div className="flex items-center gap-2 mb-1">
-          <i className="ri-arrow-go-back-line text-orange-600" />
-          <span className="text-xs font-bold text-orange-700">Return Request Submitted</span>
+          <i className="ri-arrow-go-back-line text-[#AB9462]" />
+          <span className="text-xs font-bold text-[#996633]">Return Request Submitted</span>
         </div>
         <div className="space-y-1">
           <p className="text-xs text-gray-600">Order: <span className="font-medium">{ret.order_number}</span></p>
@@ -1042,11 +1042,11 @@ function ReturnCard({ ret }: { ret: ChatReturn }) {
 
 function CouponCard({ coupon }: { coupon: ChatCoupon }) {
   return (
-    <div className={`rounded-xl border shadow-sm overflow-hidden ${coupon.valid ? 'bg-white border-gray-100' : 'bg-white border-red-100'}`}>
-      <div className={`px-4 py-3 ${coupon.valid ? 'bg-gray-100/50' : 'bg-red-50/50'}`}>
+    <div className={`rounded-xl border shadow-sm overflow-hidden ${coupon.valid ? 'bg-white border-gray-100' : 'bg-white border-[#FF6666]/20'}`}>
+      <div className={`px-4 py-3 ${coupon.valid ? 'bg-gray-100/50' : 'bg-[#FFCCCC]/50'}`}>
         <div className="flex items-center gap-2 mb-1">
-          <i className={`${coupon.valid ? 'ri-coupon-3-line text-gray-600' : 'ri-close-circle-line text-red-500'}`} />
-          <span className={`text-xs font-bold ${coupon.valid ? 'text-gray-900' : 'text-red-600'}`}>
+          <i className={`${coupon.valid ? 'ri-coupon-3-line text-gray-600' : 'ri-close-circle-line text-[#FF6666]'}`} />
+          <span className={`text-xs font-bold ${coupon.valid ? 'text-gray-900' : 'text-[#9A1900]'}`}>
             {coupon.valid ? 'Valid Coupon' : 'Invalid Coupon'}
           </span>
         </div>
@@ -1054,15 +1054,15 @@ function CouponCard({ coupon }: { coupon: ChatCoupon }) {
           <span className="font-mono text-sm font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded">{coupon.code}</span>
           {coupon.valid && coupon.value && (
             <span className="text-sm font-bold text-gray-600">
-              {coupon.type === 'percentage' ? `${coupon.value}% OFF` : coupon.type === 'free_shipping' ? 'Free Shipping' : `GH₵${coupon.value.toFixed(2)} OFF`}
+              {coupon.type === 'percentage' ? `${coupon.value}% OFF` : coupon.type === 'free_shipping' ? 'Free Shipping' : `₦${coupon.value.toFixed(2)} OFF`}
             </span>
           )}
         </div>
         {!coupon.valid && coupon.reason && (
-          <p className="text-xs text-red-500 mt-1">{coupon.reason}</p>
+          <p className="text-xs text-[#FF6666] mt-1">{coupon.reason}</p>
         )}
         {coupon.valid && coupon.minimum_purchase && (
-          <p className="text-[10px] text-gray-400 mt-1">Min. purchase: GH₵{coupon.minimum_purchase.toFixed(2)}</p>
+          <p className="text-[10px] text-gray-400 mt-1">Min. purchase: ₦{coupon.minimum_purchase.toFixed(2)}</p>
         )}
         {coupon.valid && coupon.expires && (
           <p className="text-[10px] text-gray-400">Expires: {new Date(coupon.expires).toLocaleDateString('en-GB')}</p>

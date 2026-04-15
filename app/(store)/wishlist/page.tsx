@@ -82,7 +82,7 @@ export default function WishlistPage() {
                   <ProductCard {...product} slug={product.slug || product.id} />
                   <button
                     onClick={() => removeFromWishlist(product.id)}
-                    className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-md hover:bg-red-50 transition-colors z-10"
+                    className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-md hover:bg-[#FFCCCC]/50 transition-colors z-10"
                   >
                     <i className="ri-close-line text-gray-700 text-xl"></i>
                   </button>

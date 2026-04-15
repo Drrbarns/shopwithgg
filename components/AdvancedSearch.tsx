@@ -161,7 +161,7 @@ export default function AdvancedSearch() {
           <button
             onClick={handleVoiceSearch}
             className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
-              isVoiceActive ? 'bg-red-500 text-white animate-pulse' : 'hover:bg-gray-100 text-gray-600'
+              isVoiceActive ? 'bg-[#FF6666] text-white animate-pulse' : 'hover:bg-gray-100 text-gray-600'
             }`}
           >
             <i className="ri-mic-line"></i>
@@ -204,7 +204,7 @@ export default function AdvancedSearch() {
                     <p className="font-semibold text-gray-900 text-sm">{product.name}</p>
                     <p className="text-xs text-gray-500">{product.category}</p>
                   </div>
-                  <p className="font-bold text-gray-900">GH₵{product.price}</p>
+                  <p className="font-bold text-gray-900">₦{product.price}</p>
                 </Link>
               ))}
             </div>

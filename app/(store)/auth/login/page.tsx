@@ -82,7 +82,7 @@ export default function LoginPage() {
 
         <div className="bg-white rounded-xl shadow-sm p-8">
           {authError && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+            <div className="mb-4 p-4 bg-[#FFCCCC]/50 border border-[#FF6666]/30 text-[#9A1900] rounded-lg text-sm">
               {authError}
             </div>
           )}
@@ -96,12 +96,12 @@ export default function LoginPage() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.email ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.email ? 'border-[#FF6666]' : 'border-gray-300'
                   }`}
                 placeholder="you@example.com"
               />
               {errors.email && (
-                <p className="text-sm text-red-600 mt-2">{errors.email}</p>
+                <p className="text-sm text-[#9A1900] mt-2">{errors.email}</p>
               )}
             </div>
 
@@ -114,7 +114,7 @@ export default function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className={`w-full px-4 py-3 pr-12 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.password ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-3 pr-12 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.password ? 'border-[#FF6666]' : 'border-gray-300'
                     }`}
                   placeholder="Enter your password"
                 />
@@ -127,7 +127,7 @@ export default function LoginPage() {
                 </button>
               </div>
               {errors.password && (
-                <p className="text-sm text-red-600 mt-2">{errors.password}</p>
+                <p className="text-sm text-[#9A1900] mt-2">{errors.password}</p>
               )}
             </div>
 
@@ -174,14 +174,14 @@ export default function LoginPage() {
                 disabled
                 className="flex items-center justify-center space-x-2 border-2 border-gray-200 bg-gray-50 py-3 rounded-lg cursor-not-allowed opacity-60"
               >
-                <i className="ri-google-fill text-xl text-red-600 grayscale opacity-50"></i>
+                <i className="ri-google-fill text-xl text-[#9A1900] grayscale opacity-50"></i>
                 <span className="font-medium text-gray-400">Google</span>
               </button>
               <button
                 disabled
                 className="flex items-center justify-center space-x-2 border-2 border-gray-200 bg-gray-50 py-3 rounded-lg cursor-not-allowed opacity-60"
               >
-                <i className="ri-facebook-fill text-xl text-blue-600 grayscale opacity-50"></i>
+                <i className="ri-facebook-fill text-xl text-[#AB9462] grayscale opacity-50"></i>
                 <span className="font-medium text-gray-400">Facebook</span>
               </button>
             </div>

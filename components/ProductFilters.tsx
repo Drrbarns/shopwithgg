@@ -156,7 +156,7 @@ export default function ProductFilters({ onFilterChange }: ProductFiltersProps) 
                 className="w-full accent-gray-900"
               />
               <p className="text-sm text-gray-600">
-                GH₵{priceRange[0]} - GH₵{priceRange[1]}
+                ₦{priceRange[0]} - ₦{priceRange[1]}
               </p>
             </div>
           </div>
@@ -212,7 +212,7 @@ export default function ProductFilters({ onFilterChange }: ProductFiltersProps) 
                         <i
                           key={i}
                           className={`ri-star-${i < rating ? 'fill' : 'line'} text-sm ${
-                            i < rating ? 'text-yellow-400' : 'text-gray-300'
+                            i < rating ? 'text-[#FFCC00]' : 'text-gray-300'
                           }`}
                         ></i>
                       ))}
