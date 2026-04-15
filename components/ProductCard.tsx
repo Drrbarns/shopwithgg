@@ -79,7 +79,7 @@ export default function ProductCard({
     <article className="group h-full w-full overflow-hidden rounded-xl sm:rounded-2xl bg-white shadow-sm hover:shadow-md transition-all duration-300">
       <Link
         href={`/product/${slug}`}
-        className="relative block aspect-[4/5] overflow-hidden rounded-xl sm:rounded-2xl bg-brand-carton/10"
+        className="relative block aspect-square overflow-hidden rounded-xl sm:rounded-2xl bg-brand-carton/10"
       >
         <LazyImage
           src={image}
