@@ -25,7 +25,7 @@ export default function FAQsPage() {
     {
       category: 'orders',
       question: 'Can I modify or cancel my order?',
-      answer: "You can request changes within 1 hour of placing your order. Contact support immediately at 080 7136 3567 or hello@shopwithgg.com. Once processing starts, changes may be limited."
+      answer: "You can request changes within 1 hour of placing your order. Contact support immediately at 080 7136 3568 or hello@shopwithgg.com. Once processing starts, changes may be limited."
     },
     {
       category: 'orders',
@@ -229,7 +229,7 @@ export default function FAQsPage() {
               Contact Support
             </Link>
             <a
-              href="https://wa.me/2348071363567"
+              href="https://wa.me/2348071363568"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-gray-700 text-white px-8 py-4 rounded-full font-medium hover:bg-gray-600 transition-colors whitespace-nowrap"

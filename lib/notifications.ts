@@ -11,7 +11,7 @@ const BRAND = {
     colorLight: '#f9fafb',
     colorDark: '#262626',
     url: (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://shopwithgg.com').replace(/\/+$/, ''),
-    phone: process.env.CONTACT_PHONE || '08071363567',
+    phone: process.env.CONTACT_PHONE || '08071363568',
 };
 
 // Reusable branded email layout

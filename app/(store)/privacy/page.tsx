@@ -392,7 +392,7 @@ export default function PrivacyPage() {
                   <i className="ri-phone-line text-gray-900 text-xl mt-1"></i>
                   <div>
                     <p className="font-medium text-gray-900">Phone</p>
-                    <a href="tel:08071363567" className="text-gray-900 hover:underline">080 7136 3567</a>
+                    <a href="tel:08071363568" className="text-gray-900 hover:underline">080 7136 3568</a>
                   </div>
                 </div>
 

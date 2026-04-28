@@ -290,8 +290,8 @@ const LLM_TOOLS = [
           },
           payment_method: {
             type: 'string',
-            enum: ['moolre', 'cod'],
-            description: 'Payment method. moolre = online payment (card or bank transfer), cod = Cash on Delivery (Lagos only)',
+            enum: ['paystack', 'cod'],
+            description: 'Payment method. paystack = online payment (card, bank transfer, USSD, mobile money), cod = Cash on Delivery (Lagos only)',
           },
         },
         required: ['items', 'shipping', 'delivery_method', 'payment_method'],
@@ -393,7 +393,7 @@ LIMITATIONS (what you CANNOT do directly):
 WHEN YOU CANNOT HELP OR ANSWER A QUESTION:
 If you genuinely cannot answer a question or resolve an issue (whether it's beyond your capabilities, the customer is frustrated, or anything else), you MUST do TWO things:
 1. AUTOMATICALLY create a support ticket using the create_support_ticket tool — don't just offer to, actually do it. Use whatever info the customer already provided (email, name, issue details).
-2. ALWAYS provide the customer with direct contact information for faster help. Share: Phone/WhatsApp 080 7136 3567 (https://wa.me/2348071363567), email hello@shopwithgg.com, Instagram @_shopwithgg_, or visit Lagos, Nigeria. Say something like: "I've created a support ticket for you. For a faster response, you can also reach us at 080 7136 3567 (call or WhatsApp) or hello@shopwithgg.com."
+2. ALWAYS provide the customer with direct contact information for faster help. Share: Phone/WhatsApp 080 7136 3568 (https://wa.me/2348071363568), email hello@shopwithgg.com, Instagram @_shopwithgg_, or visit Lagos, Nigeria. Say something like: "I've created a support ticket for you. For a faster response, you can also reach us at 080 7136 3568 (call or WhatsApp) or hello@shopwithgg.com."
 Never leave a customer stuck without a path forward.
 
 ${getSiteMapSummary()}`;
@@ -797,7 +797,7 @@ async function handleWithoutAI(supabase: any, userText: string, profile: ChatCus
   }
 
   return {
-    message: "I'm not quite sure what you're looking for. I can help with:\n- Finding and buying products\n- Tracking orders\n- Checking coupons\n- Store policies and info\n- Creating support tickets\n\nFor immediate assistance, call or WhatsApp 080 7136 3567 or email hello@shopwithgg.com.",
+    message: "I'm not quite sure what you're looking for. I can help with:\n- Finding and buying products\n- Tracking orders\n- Checking coupons\n- Store policies and info\n- Creating support tickets\n\nFor immediate assistance, call or WhatsApp 080 7136 3568 or email hello@shopwithgg.com.",
     quickReplies: ['Find a product', 'Track my order', 'What do you recommend?', 'Call us'],
   };
 }
@@ -955,7 +955,7 @@ async function handleWithAI(
       } else if (couponCard) {
         assistantContent = `Here's the coupon information:`;
       } else {
-        assistantContent = `I'm sorry, I wasn't able to process that properly. You can try rephrasing your request, or for immediate help reach us at 080 7136 3567 (call or WhatsApp) or hello@shopwithgg.com. Our team is available Mon-Sat, 9am-6pm WAT.`;
+        assistantContent = `I'm sorry, I wasn't able to process that properly. You can try rephrasing your request, or for immediate help reach us at 080 7136 3568 (call or WhatsApp) or hello@shopwithgg.com. Our team is available Mon-Sat, 9am-6pm WAT.`;
       }
     }
 
@@ -1157,7 +1157,7 @@ async function executeToolCall(
         items: args.items || [],
         shipping: args.shipping || {},
         deliveryMethod: args.delivery_method || 'standard',
-        paymentMethod: args.payment_method || 'moolre',
+        paymentMethod: args.payment_method || 'paystack',
         userId,
       });
 

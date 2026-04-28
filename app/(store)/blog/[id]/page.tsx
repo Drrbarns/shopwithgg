@@ -43,7 +43,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
         <ul>
           <li><strong>Mobile Money &amp; transfers:</strong> MTN, Airtel, Glo, and 9mobile offer convenient payment options</li>
           <li><strong>Credit/Debit Cards:</strong> Visa and Mastercard are widely accepted</li>
-          <li><strong>Moolre Payment:</strong> Our integrated payment gateway for seamless mobile money and card payments</li>
+          <li><strong>Paystack:</strong> Our integrated payment gateway for seamless card, bank transfer, USSD, and mobile money payments</li>
         </ul>
 
         <p>Always ensure you're on a secure connection when entering payment details. Avoid using public Wi-Fi for transactions.</p>

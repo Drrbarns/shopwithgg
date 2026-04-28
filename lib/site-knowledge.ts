@@ -36,12 +36,12 @@ Delivery: Worldwide delivery.`,
     category: "contact",
     content: `Contact ShopWithGG:
 
-Phone/WhatsApp: 08071363567
+Phone/WhatsApp: 08071363568
 Email: hello@shopwithgg.com
 Instagram: @_shopwithgg_
 Address: Lagos, Nigeria
 Support Hours: Monday to Saturday, 9 AM - 6 PM WAT`,
-    keywords: ["contact", "phone", "whatsapp", "email", "address", "support", "08071363567", "lagos", "nigeria", "instagram", "shopwithgg", "_shopwithgg_"],
+    keywords: ["contact", "phone", "whatsapp", "email", "address", "support", "08071363568", "lagos", "nigeria", "instagram", "shopwithgg", "_shopwithgg_"],
   },
   {
     id: "shipping-policy",
@@ -72,11 +72,11 @@ Refunds are processed after item inspection.`,
     title: "Payment Methods",
     path: "/checkout",
     category: "payment",
-    content: `Secure payment options are available at checkout.
+    content: `Secure payments are processed by Paystack. Customers can pay with debit/credit cards (Visa, Mastercard, Verve), bank transfer, USSD, mobile money, or QR code at checkout.
 
-Mobile Money is supported for eligible local orders.
+Cash on Delivery is available for eligible orders within Lagos.
 All prices are shown in ₦ (NGN) unless otherwise stated.`,
-    keywords: ["payment", "momo", "checkout", "secure", "ngn", "naira", "nigeria"],
+    keywords: ["payment", "paystack", "card", "bank transfer", "ussd", "momo", "checkout", "secure", "ngn", "naira", "nigeria"],
   },
   {
     id: "order-tracking-guide",

@@ -338,7 +338,7 @@ const STORE_INFO: Record<string, string> = {
   shipping: `ShopWithGG sources products globally through vetted international suppliers and delivers worldwide. Delivery timelines and shipping fees are calculated by destination at checkout.`,
   returns: `We accept eligible returns within 30 days of delivery for unused items in original condition. To start a return, use your account or ask me to create a support ticket. Refunds are processed after inspection.`,
   payment: `We support secure checkout options, including Mobile Money for eligible local orders. Available payment methods are shown at checkout.`,
-  contact: `You can reach us through:\n- This chat (24/7)\n- Email: hello@shopwithgg.com\n- Phone/WhatsApp: 080 7136 3567\n- Instagram: @_shopwithgg_\n- Visit: Lagos, Nigeria\n- Support ticket: I can create one for you right now`,
+  contact: `You can reach us through:\n- This chat (24/7)\n- Email: hello@shopwithgg.com\n- Phone/WhatsApp: 080 7136 3568\n- Instagram: @_shopwithgg_\n- Visit: Lagos, Nigeria\n- Support ticket: I can create one for you right now`,
   about: `ShopWithGG is a premium global sourcing and procurement brand. We leverage a network of carefully vetted international suppliers to bring you quality products at direct-from-supplier pricing. We handle product selection support, supplier coordination, and seamless logistics through a preorder-based fulfillment system — so you can shop confidently. Worldwide delivery available.`,
   delivery_times: `Delivery timelines vary by destination and product. We operate a preorder-based fulfillment system — estimated timing is shown at checkout and in your order updates.`,
   hours: `Our online store is open 24/7. Customer support is available Monday-Saturday, 8 AM - 8 PM WAT.`,
@@ -489,7 +489,7 @@ export async function createChatOrder(
   if (!['standard', 'express', 'pickup'].includes(deliveryMethod)) {
     return { success: false, message: 'Invalid delivery method.' };
   }
-  if (!['moolre', 'cod'].includes(paymentMethod)) {
+  if (!['paystack', 'cod'].includes(paymentMethod)) {
     return { success: false, message: 'Invalid payment method.' };
   }
 
@@ -642,14 +642,12 @@ export async function createChatOrder(
     }
 
     // Handle payment
-    if (paymentMethod === 'moolre') {
+    if (paymentMethod === 'paystack') {
       try {
-        const moolreApiUser = process.env.MOOLRE_API_USER;
-        const moolreApiPubkey = process.env.MOOLRE_API_PUBKEY;
-        const moolreAccountNumber = process.env.MOOLRE_ACCOUNT_NUMBER;
+        const paystackSecretKey = process.env.PAYSTACK_SECRET_KEY;
         const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/+$/, '');
 
-        if (!moolreApiUser || !moolreApiPubkey || !moolreAccountNumber) {
+        if (!paystackSecretKey) {
           return {
             success: true,
             orderNumber,
@@ -660,34 +658,46 @@ export async function createChatOrder(
 
         const uniqueRef = `${orderNumber}-R${Date.now()}`;
         const payload = {
-          type: 1,
-          amount: total.toString(),
-          email: process.env.MOOLRE_MERCHANT_EMAIL || 'hello@shopwithgg.com',
-          externalref: uniqueRef,
-          callback: `${baseUrl}/api/payment/moolre/callback`,
-          redirect: `${baseUrl}/order-success?order=${orderNumber}&payment_success=true`,
-          reusable: '0',
+          email: sanitizedShipping.email,
+          amount: Math.round(total * 100), // Paystack expects kobo
           currency: 'NGN',
-          accountnumber: moolreAccountNumber,
+          reference: uniqueRef,
+          callback_url: `${baseUrl}/order-success?order=${orderNumber}&payment_success=true`,
           metadata: {
+            order_number: orderNumber,
+            order_id: order.id,
             customer_email: sanitizedShipping.email,
-            original_order_number: orderNumber,
+            source: 'chat',
           },
+          channels: ['card', 'bank', 'ussd', 'qr', 'mobile_money', 'bank_transfer'],
         };
 
-        const response = await fetch('https://api.moolre.com/embed/link', {
+        // Save Paystack reference on the order so verify can find it later
+        try {
+          await supabaseAdmin
+            .from('orders')
+            .update({
+              metadata: {
+                ...(order.metadata || {}),
+                paystack_reference: uniqueRef,
+                paystack_init_at: new Date().toISOString(),
+              },
+            })
+            .eq('id', order.id);
+        } catch {}
+
+        const response = await fetch('https://api.paystack.co/transaction/initialize', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-API-USER': moolreApiUser,
-            'X-API-PUBKEY': moolreApiPubkey,
+            'Authorization': `Bearer ${paystackSecretKey}`,
           },
           body: JSON.stringify(payload),
         });
 
         const result = await response.json();
 
-        if (result.status === 1 && result.data?.authorization_url) {
+        if (result.status === true && result.data?.authorization_url) {
           return {
             success: true,
             orderNumber,
@@ -704,7 +714,7 @@ export async function createChatOrder(
           };
         }
       } catch (payErr: any) {
-        console.error('[ChatTools] Moolre payment error:', payErr);
+        console.error('[ChatTools] Paystack payment error:', payErr);
         return {
           success: true,
           orderNumber,

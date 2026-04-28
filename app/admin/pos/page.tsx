@@ -123,7 +123,7 @@ function printReceipt(order: {
     <div class="center">
         <div class="store-name">SHOPWITHGG</div>
         <div style="font-size:10px;margin-top:2px;">Smart Sourcing, Seamless Shopping</div>
-        <div style="font-size:10px;">Tel: 080 7136 3567</div>
+        <div style="font-size:10px;">Tel: 080 7136 3568</div>
     </div>
     <div class="divider"></div>
     <div style="display:flex;justify-content:space-between;font-size:10px;">
@@ -403,7 +403,7 @@ export default function POSPage() {
                     orderCount: paid.length,
                     cashSales: paid.filter(o => o.payment_method === 'cash').reduce((s, o) => s + Number(o.total), 0),
                     cardSales: paid.filter(o => o.payment_method === 'card').reduce((s, o) => s + Number(o.total), 0),
-                    momoSales: paid.filter(o => o.payment_method === 'moolre').reduce((s, o) => s + Number(o.total), 0),
+                    momoSales: paid.filter(o => o.payment_method === 'paystack' || o.payment_method === 'moolre').reduce((s, o) => s + Number(o.total), 0),
                 });
             }
         } catch {}
@@ -666,7 +666,7 @@ export default function POSPage() {
                     discount_total: totalDiscount,
                     total: grandTotal,
                     shipping_method: deliveryMethod,
-                    payment_method: paymentMethod === 'momo' ? 'moolre' : paymentMethod,
+                    payment_method: paymentMethod === 'momo' ? 'paystack' : paymentMethod,
                     shipping_address: addressData,
                     billing_address: addressData,
                     metadata: {
@@ -741,13 +741,13 @@ export default function POSPage() {
             }
 
             if (paymentMethod === 'momo') {
-                const paymentRes = await fetch('/api/payment/moolre', {
+                const paymentRes = await fetch('/api/payment/paystack', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ orderId: orderNumber, amount: grandTotal, customerEmail })
                 });
                 const paymentResult = await paymentRes.json();
-                if (!paymentResult.success) throw new Error(paymentResult.message || 'Failed to initiate Mobile Money payment');
+                if (!paymentResult.success) throw new Error(paymentResult.message || 'Failed to initiate online payment');
 
                 const receiptData = {
                     orderNumber, items: cart, subtotal: cartSubtotal,

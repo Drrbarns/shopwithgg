@@ -75,7 +75,7 @@ export default function CheckoutPage() {
   ];
 
   const [deliveryMethod, setDeliveryMethod] = useState('pickup');
-  const [paymentMethod, setPaymentMethod] = useState('moolre');
+  const [paymentMethod, setPaymentMethod] = useState('paystack');
   const [errors, setErrors] = useState<any>({});
 
 
@@ -135,7 +135,7 @@ export default function CheckoutPage() {
   };
 
   const handleContinueToPayment = async () => {
-    // Skip step 3 and directly initiate payment with default method (Moolre/Mobile Money)
+    // Skip step 3 and directly initiate payment with default method (Paystack)
     await handlePlaceOrder();
   };
 
@@ -267,11 +267,11 @@ export default function CheckoutPage() {
       });
 
       // 4. Handle Payment Redirects or Completion
-      if (paymentMethod === 'moolre') {
+      if (paymentMethod === 'paystack') {
         try {
           // Payment link reminder will be sent automatically after 15 mins if unpaid (via cron)
 
-          const paymentRes = await fetch('/api/payment/moolre', {
+          const paymentRes = await fetch('/api/payment/paystack', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -290,7 +290,7 @@ export default function CheckoutPage() {
           // Clear cart before redirecting
           clearCart();
 
-          // Redirect to Moolre
+          // Redirect to Paystack
           window.location.href = paymentResult.url;
           return;
 
@@ -637,7 +637,7 @@ export default function CheckoutPage() {
                           Processing...
                         </>
                       ) : (
-                        'Pay with Mobile Money'
+                        'Pay Securely'
                       )}
                     </button>
                   </div>

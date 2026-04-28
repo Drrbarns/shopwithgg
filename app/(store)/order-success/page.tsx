@@ -40,7 +40,7 @@ function OrderSuccessContent() {
     fetchOrder();
   }, [orderNumber, paymentSuccess]);
 
-  // Payment verification - called when user is redirected from Moolre with payment_success=true
+  // Payment verification - called when user is redirected from Paystack with payment_success=true
   const verifyPayment = async (orderNum: string, _initialOrder: any) => {
     setVerifying(true);
 
@@ -50,7 +50,7 @@ function OrderSuccessContent() {
       return j.order;
     };
 
-    // Retry loop: check every 3s for up to 30s to give the callback time to fire
+    // Retry loop: check every 3s for up to 30s to give the webhook time to fire
     const delays = [3000, 3000, 4000, 5000, 5000, 5000, 5000];
     for (const delay of delays) {
       await new Promise(resolve => setTimeout(resolve, delay));
@@ -62,9 +62,9 @@ function OrderSuccessContent() {
       }
     }
 
-    // Callback never fired — call our verify endpoint which queries Moolre directly
+    // Webhook never fired — call our verify endpoint which queries Paystack directly
     try {
-      const res = await fetch('/api/payment/moolre/verify', {
+      const res = await fetch('/api/payment/paystack/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderNumber: orderNum })

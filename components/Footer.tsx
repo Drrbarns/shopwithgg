@@ -32,7 +32,7 @@ export default function Footer() {
     getSetting("site_tagline") ||
     "Your trusted sourcing and procurement partner.";
   const contactEmail = getSetting('contact_email') || '';
-  const contactPhone = getSetting("contact_phone") || "08071363567";
+  const contactPhone = getSetting("contact_phone") || "08071363568";
   const whatsappLink = `https://wa.me/234${contactPhone.replace(/^0/, "")}`;
 
   return (

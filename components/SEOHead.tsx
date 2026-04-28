@@ -176,12 +176,12 @@ export function generateOrganizationSchema() {
     },
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: "+2348071363567",
+      telephone: "+2348071363568",
       contactType: "Customer Service",
       areaServed: "NG",
       availableLanguage: ["English"],
     },
-    sameAs: ["https://wa.me/2348071363567"],
+    sameAs: ["https://wa.me/2348071363568"],
   };
 }
 

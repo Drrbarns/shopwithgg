@@ -86,7 +86,7 @@ export default function ContactPage() {
   };
 
   const contactEmail = getSetting("contact_email") || "hello@shopwithgg.com";
-  const contactPhone = getSetting("contact_phone") || "08071363567";
+  const contactPhone = getSetting("contact_phone") || "08071363568";
   const contactAddress = getSetting("contact_address") || "Lagos, Nigeria";
 
   const heroTitle = pageContent?.title || 'Get In Touch';

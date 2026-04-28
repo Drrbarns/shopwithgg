@@ -158,11 +158,11 @@ export default function RootLayout({
                   "logo": `${siteUrl}/shopwithgg-logo.png`,
                   "image": `${siteUrl}/og-image.png`,
                   "description": "Your trusted global sourcing and procurement partner. Premium products from vetted international suppliers at direct-from-supplier pricing.",
-                  "sameAs": ["https://www.instagram.com/_shopwithgg_", "https://wa.me/2348071363567", "https://chat.whatsapp.com/H2275EJgtYtDVahPIlHGJm"],
+                  "sameAs": ["https://www.instagram.com/_shopwithgg_", "https://wa.me/2348071363568", "https://chat.whatsapp.com/H2275EJgtYtDVahPIlHGJm"],
                   "contactPoint": {
                     "@type": "ContactPoint",
                     "contactType": "customer service",
-                    "telephone": "+2348071363567",
+                    "telephone": "+2348071363568",
                     "availableLanguage": "English"
                   }
                 },
@@ -172,7 +172,7 @@ export default function RootLayout({
                   "name": "ShopWithGG",
                   "url": siteUrl,
                   "image": `${siteUrl}/og-image.png`,
-                  "telephone": "+2348071363567",
+                  "telephone": "+2348071363568",
                   "priceRange": "$$",
                   "address": {
                     "@type": "PostalAddress",
