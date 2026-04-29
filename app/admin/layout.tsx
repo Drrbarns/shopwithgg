@@ -23,6 +23,10 @@ export default function AdminLayout({
   const [enabledModules, setEnabledModules] = useState<string[]>([]);
   const [rolePermissions, setRolePermissions] = useState<Record<string, boolean>>({});
 
+  // Maintenance mode (super admin only)
+  const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
+  const [maintenanceToggling, setMaintenanceToggling] = useState(false);
+
   useEffect(() => {
     async function checkAuth() {
       try {
@@ -47,6 +51,9 @@ export default function AdminLayout({
         const secure = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : '';
         try {
           document.cookie = `sb-access-token=${accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax${secure}`;
+          // Maintenance bypass cookie — read by middleware to let admins through
+          // when the storefront is in maintenance mode.
+          document.cookie = `admin_session=1; path=/; max-age=86400; SameSite=Lax${secure}`;
         } catch (_) { }
 
         const meRes = await fetch('/api/admin/me', {
@@ -80,6 +87,7 @@ export default function AdminLayout({
         const role = profileData?.role != null ? String(profileData.role) : '';
         if (role !== 'admin' && role !== 'staff') {
           document.cookie = `sb-access-token=; path=/; max-age=0; SameSite=Lax${secure}`;
+          document.cookie = `admin_session=; path=/; max-age=0; SameSite=Lax${secure}`;
           await supabase.auth.signOut();
           router.push('/admin/login?error=unauthorized');
           return;
@@ -103,10 +111,12 @@ export default function AdminLayout({
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'TOKEN_REFRESHED' && session) {
         document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax${secure}`;
+        document.cookie = `admin_session=1; path=/; max-age=86400; SameSite=Lax${secure}`;
       }
       if (event === 'SIGNED_OUT') {
         document.cookie = `sb-access-token=; path=/; max-age=0; SameSite=Lax${secure}`;
         document.cookie = `sb-refresh-token=; path=/; max-age=0; SameSite=Lax${secure}`;
+        document.cookie = `admin_session=; path=/; max-age=0; SameSite=Lax${secure}`;
       }
     });
 
@@ -185,8 +195,54 @@ export default function AdminLayout({
     const secure = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : '';
     document.cookie = `sb-access-token=; path=/; max-age=0; SameSite=Lax${secure}`;
     document.cookie = `sb-refresh-token=; path=/; max-age=0; SameSite=Lax${secure}`;
+    document.cookie = `admin_session=; path=/; max-age=0; SameSite=Lax${secure}`;
     await supabase.auth.signOut();
     router.push('/admin/login');
+  };
+
+  // Fetch current maintenance flag
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    supabase
+      .from('store_settings')
+      .select('value')
+      .eq('key', 'maintenance_mode')
+      .maybeSingle()
+      .then(({ data }) => {
+        const raw = (data as { value?: unknown } | null)?.value;
+        const isOn =
+          raw === true ||
+          raw === 'true' ||
+          (typeof raw === 'string' && raw.replace(/"/g, '').toLowerCase() === 'true');
+        setMaintenanceEnabled(isOn);
+      });
+  }, [isAuthenticated]);
+
+  const handleToggleMaintenance = async () => {
+    // Only super admins can toggle. Staff are blocked client-side and by RLS.
+    if (userRole !== 'admin') {
+      alert('Only an admin can toggle maintenance mode.');
+      return;
+    }
+    const next = !maintenanceEnabled;
+    setMaintenanceToggling(true);
+    try {
+      const { error } = await supabase.from('store_settings').upsert(
+        {
+          key: 'maintenance_mode',
+          value: next ? 'true' : 'false',
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'key' }
+      );
+      if (error) throw error;
+      setMaintenanceEnabled(next);
+    } catch (err) {
+      console.error('Failed to toggle maintenance:', err);
+      alert('Failed to update maintenance mode. Please try again.');
+    } finally {
+      setMaintenanceToggling(false);
+    }
   };
 
   if (isLoading) {
@@ -394,6 +450,41 @@ export default function AdminLayout({
           </nav>
 
           <div className="mt-8 pt-8 border-t border-gray-200 space-y-1">
+            {/* Maintenance Mode Toggle — super admin only */}
+            {userRole === 'admin' && (
+              <div
+                className={`flex items-center justify-between px-4 py-3 rounded-lg ${maintenanceEnabled ? 'bg-[#AB9462]/15' : 'bg-gray-50'
+                  }`}
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <i
+                    className={`text-lg shrink-0 ${maintenanceEnabled ? 'ri-tools-fill text-[#2C1D00]' : 'ri-store-2-line text-gray-600'
+                      }`}
+                  ></i>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-gray-900">Maintenance</p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {maintenanceEnabled ? 'Store offline' : 'Store live'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleToggleMaintenance}
+                  disabled={maintenanceToggling}
+                  className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ${maintenanceEnabled
+                    ? 'bg-[#AB9462] focus:ring-[#AB9462]/40'
+                    : 'bg-gray-300 focus:ring-gray-400'
+                    } ${maintenanceToggling ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+                  title={maintenanceEnabled ? 'Bring store back online' : 'Enable maintenance mode'}
+                  aria-label="Toggle maintenance mode"
+                >
+                  <span
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${maintenanceEnabled ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                  />
+                </button>
+              </div>
+            )}
             <Link
               href="/"
               target="_blank"

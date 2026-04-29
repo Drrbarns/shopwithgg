@@ -5,6 +5,40 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
+// ============================================================
+// Maintenance mode helper — cached for 15s to keep latency low
+// ============================================================
+let cachedMaintenance: { value: boolean; at: number } | null = null;
+const MAINTENANCE_CACHE_TTL_MS = 15_000;
+
+async function isMaintenanceModeEnabled(): Promise<boolean> {
+    const now = Date.now();
+    if (cachedMaintenance && now - cachedMaintenance.at < MAINTENANCE_CACHE_TTL_MS) {
+        return cachedMaintenance.value;
+    }
+    try {
+        const url = `${supabaseUrl}/rest/v1/store_settings?key=eq.maintenance_mode&select=value&limit=1`;
+        const res = await fetch(url, {
+            headers: {
+                apikey: supabaseAnonKey,
+                Authorization: `Bearer ${supabaseAnonKey}`,
+            },
+            cache: 'no-store',
+        });
+        const data: Array<{ value: unknown }> = await res.json();
+        const raw = data?.[0]?.value;
+        // Value is JSONB — could be the literal string "true" or the boolean true.
+        const enabled =
+            raw === true ||
+            raw === 'true' ||
+            (typeof raw === 'string' && raw.replace(/"/g, '').toLowerCase() === 'true');
+        cachedMaintenance = { value: enabled, at: now };
+        return enabled;
+    } catch {
+        return false;
+    }
+}
+
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const response = NextResponse.next();
@@ -17,7 +51,7 @@ export async function middleware(request: NextRequest) {
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
     // ============================================================
-    // Admin route protection
+    // Admin route protection (auth + role check)
     // ============================================================
     if (pathname.startsWith('/admin')) {
         response.headers.set('X-Robots-Tag', 'noindex, nofollow');
@@ -109,14 +143,37 @@ export async function middleware(request: NextRequest) {
                 console.error('[Middleware] Auth check error:', err);
             }
         }
+
+        return response;
     }
 
     // ============================================================
-    // API route security headers
+    // API + static + maintenance page itself: no maintenance gating
     // ============================================================
-    if (pathname.startsWith('/api/')) {
-        response.headers.set('X-Content-Type-Options', 'nosniff');
-        response.headers.set('Cache-Control', 'no-store');
+    if (
+        pathname.startsWith('/api/') ||
+        pathname.startsWith('/_next/') ||
+        pathname.startsWith('/favicon') ||
+        pathname === '/maintenance' ||
+        /\.[^/]+$/.test(pathname) // any path with a file extension (.png, .ico, .json…)
+    ) {
+        if (pathname.startsWith('/api/')) {
+            response.headers.set('Cache-Control', 'no-store');
+        }
+        return response;
+    }
+
+    // ============================================================
+    // Storefront: maintenance gate
+    // Admins/staff who logged in carry an `admin_session=1` cookie
+    // (set client-side by the admin layout) and bypass the gate.
+    // ============================================================
+    const inMaintenance = await isMaintenanceModeEnabled();
+    if (inMaintenance) {
+        const isAdmin = request.cookies.get('admin_session')?.value === '1';
+        if (!isAdmin) {
+            return NextResponse.redirect(new URL('/maintenance', request.url));
+        }
     }
 
     return response;
@@ -124,7 +181,12 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        '/admin/:path*',
-        '/api/:path*',
+        /*
+         * Match all request paths except for the ones starting with:
+         * - _next/static (static files)
+         * - _next/image  (image optimization files)
+         * - favicon.ico  (favicon file)
+         */
+        '/((?!_next/static|_next/image|favicon.ico).*)',
     ],
 };

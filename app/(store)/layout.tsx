@@ -22,7 +22,6 @@ const NetworkStatusMonitor = dynamic(() => import('@/components/NetworkStatusMon
 const UpdatePrompt = dynamic(() => import('@/components/UpdatePrompt'), { ssr: false });
 const LiveSalesNotification = dynamic(() => import('@/components/LiveSalesNotification'), { ssr: false });
 const ChatWidget = dynamic(() => import('@/components/ChatWidget'), { ssr: false });
-const MaintenanceMode = dynamic(() => import('@/components/MaintenanceMode'), { ssr: false });
 
 // Feature flag: control chat widget via env
 const CHAT_ENABLED =
@@ -36,7 +35,6 @@ export default function StoreLayout({
   children: React.ReactNode;
 }) {
   const [chatModuleEnabled, setChatModuleEnabled] = useState<boolean | null>(null);
-  const [maintenanceModeEnabled, setMaintenanceModeEnabled] = useState<boolean | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -52,19 +50,15 @@ export default function StoreLayout({
 
         if (!res.ok) {
           setChatModuleEnabled(false);
-          setMaintenanceModeEnabled(false);
           return;
         }
 
         const data: { id: string; enabled: boolean }[] = await res.json();
         const aiChat = data.find(m => m.id === 'ai-chat');
-        const mm = data.find(m => m.id === 'maintenance-mode');
         setChatModuleEnabled(!!aiChat?.enabled);
-        setMaintenanceModeEnabled(!!mm?.enabled);
       } catch {
         if (isMounted) {
           setChatModuleEnabled(false);
-          setMaintenanceModeEnabled(false);
         }
       }
     }
@@ -88,14 +82,10 @@ export default function StoreLayout({
       <div className="min-h-screen bg-gray-50">
         <PWASplash />
         <PWAInstaller />
-        {maintenanceModeEnabled === true ? null : <Header />}
+        <Header />
         <ErrorBoundary>
           <div className="pwa-page-enter">
-            {maintenanceModeEnabled === true ? (
-              <MaintenanceMode />
-            ) : (
-              children
-            )}
+            {children}
           </div>
         </ErrorBoundary>
         <Footer />
