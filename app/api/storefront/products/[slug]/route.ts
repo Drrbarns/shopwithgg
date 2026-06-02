@@ -26,7 +26,7 @@ export async function GET(
       .select(`
         *,
         categories(name, slug),
-        product_variants(id, name, price, quantity, option1, option2, image_url, metadata, sort_order),
+        product_variants(id, name, sku, price, compare_at_price, quantity, option1, option2, option3, image_url, metadata),
         product_images(url, position, alt_text, media_type)
       `)
       .eq('status', 'active');
@@ -41,11 +41,6 @@ export async function GET(
 
     if (error || !productData) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
-    }
-
-    // Sort variants by sort_order
-    if (productData.product_variants) {
-      productData.product_variants.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
     }
 
     return NextResponse.json(productData, {

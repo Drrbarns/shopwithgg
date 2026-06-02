@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { mapVariantInsert, uniqueProductSlug } from '@/lib/product-mutations';
 
 export const maxDuration = 30;
 export const dynamic = 'force-dynamic';
@@ -120,21 +121,8 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { variants = [], ...productData } = body;
 
-    // Ensure slug is unique
-    let slug: string = productData.slug || productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-    let slugCandidate = slug;
-    let attempt = 1;
-    while (true) {
-      const { data: existing } = await supabaseAdmin
-        .from('products')
-        .select('id')
-        .eq('slug', slugCandidate)
-        .maybeSingle();
-      if (!existing) break;
-      attempt++;
-      slugCandidate = `${slug}-${attempt}`;
-    }
-    productData.slug = slugCandidate;
+    // Ensure slug is unique (append -2, -3, ... when a product already uses it)
+    productData.slug = await uniqueProductSlug(productData.slug, productData.name);
 
     const { data: newProduct, error: insertError } = await supabaseAdmin
       .from('products')
@@ -148,18 +136,7 @@ export async function POST(request: Request) {
 
     // Insert variants if any
     if (variants.length > 0) {
-      const variantInserts = variants.map((v: any, idx: number) => ({
-        product_id: newProduct.id,
-        name: v.name || v.color || 'Default',
-        sku: v.sku || null,
-        price: parseFloat(v.price) || 0,
-        quantity: parseInt(v.stock) || 0,
-        option1: v.name || null,
-        option2: v.color?.trim() || null,
-        image_url: v.image_url?.trim() || null,
-        sort_order: v.sort_order ?? idx,
-        metadata: v.colorHex ? { color_hex: v.colorHex } : {},
-      }));
+      const variantInserts = variants.map((v: any) => mapVariantInsert(v, newProduct.id));
       // Insert in chunks of 100 to avoid payload limits
       const CHUNK = 100;
       for (let i = 0; i < variantInserts.length; i += CHUNK) {

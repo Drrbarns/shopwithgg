@@ -53,7 +53,7 @@ export async function GET(request: Request) {
           *,
           categories!inner(id, name, slug, parent_id),
           product_images(url, position),
-          product_variants(id, name, price, quantity, option1, option2, image_url, sort_order)
+          product_variants(id, name, price, quantity, option1, option2, option3, image_url, metadata)
         `,
           { count: 'exact' }
         )

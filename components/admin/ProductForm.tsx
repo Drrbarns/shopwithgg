@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { supabase } from '@/lib/supabase'; // used for categories fetch only
 import { useRouter } from 'next/navigation';
+import VariantsEditor from './VariantsEditor';
+import { parseProduct, serializeForSave, OptionAxis, VariantRow } from '@/lib/product-variants';
 
 interface ProductFormProps {
     initialData?: any;
@@ -42,199 +44,16 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         return `${prefix}-${timestamp}-${random}`;
     };
 
-    // --- Variant System ---
-    // Preset color palette
-    const colorPresets = [
-        { name: 'Black', hex: '#000000' },
-        { name: 'White', hex: '#FFFFFF' },
-        { name: 'Red', hex: '#EF4444' },
-        { name: 'Blue', hex: '#3B82F6' },
-        { name: 'Navy', hex: '#1E3A5F' },
-        { name: 'Green', hex: '#22C55E' },
-        { name: 'Yellow', hex: '#EAB308' },
-        { name: 'Pink', hex: '#EC4899' },
-        { name: 'Purple', hex: '#A855F7' },
-        { name: 'Orange', hex: '#F97316' },
-        { name: 'Gray', hex: '#6B7280' },
-        { name: 'Brown', hex: '#92400E' },
-        { name: 'Beige', hex: '#D2B48C' },
-        { name: 'Maroon', hex: '#800000' },
-        { name: 'Teal', hex: '#14B8A6' },
-        { name: 'Cream', hex: '#FFFDD0' },
-        { name: 'Gold', hex: '#D4AF37' },
-        { name: 'Silver', hex: '#C0C0C0' },
-    ];
-    // Common beauty / cosmetics sizes & options (you can still add any custom ones)
-    const sizePresets = ['10ml', '20ml', '30ml', '50ml', '100ml', '150ml', '200ml'];
+    // --- Variant System (dynamic, multi-axis) ---
+    // Source of truth: variantAxes (option attributes + their values) and
+    // variantRows (one row per combination, with SKU/price/stock/image). Both
+    // are kept in sync by the VariantsEditor component via onChange.
+    const initialParsed = parseProduct(initialData);
+    const [variantAxes, setVariantAxes] = useState<OptionAxis[]>(initialParsed.axes);
+    const [variantRows, setVariantRows] = useState<VariantRow[]>(initialParsed.rows);
 
-    // Parse existing variants to extract unique colors, sizes, and variant image
-    const existingVariants = (initialData?.product_variants || []).map((v: any) => ({
-        ...v,
-        stock: v.stock ?? v.quantity ?? 0,
-        color: v.color ?? v.option2 ?? '',
-        size: v.name || '',
-        image_url: v.image_url || ''
-    }));
-
-    const [selectedColors, setSelectedColors] = useState<{ name: string; hex: string }[]>(() => {
-        const colors = new Map<string, string>();
-        existingVariants.forEach((v: any) => {
-            if (v.color) {
-                const preset = colorPresets.find(c => c.name.toLowerCase() === v.color.toLowerCase());
-                colors.set(v.color, preset?.hex || '#888888');
-            }
-        });
-        return Array.from(colors.entries()).map(([name, hex]) => ({ name, hex }));
-    });
-
-    const [selectedSizes, setSelectedSizes] = useState<string[]>(() => {
-        const sizes = new Set<string>();
-        existingVariants.forEach((v: any) => {
-            if (v.size) sizes.add(v.size);
-        });
-        return Array.from(sizes);
-    });
-
-    const [customColorName, setCustomColorName] = useState('');
-    const [customColorHex, setCustomColorHex] = useState('#888888');
-    const [customSize, setCustomSize] = useState('');
-
-    // Build variants from colors × sizes (or just sizes, or just colors)
-    const buildVariantKey = (color: string, size: string) => `${color}|||${size}`;
-
-    // Store variant data (price, stock, sku, optional image_url) keyed by "color|||size"
-    const [variantData, setVariantData] = useState<Record<string, { price: string; stock: string; sku: string; image_url?: string }>>(() => {
-        const data: Record<string, { price: string; stock: string; sku: string; image_url?: string }> = {};
-        existingVariants.forEach((v: any) => {
-            const key = buildVariantKey(v.color || '', v.size || '');
-            data[key] = {
-                price: v.price?.toString() || '',
-                stock: v.stock?.toString() || '0',
-                sku: v.sku || '',
-                image_url: v.image_url || undefined
-            };
-        });
-        return data;
-    });
-
-    // Computed: all variant combinations
-    const variantCombinations = (() => {
-        const combos: { color: string; colorHex: string; size: string; key: string }[] = [];
-        const colors = selectedColors.length > 0 ? selectedColors : [{ name: '', hex: '' }];
-        const sizes = selectedSizes.length > 0 ? selectedSizes : [''];
-
-        for (const color of colors) {
-            for (const size of sizes) {
-                if (!color.name && !size) continue; // skip if both empty
-                const key = buildVariantKey(color.name, size);
-                combos.push({ color: color.name, colorHex: color.hex, size, key });
-            }
-        }
-        return combos;
-    })();
-
-    // Build the flat variants array for saving (used by handleSubmit)
-    const variants = variantCombinations.map((combo, idx) => {
-        const d = variantData[combo.key] || { price: price, stock: '0', sku: '' };
-        return {
-            name: combo.size,
-            color: combo.color,
-            sku: d.sku,
-            price: d.price || price,
-            stock: d.stock || '0',
-            image_url: d.image_url || undefined,
-            sort_order: idx,
-        };
-    });
-
-    const updateVariantField = (key: string, field: string, value: string) => {
-        setVariantData(prev => ({
-            ...prev,
-            [key]: { ...prev[key] || { price: price, stock: '0', sku: '' }, [field]: value }
-        }));
-    };
-
-    const setVariantImage = (key: string, imageUrl: string) => {
-        setVariantData(prev => ({
-            ...prev,
-            [key]: { ...prev[key] || { price: price, stock: '0', sku: '' }, image_url: imageUrl || undefined }
-        }));
-    };
-
-    // Bulk set price/stock for all variants
-    const bulkSetField = (field: 'price' | 'stock', value: string) => {
-        setVariantData(prev => {
-            const updated = { ...prev };
-            variantCombinations.forEach(combo => {
-                updated[combo.key] = { ...updated[combo.key] || { price: price, stock: '0', sku: '' }, [field]: value };
-            });
-            return updated;
-        });
-    };
-
-    const toggleColor = (color: { name: string; hex: string }) => {
-        setSelectedColors(prev => {
-            const exists = prev.find(c => c.name === color.name);
-            if (exists) return prev.filter(c => c.name !== color.name);
-            return [...prev, color];
-        });
-    };
-
-    const toggleSize = (size: string) => {
-        setSelectedSizes(prev => {
-            if (prev.includes(size)) return prev.filter(s => s !== size);
-            return [...prev, size];
-        });
-    };
-
-    const addCustomColor = () => {
-        if (!customColorName.trim()) return;
-        const exists = selectedColors.find(c => c.name.toLowerCase() === customColorName.trim().toLowerCase());
-        if (!exists) {
-            setSelectedColors(prev => [...prev, { name: customColorName.trim(), hex: customColorHex }]);
-        }
-        setCustomColorName('');
-        setCustomColorHex('#888888');
-    };
-
-    const addCustomSize = () => {
-        if (!customSize.trim()) return;
-        if (!selectedSizes.includes(customSize.trim())) {
-            setSelectedSizes(prev => [...prev, customSize.trim()]);
-        }
-        setCustomSize('');
-    };
-
-    const editSize = (oldSize: string, newSize: string) => {
-        const trimmed = newSize.trim();
-        if (!trimmed || trimmed === oldSize) return;
-        if (selectedSizes.includes(trimmed)) return; // avoid duplicate
-        setSelectedSizes(prev => prev.map(s => s === oldSize ? trimmed : s));
-        setVariantData(prev => {
-            const next: Record<string, { price: string; stock: string; sku: string; image_url?: string }> = {};
-            Object.entries(prev).forEach(([key, val]) => {
-                const [color, size] = key.split('|||');
-                next[size === oldSize ? buildVariantKey(color, trimmed) : key] = val;
-            });
-            return next;
-        });
-    };
-
-    const editColor = (oldName: string, newName: string, newHex?: string) => {
-        const trimmed = newName.trim();
-        if (!trimmed || trimmed === oldName) return;
-        if (selectedColors.some(c => c.name.toLowerCase() === trimmed.toLowerCase())) return;
-        const hex = newHex || selectedColors.find(c => c.name === oldName)?.hex || '#888888';
-        setSelectedColors(prev => prev.map(c => c.name === oldName ? { name: trimmed, hex } : c));
-        setVariantData(prev => {
-            const next: Record<string, { price: string; stock: string; sku: string; image_url?: string }> = {};
-            Object.entries(prev).forEach(([key, val]) => {
-                const [color, size] = key.split('|||');
-                next[color === oldName ? buildVariantKey(trimmed, size) : key] = val;
-            });
-            return next;
-        });
-    };
+    const hasVariants = variantRows.length > 0;
+    const variantStockTotal = variantRows.reduce((sum, r) => sum + (parseInt(r.stock || '0', 10) || 0), 0);
 
     // Images
     const [images, setImages] = useState<any[]>(initialData?.product_images || []);
@@ -432,33 +251,31 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         }
     };
 
-    // Variant helpers removed — variants are now auto-generated from selectedColors × selectedSizes
-
     const handleSubmit = async () => {
         try {
             setLoading(true);
 
-            const hasVariants = variants.length > 0;
-            const variantStockTotal = hasVariants
-                ? variants.reduce((sum, v) => sum + (parseInt(v.stock) || 0), 0)
-                : parseInt(stock) || 0;
+            const basePrice = parseFloat(price) || 0;
+            const hasVariantRows = variantRows.length > 0;
 
-            // Build variants payload with colorHex and image_url for the API
-            const variantsPayload = variants.map(v => ({
-                ...v,
-                colorHex: selectedColors.find(c => c.name === v.color)?.hex || null,
-                image_url: v.image_url || null,
-            }));
+            // Serialize dynamic axes + rows into option1/2/3 + metadata payloads.
+            const serialized = hasVariantRows
+                ? serializeForSave(initialData?.id || '00000000-0000-0000-0000-000000000000', variantAxes, variantRows, basePrice)
+                : { productMetadataOptions: [], variantInserts: [] };
+
+            const stockTotal = hasVariantRows
+                ? serialized.variantInserts.reduce((sum, v) => sum + (parseInt(v.quantity, 10) || 0), 0)
+                : (parseInt(stock) || 0);
 
             const productData = {
                 name: productName,
                 slug: urlSlug || productName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
                 description,
                 category_id: categoryId || null,
-                price: parseFloat(price) || 0,
+                price: basePrice,
                 compare_at_price: comparePrice ? parseFloat(comparePrice) : null,
                 sku: sku || generateSku(),
-                quantity: hasVariants ? variantStockTotal : (parseInt(stock) || 0),
+                quantity: stockTotal,
                 moq: parseInt(moq) || 1,
                 status: status.toLowerCase(),
                 featured,
@@ -469,9 +286,10 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                     low_stock_threshold: parseInt(lowStockThreshold) || 5,
                     preorder_shipping: preorderShipping.trim() || null,
                     wholesale_price: wholesalePrice ? parseFloat(wholesalePrice) : null,
-                    wholesale_min_qty: wholesaleMinQty ? parseInt(wholesaleMinQty) : null
+                    wholesale_min_qty: wholesaleMinQty ? parseInt(wholesaleMinQty) : null,
+                    options: serialized.productMetadataOptions,
                 },
-                variants: variantsPayload,
+                variants: serialized.variantInserts,
             };
 
             let productId = initialData?.id;
@@ -854,11 +672,11 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                         <label className="block text-sm font-semibold text-gray-900 mb-2">
                                             Stock Quantity *
                                         </label>
-                                        {variants.length > 0 ? (
+                                        {hasVariants ? (
                                             <div>
                                                 <input
                                                     type="number"
-                                                    value={variants.reduce((sum: number, v: any) => sum + (parseInt(v.stock) || 0), 0)}
+                                                    value={variantStockTotal}
                                                     readOnly
                                                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
                                                 />
@@ -913,350 +731,16 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                     )}
 
                     {activeTab === 'variants' && (
-                        <div className="space-y-8">
-                            <div>
-                                <h3 className="text-lg font-bold text-gray-900">Product Variants</h3>
-                                <p className="text-gray-600 mt-1">Select colors and sizes below — variants are generated automatically</p>
-                            </div>
-
-                            {/* STEP 1: Colors */}
-                            <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                                <h4 className="text-sm font-bold text-gray-900 mb-1 flex items-center">
-                                    <i className="ri-palette-line mr-2 text-lg text-gray-900"></i>
-                                    Step 1: Select Colors
-                                    {selectedColors.length > 0 && (
-                                        <span className="ml-2 bg-gray-100 text-gray-800 text-xs font-semibold px-2 py-0.5 rounded-full">
-                                            {selectedColors.length} selected
-                                        </span>
-                                    )}
-                                </h4>
-                                <p className="text-xs text-gray-500 mb-4">Click colors to add/remove. Skip if product has no color options.</p>
-
-                                <div className="flex flex-wrap gap-2 mb-4">
-                                    {colorPresets.map(color => {
-                                        const isSelected = selectedColors.some(c => c.name === color.name);
-                                        return (
-                                            <button
-                                                key={color.name}
-                                                onClick={() => toggleColor(color)}
-                                                className={`flex items-center space-x-2 px-3 py-2 rounded-lg border-2 transition-all text-sm font-medium ${
-                                                    isSelected
-                                                        ? 'border-gray-700 bg-gray-50 ring-1 ring-gray-700'
-                                                        : 'border-gray-200 hover:border-gray-300 bg-white'
-                                                }`}
-                                                title={color.name}
-                                            >
-                                                <span
-                                                    className="w-5 h-5 rounded-full border border-gray-300 flex-shrink-0"
-                                                    style={{ backgroundColor: color.hex }}
-                                                ></span>
-                                                <span className={isSelected ? 'text-gray-800' : 'text-gray-700'}>{color.name}</span>
-                                                {isSelected && <i className="ri-check-line text-gray-900"></i>}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-
-                                {/* Custom color */}
-                                <div className="flex items-center gap-2 pt-3 border-t border-gray-200">
-                                    <input
-                                        type="color"
-                                        value={customColorHex}
-                                        onChange={(e) => setCustomColorHex(e.target.value)}
-                                        className="w-10 h-10 rounded-lg border border-gray-300 cursor-pointer p-0.5"
-                                        title="Pick a custom color"
-                                    />
-                                    <input
-                                        type="text"
-                                        value={customColorName}
-                                        onChange={(e) => setCustomColorName(e.target.value)}
-                                        placeholder="Custom color name"
-                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                                        onKeyDown={(e) => e.key === 'Enter' && addCustomColor()}
-                                    />
-                                    <button
-                                        onClick={addCustomColor}
-                                        disabled={!customColorName.trim()}
-                                        className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-medium hover:bg-gray-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                                    >
-                                        Add Color
-                                    </button>
-                                </div>
-
-                                {/* Selected colors summary */}
-                                {selectedColors.length > 0 && (
-                                    <div className="mt-4 flex flex-wrap gap-2">
-                                        {selectedColors.map(color => (
-                                            <span key={color.name} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-sm shadow-sm">
-                                                <span className="w-3.5 h-3.5 rounded-full border border-gray-300" style={{ backgroundColor: color.hex }}></span>
-                                                {color.name}
-                                                <button type="button" onClick={() => { const v = prompt('Edit color name:', color.name); if (v != null && v.trim()) editColor(color.name, v.trim()); }} className="text-gray-400 hover:text-gray-700 ml-0.5" title="Edit name">
-                                                    <i className="ri-pencil-line text-sm"></i>
-                                                </button>
-                                                <button type="button" onClick={() => toggleColor(color)} className="text-gray-400 hover:text-red-500 ml-0.5">
-                                                    <i className="ri-close-line text-sm"></i>
-                                                </button>
-                                            </span>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* STEP 2: Sizes */}
-                            <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                                <h4 className="text-sm font-bold text-gray-900 mb-1 flex items-center">
-                                    <i className="ri-ruler-line mr-2 text-lg text-blue-600"></i>
-                                    Step 2: Select Sizes / Options
-                                    {selectedSizes.length > 0 && (
-                                        <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-0.5 rounded-full">
-                                            {selectedSizes.length} selected
-                                        </span>
-                                    )}
-                                </h4>
-                                <p className="text-xs text-gray-500 mb-4">
-                                    Click options to add/remove. Use custom for things like volumes (10ml, 50ml),
-                                    lash lengths (12mm, 16mm), wig lengths (14&quot;, 20&quot;), bundle counts, etc.
-                                </p>
-
-                                <div className="flex flex-wrap gap-2 mb-4">
-                                    {sizePresets.map(size => {
-                                        const isSelected = selectedSizes.includes(size);
-                                        return (
-                                            <button
-                                                key={size}
-                                                onClick={() => toggleSize(size)}
-                                                className={`px-5 py-2.5 rounded-lg border-2 font-semibold text-sm transition-all ${
-                                                    isSelected
-                                                        ? 'border-blue-600 bg-blue-50 text-blue-800 ring-1 ring-blue-600'
-                                                        : 'border-gray-200 hover:border-gray-300 bg-white text-gray-700'
-                                                }`}
-                                            >
-                                                {size}
-                                                {isSelected && <i className="ri-check-line ml-1.5 text-blue-600"></i>}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-
-                                {/* Custom size */}
-                                <div className="flex items-center gap-2 pt-3 border-t border-gray-200">
-                                    <input
-                                        type="text"
-                                        value={customSize}
-                                        onChange={(e) => setCustomSize(e.target.value)}
-                                        placeholder="Custom option (e.g. 10ml serum, 16mm lash, 20&quot; wig, One Size)"
-                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                                        onKeyDown={(e) => e.key === 'Enter' && addCustomSize()}
-                                    />
-                                    <button
-                                        onClick={addCustomSize}
-                                        disabled={!customSize.trim()}
-                                        className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-medium hover:bg-gray-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                                    >
-                                        Add Size
-                                    </button>
-                                </div>
-
-                                {/* Selected sizes — draggable to reorder */}
-                                {selectedSizes.length > 0 && (
-                                    <DragDropContext onDragEnd={(result: DropResult) => {
-                                        if (!result.destination) return;
-                                        const reordered = Array.from(selectedSizes);
-                                        const [moved] = reordered.splice(result.source.index, 1);
-                                        reordered.splice(result.destination.index, 0, moved);
-                                        setSelectedSizes(reordered);
-                                    }}>
-                                        <Droppable droppableId="sizes-list" direction="horizontal">
-                                            {(provided) => (
-                                                <div className="mt-4 flex flex-wrap gap-2" ref={provided.innerRef} {...provided.droppableProps}>
-                                                    {selectedSizes.map((size, idx) => (
-                                                        <Draggable key={size} draggableId={`size-${size}`} index={idx}>
-                                                            {(dragProvided, snapshot) => (
-                                                                <span
-                                                                    ref={dragProvided.innerRef}
-                                                                    {...dragProvided.draggableProps}
-                                                                    {...dragProvided.dragHandleProps}
-                                                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border rounded-full text-sm shadow-sm font-medium cursor-grab active:cursor-grabbing select-none transition-shadow ${snapshot.isDragging ? 'border-gray-400 shadow-md ring-2 ring-gray-200' : 'border-gray-200'}`}
-                                                                >
-                                                                    <i className="ri-draggable text-gray-300 text-xs mr-0.5"></i>
-                                                                    {size}
-                                                                    <button type="button" onClick={() => { const v = prompt('Edit option name:', size); if (v != null && v.trim()) editSize(size, v.trim()); }} className="text-gray-400 hover:text-gray-700 ml-0.5" title="Edit name">
-                                                                        <i className="ri-pencil-line text-sm"></i>
-                                                                    </button>
-                                                                    <button type="button" onClick={() => toggleSize(size)} className="text-gray-400 hover:text-red-500 ml-0.5">
-                                                                        <i className="ri-close-line text-sm"></i>
-                                                                    </button>
-                                                                </span>
-                                                            )}
-                                                        </Draggable>
-                                                    ))}
-                                                    {provided.placeholder}
-                                                </div>
-                                            )}
-                                        </Droppable>
-                                    </DragDropContext>
-                                )}
-                            </div>
-
-                            {/* STEP 3: Variant Grid */}
-                            {variantCombinations.length > 0 && (
-                                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                                    <div className="p-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
-                                        <div>
-                                            <h4 className="text-sm font-bold text-gray-900 flex items-center">
-                                                <i className="ri-grid-line mr-2 text-lg text-purple-600"></i>
-                                                Step 3: Set Price & Stock ({variantCombinations.length} variant{variantCombinations.length > 1 ? 's' : ''})
-                                            </h4>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={() => {
-                                                    const val = prompt('Set price for ALL variants:', price?.toString() || '0');
-                                                    if (val !== null) bulkSetField('price', val);
-                                                }}
-                                                className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-medium hover:bg-gray-50 transition-colors"
-                                            >
-                                                Bulk Set Price
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    const val = prompt('Set stock for ALL variants:', '0');
-                                                    if (val !== null) bulkSetField('stock', val);
-                                                }}
-                                                className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-medium hover:bg-gray-50 transition-colors"
-                                            >
-                                                Bulk Set Stock
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full">
-                                            <thead className="bg-gray-50 border-b border-gray-200">
-                                                <tr>
-                                                    {selectedColors.length > 0 && (
-                                                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Color</th>
-                                                    )}
-                                                    {selectedSizes.length > 0 && (
-                                                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Size</th>
-                                                    )}
-                                                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Variant image</th>
-                                                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Price (₦)</th>
-                                                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Stock</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {variantCombinations.map((combo) => {
-                                                    const d = variantData[combo.key] || { price: price, stock: '0', sku: '' };
-                                                    return (
-                                                        <tr key={combo.key} className="border-b border-gray-100 hover:bg-gray-50">
-                                                            {selectedColors.length > 0 && (
-                                                                <td className="py-3 px-4">
-                                                                    <div className="flex items-center gap-2">
-                                                                        <span
-                                                                            className="w-5 h-5 rounded-full border border-gray-300 flex-shrink-0"
-                                                                            style={{ backgroundColor: combo.colorHex }}
-                                                                        ></span>
-                                                                        <span className="text-sm font-medium text-gray-900">{combo.color}</span>
-                                                                    </div>
-                                                                </td>
-                                                            )}
-                                                            {selectedSizes.length > 0 && (
-                                                                <td className="py-3 px-4">
-                                                                    <span className="text-sm font-semibold text-gray-900 bg-gray-100 px-2.5 py-1 rounded">
-                                                                        {combo.size}
-                                                                    </span>
-                                                                </td>
-                                                            )}
-                                                            <td className="py-3 px-4">
-                                                                <div className="flex items-center gap-2">
-                                                                    {d.image_url ? (
-                                                                        <>
-                                                                            <img src={d.image_url} alt="" className="w-12 h-12 rounded-lg object-cover border border-gray-200" />
-                                                                            <button type="button" onClick={() => setVariantImage(combo.key, '')} className="text-xs text-red-600 hover:underline font-medium">Remove</button>
-                                                                        </>
-                                                                    ) : (
-                                                                        <span className="text-gray-400 text-xs">No image</span>
-                                                                    )}
-                                                                    <div className="flex flex-col gap-1">
-                                                                        <label className="cursor-pointer text-xs font-medium text-gray-700 hover:text-gray-900 flex items-center gap-1">
-                                                                            <i className="ri-upload-line"></i> Upload
-                                                                            <input
-                                                                                type="file"
-                                                                                accept=".jpg,.jpeg,.png,.webp"
-                                                                                className="hidden"
-                                                                                onChange={async (e) => {
-                                                                                    const file = e.target.files?.[0];
-                                                                                    if (!file) return;
-                                                                                    const fd = new FormData();
-                                                                                    fd.append('file', file);
-                                                                                    fd.append('bucket', 'product-images');
-                                                                                    const res = await fetch('/api/admin/upload', { method: 'POST', body: fd, credentials: 'include' });
-                                                                                    const data = await res.json().catch(() => ({}));
-                                                                                    if (data?.url) setVariantImage(combo.key, data.url);
-                                                                                    e.target.value = '';
-                                                                                }}
-                                                                            />
-                                                                        </label>
-                                                                        {images.filter((img: any) => img.media_type !== 'video').length > 0 && (
-                                                                            <select
-                                                                                className="text-xs border border-gray-300 rounded px-2 py-1 text-gray-700"
-                                                                                value=""
-                                                                                onChange={(e) => { const u = e.target.value; if (u) setVariantImage(combo.key, u); e.target.value = ''; }}
-                                                                            >
-                                                                                <option value="">Pick from product</option>
-                                                                                {images.filter((img: any) => img.media_type !== 'video').map((img: any, idx: number) => (
-                                                                                    <option key={idx} value={img.url}>Image {idx + 1}</option>
-                                                                                ))}
-                                                                            </select>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td className="py-3 px-4">
-                                                                <input
-                                                                    type="number"
-                                                                    value={d.price}
-                                                                    onChange={(e) => updateVariantField(combo.key, 'price', e.target.value)}
-                                                                    className="w-28 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-600 focus:border-gray-600"
-                                                                    step="0.01"
-                                                                    placeholder={price?.toString() || '0'}
-                                                                />
-                                                            </td>
-                                                            <td className="py-3 px-4">
-                                                                <input
-                                                                    type="number"
-                                                                    value={d.stock}
-                                                                    onChange={(e) => updateVariantField(combo.key, 'stock', e.target.value)}
-                                                                    className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-600 focus:border-gray-600"
-                                                                    placeholder="0"
-                                                                />
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    <div className="p-3 bg-gray-50 border-t border-gray-100">
-                                        <p className="text-xs text-gray-800 flex items-center">
-                                            <i className="ri-information-line mr-1.5"></i>
-                                            Total stock across all variants: <strong className="ml-1">{variants.reduce((sum, v) => sum + (parseInt(v.stock) || 0), 0)}</strong>
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-
-                            {variantCombinations.length === 0 && (
-                                <div className="p-8 text-center text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-                                    <i className="ri-palette-line text-4xl text-gray-300 mb-2 block"></i>
-                                    <p className="font-medium">No variants configured</p>
-                                    <p className="text-sm mt-1">Select colors and/or sizes above to create variant combinations.</p>
-                                    <p className="text-xs mt-2 text-gray-400">You can add just colors, just sizes, or both for a full grid.</p>
-                                </div>
-                            )}
-                        </div>
+                        <VariantsEditor
+                            axes={variantAxes}
+                            rows={variantRows}
+                            basePrice={price?.toString() || ''}
+                            galleryImages={images.filter((img: any) => img.media_type !== 'video').map((img: any) => img.url)}
+                            onChange={({ axes, rows }) => {
+                                setVariantAxes(axes);
+                                setVariantRows(rows);
+                            }}
+                        />
                     )}
 
                     {activeTab === 'images' && (

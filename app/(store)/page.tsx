@@ -7,8 +7,8 @@ import { supabase } from '@/lib/supabase';
 import { useCMS } from '@/context/CMSContext';
 import ProductCard, {
   type ColorVariant,
-  getColorHex,
 } from '@/components/ProductCard';
+import { colorSwatchesFromProduct } from '@/lib/product-variants';
 import AnimatedSection, { AnimatedGrid } from '@/components/AnimatedSection';
 import { usePageTitle } from '@/hooks/usePageTitle';
 
@@ -311,21 +311,7 @@ export default function Home() {
                   ? totalVariantStock
                   : product.quantity;
 
-                const colorVariants: ColorVariant[] = [];
-                const seenColors = new Set<string>();
-                for (const v of variants) {
-                  const colorName = (v as any).option2;
-                  if (
-                    colorName &&
-                    !seenColors.has(colorName.toLowerCase().trim())
-                  ) {
-                    const hex = getColorHex(colorName);
-                    if (hex) {
-                      seenColors.add(colorName.toLowerCase().trim());
-                      colorVariants.push({ name: colorName.trim(), hex });
-                    }
-                  }
-                }
+                const colorVariants: ColorVariant[] = colorSwatchesFromProduct(product);
 
                 return (
                   <ProductCard
